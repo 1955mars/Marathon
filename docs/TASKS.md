@@ -7,55 +7,53 @@
 
 ## 📍 Current Focus
 
-**Phase 0: Project Setup & Foundation** - Almost complete!
+**Phase 0: Project Setup & Foundation** - Complete! 🎉
 
-Next step: **0.3 - Configure CI/CD (GitHub Actions)**
+Next: **Phase 1 - Authentication & User System**
 
 ---
 
 ## Active Tasks
 
-### Phase 0: Project Setup
-- [x] 0.1 Initialize monorepo structure ✅
-  - [x] Create `apps/web` (Next.js)
-  - [x] Create `apps/api` (FastAPI)
-  - [x] Create `packages/shared`
-  - [x] Set up npm workspaces
-- [x] 0.2 Set up development environment ✅
-  - [x] Docker Compose config (PostgreSQL, Redis) - *created but Docker not installed*
-  - [x] Environment configuration (.env.example files)
-  - [x] Custom landing page with Marathon branding
-- [ ] 0.3 Configure CI/CD
-  - [ ] GitHub Actions workflow
-  - [ ] Linting, testing, deployment
-- [ ] 0.4 Database schema (initial)
-  - [ ] Users table
-  - [ ] Progress table
-- [ ] 0.5 Deploy skeleton apps
-  - [ ] Vercel (frontend)
-  - [ ] Railway (backend)
+### Phase 0: Project Setup ✅ COMPLETE
+- [x] 0.1 Initialize monorepo structure
+- [x] 0.2 Set up development environment
+- [x] 0.3 Configure CI/CD ✅
+  - [x] GitHub Actions CI workflow (lint, test, build)
+  - [x] Deploy workflow (Vercel + Railway)
+  - [x] PR checks (semantic titles, size labels)
+  - [x] PR template
+- [ ] 0.4 Database schema (deferred - needs PostgreSQL)
+- [ ] 0.5 Deploy skeleton apps (ready when you push to GitHub)
+
+### Phase 1: Authentication & User System (NEXT)
+- [ ] 1.1 Implement GitHub OAuth
+- [ ] 1.2 Create user profile page
+- [ ] 1.3 Database: User model
 
 ---
 
 ## Completed Tasks
+
+### Phase 0.3 - CI/CD Setup (2026-01-22)
+- Created `.github/workflows/ci.yml` - Runs lint, typecheck, build for all packages
+- Created `.github/workflows/deploy.yml` - Auto-deploy to Vercel/Railway on main
+- Created `.github/workflows/pr-checks.yml` - Semantic PR titles, size labels
+- Created `.github/pull_request_template.md` - Consistent PR descriptions
+- Initialized git repo and made first commit
 
 ### Phase 0.2 - Development Environment (2026-01-22)
 - Created `docker-compose.yml` with PostgreSQL 16 and Redis 7
 - Created `.env.example` files for API and web
 - Installed FastAPI dependencies in Python venv
 - Started API server at http://localhost:8000
-- Created custom Marathon landing page with:
-  - Dark theme with purple gradients
-  - Hero section: "Master CS Interviews Like a Pro"
-  - 6 feature cards (Curriculum, Projects, AI Tutor, etc.)
-  - CTA section and footer
+- Created custom Marathon landing page
 
 ### Phase 0.1 - Monorepo Structure (2026-01-22)
-- Created Next.js app at `apps/web/` with TypeScript, Tailwind, ESLint
-- Created FastAPI app at `apps/api/` with Pydantic, health endpoint
+- Created Next.js app at `apps/web/`
+- Created FastAPI app at `apps/api/`
 - Created shared types package at `packages/shared/`
 - Set up npm workspaces configuration
-- Added comprehensive `.gitignore`
 
 ---
 
@@ -69,31 +67,35 @@ Next step: **0.3 - Configure CI/CD (GitHub Actions)**
 
 ---
 
-## Blocked / Needs Decision
+## GitHub Actions Workflows
 
-- **Docker**: Not installed on machine. PostgreSQL/Redis will need alternative setup or cloud hosting.
+| Workflow | Trigger | What it does |
+|----------|---------|--------------|
+| `ci.yml` | Push/PR to main | Lint, typecheck, test, build |
+| `deploy.yml` | Push to main | Deploy to Vercel & Railway |
+| `pr-checks.yml` | PR opened | Semantic title check, size label |
 
 ---
 
-## Notes for Future Sessions
+## Secrets Needed for Deployment
 
-### Context
-- This is a HackerRank-style CS interview prep platform
-- See `docs/SCOPING.md` for full curriculum and feature scope
-- See `docs/IMPLEMENTATION.md` for phased roadmap
-- Tech stack: Next.js + FastAPI + PostgreSQL + Docker
+Add these to your GitHub repo secrets:
+- `VERCEL_TOKEN` - Vercel API token
+- `VERCEL_ORG_ID` - Vercel organization ID
+- `VERCEL_PROJECT_ID` - Vercel project ID
+- `RAILWAY_TOKEN` - Railway API token
 
-### Quick Start Commands
+---
+
+## Quick Start Commands
 ```bash
 # Frontend (Next.js)
 cd apps/web && npm run dev
-# → http://localhost:3000
 
 # Backend (FastAPI)
 cd apps/api
 source venv/bin/activate
 uvicorn app.main:app --reload --port 8000
-# → http://localhost:8000/docs
 ```
 
 ---
@@ -102,6 +104,7 @@ uvicorn app.main:app --reload --port 8000
 
 | Date | Update |
 |------|--------|
+| 2026-01-22 | Phase 0.3 complete - CI/CD workflows, git initialized |
 | 2026-01-22 | Phase 0.2 complete - Docker config, env files, landing page |
 | 2026-01-22 | Phase 0.1 complete - Monorepo structure initialized |
 | 2026-01-21 | Project initialized, scoping complete |
