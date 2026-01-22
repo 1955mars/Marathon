@@ -4,7 +4,7 @@
 
 ## 📍 Current Status
 
-**Phase 2: Curriculum System** ✅ COMPLETE
+**Phase 3: Code Editor** ✅ COMPLETE
 
 ---
 
@@ -15,8 +15,8 @@
 | 0 - Project Setup | ✅ | Monorepo, Docker, CI/CD |
 | 1 - Authentication | ✅ | GitHub OAuth, JWT, Dashboard |
 | 2 - Curriculum | ✅ | 5 Acts, 75 steps, Step viewer |
-| 3 - Code Editor | ⏳ Next | Monaco, code execution |
-| 4 - LeetCode Library | ⏳ | Problem tracking |
+| 3 - Code Editor | ✅ | Monaco, Python/C++ execution |
+| 4 - LeetCode Library | ⏳ Next | Problem tracking |
 | 5 - Projects | ⏳ | Full source + walkthroughs |
 
 ---
@@ -26,9 +26,11 @@
 - **Landing Page**: http://localhost:3000
 - **GitHub Login**: OAuth flow → Dashboard
 - **Curriculum**: http://localhost:3000/curriculum
-  - 5 Acts with expandable scenes
-  - 75 trackable steps
-  - Individual step viewer with content
+- **Code Editor**: http://localhost:3000/exercise
+  - Monaco editor with syntax highlighting
+  - Python & C++ language toggle
+  - Code execution with output
+  - Test case runner
 - **API**: http://localhost:8000/docs
 
 ---
@@ -46,9 +48,9 @@ uvicorn app.main:app --reload --port 8000
 
 ---
 
-## Next Phase: Code Editor (Phase 3)
+## Next Phase: LeetCode Library (Phase 4)
 
-- [ ] Integrate Monaco Editor
-- [ ] Code execution backend (Docker sandbox)
-- [ ] Test case system
-- [ ] Add exercises to curriculum
+- [ ] Problem saving/tagging system
+- [ ] Spaced repetition tracking
+- [ ] Pattern categorization
+- [ ] Personal problem library
