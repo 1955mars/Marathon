@@ -7,53 +7,60 @@
 
 ## 📍 Current Focus
 
-**Phase 0: Project Setup & Foundation** - Complete! 🎉
+**Phase 1: Authentication & User System** - In Progress 🔄
 
-Next: **Phase 1 - Authentication & User System**
+Needs: GitHub OAuth App credentials to test login flow
 
 ---
 
 ## Active Tasks
 
-### Phase 0: Project Setup ✅ COMPLETE
-- [x] 0.1 Initialize monorepo structure
-- [x] 0.2 Set up development environment
-- [x] 0.3 Configure CI/CD ✅
-  - [x] GitHub Actions CI workflow (lint, test, build)
-  - [x] Deploy workflow (Vercel + Railway)
-  - [x] PR checks (semantic titles, size labels)
-  - [x] PR template
-- [ ] 0.4 Database schema (deferred - needs PostgreSQL)
-- [ ] 0.5 Deploy skeleton apps (ready when you push to GitHub)
+### Phase 1: Authentication & User System
+- [x] 1.1 Implement GitHub OAuth ✅
+  - [x] API: Config with pydantic-settings
+  - [x] API: JWT token creation/verification
+  - [x] API: GitHub OAuth router (login, callback, me, logout)
+  - [x] Frontend: Auth utilities (token storage)
+  - [x] Frontend: OAuth callback page
+  - [x] Frontend: Updated landing page with login button
+- [x] 1.2 Create user profile page ✅
+  - [x] Dashboard with user info display
+  - [x] Stats grid (placeholder)
+  - [x] Quick actions navigation
+- [ ] 1.3 Database: User model (needs PostgreSQL)
 
-### Phase 1: Authentication & User System (NEXT)
-- [ ] 1.1 Implement GitHub OAuth
-- [ ] 1.2 Create user profile page
-- [ ] 1.3 Database: User model
+---
+
+## To Test OAuth Flow
+
+1. Create GitHub OAuth App at https://github.com/settings/developers
+2. Set callback URL to: `http://localhost:8000/auth/callback`
+3. Copy Client ID and Client Secret to `apps/api/.env`
+4. Restart the API server
+5. Click "Get Started" on the landing page
 
 ---
 
 ## Completed Tasks
 
+### Phase 1.1-1.2 - GitHub OAuth & Dashboard (2026-01-22)
+- Created `app/config.py` - Pydantic settings for env vars
+- Created `app/auth.py` - JWT token utilities
+- Created `app/routers/auth.py` - OAuth endpoints
+- Created `src/lib/auth.ts` - Frontend auth utilities
+- Created `src/app/auth/callback/page.tsx` - OAuth callback handler
+- Created `src/app/dashboard/page.tsx` - User dashboard
+- Updated landing page with login integration
+
 ### Phase 0.3 - CI/CD Setup (2026-01-22)
-- Created `.github/workflows/ci.yml` - Runs lint, typecheck, build for all packages
-- Created `.github/workflows/deploy.yml` - Auto-deploy to Vercel/Railway on main
-- Created `.github/workflows/pr-checks.yml` - Semantic PR titles, size labels
-- Created `.github/pull_request_template.md` - Consistent PR descriptions
-- Initialized git repo and made first commit
+- Created GitHub Actions workflows
+- Initialized git repo and pushed to GitHub
 
 ### Phase 0.2 - Development Environment (2026-01-22)
-- Created `docker-compose.yml` with PostgreSQL 16 and Redis 7
-- Created `.env.example` files for API and web
-- Installed FastAPI dependencies in Python venv
-- Started API server at http://localhost:8000
-- Created custom Marathon landing page
+- Docker Compose, env files, landing page
 
 ### Phase 0.1 - Monorepo Structure (2026-01-22)
-- Created Next.js app at `apps/web/`
-- Created FastAPI app at `apps/api/`
-- Created shared types package at `packages/shared/`
-- Set up npm workspaces configuration
+- Next.js + FastAPI + shared types
 
 ---
 
@@ -67,32 +74,23 @@ Next: **Phase 1 - Authentication & User System**
 
 ---
 
-## GitHub Actions Workflows
+## New API Endpoints
 
-| Workflow | Trigger | What it does |
-|----------|---------|--------------|
-| `ci.yml` | Push/PR to main | Lint, typecheck, test, build |
-| `deploy.yml` | Push to main | Deploy to Vercel & Railway |
-| `pr-checks.yml` | PR opened | Semantic title check, size label |
-
----
-
-## Secrets Needed for Deployment
-
-Add these to your GitHub repo secrets:
-- `VERCEL_TOKEN` - Vercel API token
-- `VERCEL_ORG_ID` - Vercel organization ID
-- `VERCEL_PROJECT_ID` - Vercel project ID
-- `RAILWAY_TOKEN` - Railway API token
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/auth/login` | Redirects to GitHub OAuth |
+| GET | `/auth/callback` | Handles OAuth callback |
+| GET | `/auth/me` | Get current user profile |
+| POST | `/auth/logout` | Logout (client clears token) |
 
 ---
 
 ## Quick Start Commands
 ```bash
-# Frontend (Next.js)
+# Frontend
 cd apps/web && npm run dev
 
-# Backend (FastAPI)
+# Backend
 cd apps/api
 source venv/bin/activate
 uvicorn app.main:app --reload --port 8000
@@ -104,7 +102,7 @@ uvicorn app.main:app --reload --port 8000
 
 | Date | Update |
 |------|--------|
-| 2026-01-22 | Phase 0.3 complete - CI/CD workflows, git initialized |
-| 2026-01-22 | Phase 0.2 complete - Docker config, env files, landing page |
-| 2026-01-22 | Phase 0.1 complete - Monorepo structure initialized |
-| 2026-01-21 | Project initialized, scoping complete |
+| 2026-01-22 | Phase 1.1-1.2 - GitHub OAuth and Dashboard implemented |
+| 2026-01-22 | Phase 0.3 - CI/CD, pushed to GitHub |
+| 2026-01-22 | Phase 0.2 - Docker, env, landing page |
+| 2026-01-22 | Phase 0.1 - Monorepo initialized |

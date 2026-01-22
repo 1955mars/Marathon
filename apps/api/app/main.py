@@ -4,7 +4,7 @@ Marathon API - Main Application
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import health
+from app.routers import health, auth
 
 app = FastAPI(
     title="Marathon API",
@@ -23,9 +23,11 @@ app.add_middleware(
 
 # Include routers
 app.include_router(health.router, tags=["Health"])
+app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 
 
 @app.get("/")
 async def root():
     """Root endpoint."""
     return {"message": "Welcome to Marathon API", "docs": "/docs"}
+
