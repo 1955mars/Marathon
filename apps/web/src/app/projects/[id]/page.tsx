@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
+import Editor from "@monaco-editor/react";
 import { getProjectById } from "@/data/projects";
 
 export default function ProjectDetailPage() {
@@ -103,9 +104,9 @@ export default function ProjectDetailPage() {
                             <p className="text-gray-400">{step.description}</p>
                         </div>
 
-                        {/* Code Section */}
-                        <div className="bg-slate-800/80 rounded-xl border border-white/10 overflow-hidden">
-                            <div className="flex items-center justify-between px-4 py-3 bg-slate-900/50 border-b border-white/10">
+                        {/* Code Section with Monaco Editor */}
+                        <div className="bg-slate-800 rounded-xl border border-white/10 overflow-hidden">
+                            <div className="flex items-center justify-between px-4 py-3 bg-slate-900 border-b border-white/10">
                                 <span className="text-sm font-medium text-gray-300">💻 Implementation</span>
                                 <div className="flex space-x-2">
                                     <button
@@ -128,12 +129,29 @@ export default function ProjectDetailPage() {
                                     </button>
                                 </div>
                             </div>
-                            <pre className="p-5 overflow-x-auto text-sm leading-relaxed max-h-[500px] overflow-y-auto">
-                                <code className="text-gray-100 font-mono whitespace-pre">{currentCode}</code>
-                            </pre>
+
+                            {/* Monaco Editor for syntax highlighting */}
+                            <Editor
+                                height="450px"
+                                language={language === "cpp" ? "cpp" : "python"}
+                                value={currentCode}
+                                theme="vs-dark"
+                                options={{
+                                    readOnly: true,
+                                    minimap: { enabled: false },
+                                    fontSize: 14,
+                                    lineNumbers: "on",
+                                    scrollBeyondLastLine: false,
+                                    wordWrap: "on",
+                                    padding: { top: 16, bottom: 16 },
+                                    renderLineHighlight: "none",
+                                    folding: true,
+                                    automaticLayout: true,
+                                }}
+                            />
                         </div>
 
-                        {/* Explanation - Now renders Markdown */}
+                        {/* Explanation */}
                         <div className="bg-white/5 rounded-xl p-6 border border-white/10">
                             <h3 className="text-lg font-semibold text-white mb-4">📖 Explanation</h3>
                             <div className="prose prose-invert prose-sm max-w-none">
@@ -150,6 +168,9 @@ export default function ProjectDetailPage() {
                                         li: ({ children }) => <li className="text-gray-300">{children}</li>,
                                         code: ({ children }) => <code className="bg-slate-700 text-green-400 px-1.5 py-0.5 rounded text-sm">{children}</code>,
                                         pre: ({ children }) => <pre className="bg-slate-800 p-3 rounded-lg overflow-x-auto mb-3">{children}</pre>,
+                                        table: ({ children }) => <table className="w-full border-collapse mb-4">{children}</table>,
+                                        th: ({ children }) => <th className="border border-white/20 bg-white/5 px-3 py-2 text-left text-white">{children}</th>,
+                                        td: ({ children }) => <td className="border border-white/20 px-3 py-2 text-gray-300">{children}</td>,
                                     }}
                                 >
                                     {step.explanation}
