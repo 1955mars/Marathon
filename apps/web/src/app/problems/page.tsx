@@ -105,6 +105,18 @@ export default function ProblemsPage() {
         }
     };
 
+    const seedProblems = async () => {
+        try {
+            setLoading(true);
+            const res = await fetch(`${API_URL}/problems/seed`, { method: "POST" });
+            const data = await res.json();
+            alert(`Loaded ${data.total} problems!`);
+            fetchProblems();
+        } catch (error) {
+            console.error("Failed to seed:", error);
+        }
+    };
+
     const recordPractice = async (id: string, confidence: number) => {
         try {
             await fetch(`${API_URL}/problems/${id}/practice?confidence=${confidence}`, {
@@ -205,12 +217,20 @@ export default function ProblemsPage() {
                         <div className="text-4xl mb-4">📚</div>
                         <h3 className="text-xl font-semibold text-white mb-2">No problems yet</h3>
                         <p className="text-gray-400 mb-4">Start building your problem library!</p>
-                        <button
-                            onClick={() => setShowAddForm(true)}
-                            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg"
-                        >
-                            Add Your First Problem
-                        </button>
+                        <div className="flex justify-center gap-3">
+                            <button
+                                onClick={seedProblems}
+                                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
+                            >
+                                🚀 Load Top 125 Problems
+                            </button>
+                            <button
+                                onClick={() => setShowAddForm(true)}
+                                className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg"
+                            >
+                                Add Custom Problem
+                            </button>
+                        </div>
                     </div>
                 ) : (
                     <div className="space-y-3">
@@ -222,8 +242,8 @@ export default function ProblemsPage() {
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center space-x-4">
                                         <span className={`px-2 py-1 rounded text-xs font-medium ${problem.difficulty === "Easy" ? "bg-green-500/20 text-green-400" :
-                                                problem.difficulty === "Medium" ? "bg-yellow-500/20 text-yellow-400" :
-                                                    "bg-red-500/20 text-red-400"
+                                            problem.difficulty === "Medium" ? "bg-yellow-500/20 text-yellow-400" :
+                                                "bg-red-500/20 text-red-400"
                                             }`}>
                                             {problem.difficulty}
                                         </span>
@@ -258,8 +278,8 @@ export default function ProblemsPage() {
                                                     key={n}
                                                     onClick={() => recordPractice(problem.id, n)}
                                                     className={`w-6 h-6 rounded-full text-xs transition-colors ${n <= problem.confidence
-                                                            ? "bg-green-500 text-white"
-                                                            : "bg-white/10 text-gray-400 hover:bg-white/20"
+                                                        ? "bg-green-500 text-white"
+                                                        : "bg-white/10 text-gray-400 hover:bg-white/20"
                                                         }`}
                                                 >
                                                     {n}
