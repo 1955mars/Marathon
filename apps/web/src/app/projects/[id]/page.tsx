@@ -7,11 +7,15 @@ import ReactMarkdown from "react-markdown";
 import Editor from "@monaco-editor/react";
 import { getProjectById } from "@/data/projects";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
 export default function ProjectDetailPage() {
     const params = useParams();
     const project = getProjectById(params.id as string);
     const [currentStep, setCurrentStep] = useState(0);
     const [language, setLanguage] = useState<"python" | "cpp">("python");
+    const [output, setOutput] = useState<string>("");
+    const [isRunning, setIsRunning] = useState(false);
 
     if (!project) {
         return (
@@ -28,6 +32,34 @@ export default function ProjectDetailPage() {
 
     const step = project.steps[currentStep];
     const currentCode = step.code[language] || step.code.python || "// Code coming soon";
+
+    const runCode = async () => {
+        setIsRunning(true);
+        setOutput("Running...");
+
+        try {
+            const res = await fetch(`${API_URL}/code/run`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    code: currentCode,
+                    language: language,
+                }),
+            });
+
+            const data = await res.json();
+
+            if (data.error) {
+                setOutput(`❌ Error:\n${data.error}`);
+            } else {
+                setOutput(data.output || "✅ Code executed successfully (no output)");
+            }
+        } catch (error) {
+            setOutput(`❌ Failed to connect to code runner. Make sure the API is running.`);
+        } finally {
+            setIsRunning(false);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -58,7 +90,7 @@ export default function ProjectDetailPage() {
                                 {project.steps.map((s, index) => (
                                     <button
                                         key={s.id}
-                                        onClick={() => setCurrentStep(index)}
+                                        onClick={() => { setCurrentStep(index); setOutput(""); }}
                                         className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${index === currentStep
                                                 ? "bg-purple-600 text-white"
                                                 : index < currentStep
@@ -108,31 +140,48 @@ export default function ProjectDetailPage() {
                         <div className="bg-slate-800 rounded-xl border border-white/10 overflow-hidden">
                             <div className="flex items-center justify-between px-4 py-3 bg-slate-900 border-b border-white/10">
                                 <span className="text-sm font-medium text-gray-300">💻 Implementation</span>
-                                <div className="flex space-x-2">
+                                <div className="flex items-center space-x-3">
+                                    <div className="flex space-x-2">
+                                        <button
+                                            onClick={() => { setLanguage("python"); setOutput(""); }}
+                                            className={`px-3 py-1 rounded text-sm font-medium transition ${language === "python"
+                                                    ? "bg-blue-600 text-white"
+                                                    : "bg-white/10 text-gray-400 hover:bg-white/20"
+                                                }`}
+                                        >
+                                            🐍 Python
+                                        </button>
+                                        <button
+                                            onClick={() => { setLanguage("cpp"); setOutput(""); }}
+                                            className={`px-3 py-1 rounded text-sm font-medium transition ${language === "cpp"
+                                                    ? "bg-orange-600 text-white"
+                                                    : "bg-white/10 text-gray-400 hover:bg-white/20"
+                                                }`}
+                                        >
+                                            ⚡ C++
+                                        </button>
+                                    </div>
                                     <button
-                                        onClick={() => setLanguage("python")}
-                                        className={`px-3 py-1 rounded text-sm font-medium transition ${language === "python"
-                                                ? "bg-blue-600 text-white"
-                                                : "bg-white/10 text-gray-400 hover:bg-white/20"
-                                            }`}
+                                        onClick={runCode}
+                                        disabled={isRunning}
+                                        className="px-4 py-1.5 bg-green-600 hover:bg-green-700 disabled:bg-green-800 disabled:cursor-wait text-white rounded text-sm font-medium transition flex items-center gap-2"
                                     >
-                                        🐍 Python
-                                    </button>
-                                    <button
-                                        onClick={() => setLanguage("cpp")}
-                                        className={`px-3 py-1 rounded text-sm font-medium transition ${language === "cpp"
-                                                ? "bg-orange-600 text-white"
-                                                : "bg-white/10 text-gray-400 hover:bg-white/20"
-                                            }`}
-                                    >
-                                        ⚡ C++
+                                        {isRunning ? (
+                                            <>
+                                                <span className="animate-spin">⏳</span> Running...
+                                            </>
+                                        ) : (
+                                            <>
+                                                ▶ Run Code
+                                            </>
+                                        )}
                                     </button>
                                 </div>
                             </div>
 
-                            {/* Monaco Editor for syntax highlighting */}
+                            {/* Monaco Editor */}
                             <Editor
-                                height="450px"
+                                height="400px"
                                 language={language === "cpp" ? "cpp" : "python"}
                                 value={currentCode}
                                 theme="vs-dark"
@@ -149,6 +198,26 @@ export default function ProjectDetailPage() {
                                     automaticLayout: true,
                                 }}
                             />
+
+                            {/* Output Section */}
+                            {output && (
+                                <div className="border-t border-white/10">
+                                    <div className="px-4 py-2 bg-slate-900/50 flex items-center justify-between">
+                                        <span className="text-sm font-medium text-gray-400">📤 Output</span>
+                                        <button
+                                            onClick={() => setOutput("")}
+                                            className="text-xs text-gray-500 hover:text-gray-300"
+                                        >
+                                            Clear
+                                        </button>
+                                    </div>
+                                    <pre className="p-4 bg-slate-950 text-sm font-mono overflow-x-auto max-h-48 overflow-y-auto">
+                                        <code className={output.startsWith("❌") ? "text-red-400" : "text-green-400"}>
+                                            {output}
+                                        </code>
+                                    </pre>
+                                </div>
+                            )}
                         </div>
 
                         {/* Explanation */}
@@ -157,12 +226,10 @@ export default function ProjectDetailPage() {
                             <div className="prose prose-invert prose-sm max-w-none">
                                 <ReactMarkdown
                                     components={{
-                                        h1: ({ children }) => <h1 className="text-xl font-bold text-white mt-4 mb-2">{children}</h1>,
                                         h2: ({ children }) => <h2 className="text-lg font-semibold text-white mt-4 mb-2">{children}</h2>,
                                         h3: ({ children }) => <h3 className="text-base font-semibold text-purple-300 mt-3 mb-2">{children}</h3>,
                                         p: ({ children }) => <p className="text-gray-300 mb-3 leading-relaxed">{children}</p>,
                                         strong: ({ children }) => <strong className="text-white font-semibold">{children}</strong>,
-                                        em: ({ children }) => <em className="text-purple-300">{children}</em>,
                                         ul: ({ children }) => <ul className="list-disc list-inside space-y-1 mb-3 text-gray-300">{children}</ul>,
                                         ol: ({ children }) => <ol className="list-decimal list-inside space-y-1 mb-3 text-gray-300">{children}</ol>,
                                         li: ({ children }) => <li className="text-gray-300">{children}</li>,
@@ -194,7 +261,7 @@ export default function ProjectDetailPage() {
                         {/* Navigation */}
                         <div className="flex justify-between pt-4">
                             <button
-                                onClick={() => setCurrentStep((s) => Math.max(0, s - 1))}
+                                onClick={() => { setCurrentStep((s) => Math.max(0, s - 1)); setOutput(""); }}
                                 disabled={currentStep === 0}
                                 className="px-6 py-3 bg-white/10 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/20 transition-colors"
                             >
@@ -202,7 +269,7 @@ export default function ProjectDetailPage() {
                             </button>
                             {currentStep < project.steps.length - 1 ? (
                                 <button
-                                    onClick={() => setCurrentStep((s) => s + 1)}
+                                    onClick={() => { setCurrentStep((s) => s + 1); setOutput(""); }}
                                     className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
                                 >
                                     Next Step →
