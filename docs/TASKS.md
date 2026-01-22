@@ -1,108 +1,54 @@
 # Marathon Task Tracking
 
-> Current implementation progress. Update this file as tasks are completed.
 > **Last Updated**: 2026-01-22
 
----
+## 📍 Current Status
 
-## 📍 Current Focus
-
-**Phase 1: Authentication & User System** - In Progress 🔄
-
-Needs: GitHub OAuth App credentials to test login flow
+**Phase 2: Curriculum System** ✅ COMPLETE
 
 ---
 
-## Active Tasks
+## Progress Summary
 
-### Phase 1: Authentication & User System
-- [x] 1.1 Implement GitHub OAuth ✅
-  - [x] API: Config with pydantic-settings
-  - [x] API: JWT token creation/verification
-  - [x] API: GitHub OAuth router (login, callback, me, logout)
-  - [x] Frontend: Auth utilities (token storage)
-  - [x] Frontend: OAuth callback page
-  - [x] Frontend: Updated landing page with login button
-- [x] 1.2 Create user profile page ✅
-  - [x] Dashboard with user info display
-  - [x] Stats grid (placeholder)
-  - [x] Quick actions navigation
-- [ ] 1.3 Database: User model (needs PostgreSQL)
+| Phase | Status | Key Deliverables |
+|-------|--------|------------------|
+| 0 - Project Setup | ✅ | Monorepo, Docker, CI/CD |
+| 1 - Authentication | ✅ | GitHub OAuth, JWT, Dashboard |
+| 2 - Curriculum | ✅ | 5 Acts, 75 steps, Step viewer |
+| 3 - Code Editor | ⏳ Next | Monaco, code execution |
+| 4 - LeetCode Library | ⏳ | Problem tracking |
+| 5 - Projects | ⏳ | Full source + walkthroughs |
 
 ---
 
-## To Test OAuth Flow
+## What's Working
 
-1. Create GitHub OAuth App at https://github.com/settings/developers
-2. Set callback URL to: `http://localhost:8000/auth/callback`
-3. Copy Client ID and Client Secret to `apps/api/.env`
-4. Restart the API server
-5. Click "Get Started" on the landing page
-
----
-
-## Completed Tasks
-
-### Phase 1.1-1.2 - GitHub OAuth & Dashboard (2026-01-22)
-- Created `app/config.py` - Pydantic settings for env vars
-- Created `app/auth.py` - JWT token utilities
-- Created `app/routers/auth.py` - OAuth endpoints
-- Created `src/lib/auth.ts` - Frontend auth utilities
-- Created `src/app/auth/callback/page.tsx` - OAuth callback handler
-- Created `src/app/dashboard/page.tsx` - User dashboard
-- Updated landing page with login integration
-
-### Phase 0.3 - CI/CD Setup (2026-01-22)
-- Created GitHub Actions workflows
-- Initialized git repo and pushed to GitHub
-
-### Phase 0.2 - Development Environment (2026-01-22)
-- Docker Compose, env files, landing page
-
-### Phase 0.1 - Monorepo Structure (2026-01-22)
-- Next.js + FastAPI + shared types
+- **Landing Page**: http://localhost:3000
+- **GitHub Login**: OAuth flow → Dashboard
+- **Curriculum**: http://localhost:3000/curriculum
+  - 5 Acts with expandable scenes
+  - 75 trackable steps
+  - Individual step viewer with content
+- **API**: http://localhost:8000/docs
 
 ---
 
-## Running Services
+## Quick Start
 
-| Service | URL | Status |
-|---------|-----|--------|
-| Frontend (Next.js) | http://localhost:3000 | 🟢 Running |
-| Backend (FastAPI) | http://localhost:8000 | 🟢 Running |
-| API Docs (Swagger) | http://localhost:8000/docs | 🟢 Available |
-
----
-
-## New API Endpoints
-
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/auth/login` | Redirects to GitHub OAuth |
-| GET | `/auth/callback` | Handles OAuth callback |
-| GET | `/auth/me` | Get current user profile |
-| POST | `/auth/logout` | Logout (client clears token) |
-
----
-
-## Quick Start Commands
 ```bash
 # Frontend
 cd apps/web && npm run dev
 
-# Backend
-cd apps/api
-source venv/bin/activate
+# Backend  
+cd apps/api && source venv/bin/activate
 uvicorn app.main:app --reload --port 8000
 ```
 
 ---
 
-## Changelog
+## Next Phase: Code Editor (Phase 3)
 
-| Date | Update |
-|------|--------|
-| 2026-01-22 | Phase 1.1-1.2 - GitHub OAuth and Dashboard implemented |
-| 2026-01-22 | Phase 0.3 - CI/CD, pushed to GitHub |
-| 2026-01-22 | Phase 0.2 - Docker, env, landing page |
-| 2026-01-22 | Phase 0.1 - Monorepo initialized |
+- [ ] Integrate Monaco Editor
+- [ ] Code execution backend (Docker sandbox)
+- [ ] Test case system
+- [ ] Add exercises to curriculum
