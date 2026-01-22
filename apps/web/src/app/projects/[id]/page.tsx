@@ -3,6 +3,7 @@
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
 import { getProjectById } from "@/data/projects";
 
 export default function ProjectDetailPage() {
@@ -25,6 +26,7 @@ export default function ProjectDetailPage() {
     }
 
     const step = project.steps[currentStep];
+    const currentCode = step.code[language] || step.code.python || "// Code coming soon";
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -47,7 +49,7 @@ export default function ProjectDetailPage() {
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="grid lg:grid-cols-4 gap-8">
-                    {/* Sidebar - Steps */}
+                    {/* Sidebar */}
                     <div className="lg:col-span-1">
                         <div className="bg-white/5 rounded-xl p-4 border border-white/10 sticky top-24">
                             <h3 className="text-sm font-semibold text-gray-400 mb-4 uppercase">Steps</h3>
@@ -69,7 +71,6 @@ export default function ProjectDetailPage() {
                                 ))}
                             </div>
 
-                            {/* Progress */}
                             <div className="mt-6 pt-4 border-t border-white/10">
                                 <div className="flex justify-between text-xs text-gray-400 mb-2">
                                     <span>Progress</span>
@@ -103,42 +104,56 @@ export default function ProjectDetailPage() {
                         </div>
 
                         {/* Code Section */}
-                        <div className="bg-white/5 rounded-xl border border-white/10 overflow-hidden">
-                            <div className="flex items-center justify-between px-4 py-3 bg-black/20 border-b border-white/10">
-                                <span className="text-sm font-medium text-gray-300">Implementation</span>
+                        <div className="bg-slate-800/80 rounded-xl border border-white/10 overflow-hidden">
+                            <div className="flex items-center justify-between px-4 py-3 bg-slate-900/50 border-b border-white/10">
+                                <span className="text-sm font-medium text-gray-300">💻 Implementation</span>
                                 <div className="flex space-x-2">
                                     <button
                                         onClick={() => setLanguage("python")}
-                                        className={`px-3 py-1 rounded text-sm ${language === "python"
-                                                ? "bg-blue-500 text-white"
-                                                : "bg-white/10 text-gray-400"
+                                        className={`px-3 py-1 rounded text-sm font-medium transition ${language === "python"
+                                                ? "bg-blue-600 text-white"
+                                                : "bg-white/10 text-gray-400 hover:bg-white/20"
                                             }`}
                                     >
                                         🐍 Python
                                     </button>
                                     <button
                                         onClick={() => setLanguage("cpp")}
-                                        className={`px-3 py-1 rounded text-sm ${language === "cpp"
-                                                ? "bg-orange-500 text-white"
-                                                : "bg-white/10 text-gray-400"
+                                        className={`px-3 py-1 rounded text-sm font-medium transition ${language === "cpp"
+                                                ? "bg-orange-600 text-white"
+                                                : "bg-white/10 text-gray-400 hover:bg-white/20"
                                             }`}
                                     >
                                         ⚡ C++
                                     </button>
                                 </div>
                             </div>
-                            <pre className="p-4 overflow-x-auto text-sm">
-                                <code className="text-green-400 font-mono whitespace-pre">
-                                    {step.code[language] || step.code.python || "// Code coming soon"}
-                                </code>
+                            <pre className="p-5 overflow-x-auto text-sm leading-relaxed max-h-[500px] overflow-y-auto">
+                                <code className="text-gray-100 font-mono whitespace-pre">{currentCode}</code>
                             </pre>
                         </div>
 
-                        {/* Explanation */}
+                        {/* Explanation - Now renders Markdown */}
                         <div className="bg-white/5 rounded-xl p-6 border border-white/10">
-                            <h3 className="text-lg font-semibold text-white mb-3">📖 Explanation</h3>
-                            <div className="text-gray-300 whitespace-pre-line leading-relaxed">
-                                {step.explanation}
+                            <h3 className="text-lg font-semibold text-white mb-4">📖 Explanation</h3>
+                            <div className="prose prose-invert prose-sm max-w-none">
+                                <ReactMarkdown
+                                    components={{
+                                        h1: ({ children }) => <h1 className="text-xl font-bold text-white mt-4 mb-2">{children}</h1>,
+                                        h2: ({ children }) => <h2 className="text-lg font-semibold text-white mt-4 mb-2">{children}</h2>,
+                                        h3: ({ children }) => <h3 className="text-base font-semibold text-purple-300 mt-3 mb-2">{children}</h3>,
+                                        p: ({ children }) => <p className="text-gray-300 mb-3 leading-relaxed">{children}</p>,
+                                        strong: ({ children }) => <strong className="text-white font-semibold">{children}</strong>,
+                                        em: ({ children }) => <em className="text-purple-300">{children}</em>,
+                                        ul: ({ children }) => <ul className="list-disc list-inside space-y-1 mb-3 text-gray-300">{children}</ul>,
+                                        ol: ({ children }) => <ol className="list-decimal list-inside space-y-1 mb-3 text-gray-300">{children}</ol>,
+                                        li: ({ children }) => <li className="text-gray-300">{children}</li>,
+                                        code: ({ children }) => <code className="bg-slate-700 text-green-400 px-1.5 py-0.5 rounded text-sm">{children}</code>,
+                                        pre: ({ children }) => <pre className="bg-slate-800 p-3 rounded-lg overflow-x-auto mb-3">{children}</pre>,
+                                    }}
+                                >
+                                    {step.explanation}
+                                </ReactMarkdown>
                             </div>
                         </div>
 
@@ -148,8 +163,8 @@ export default function ProjectDetailPage() {
                             <ul className="space-y-2">
                                 {step.tips.map((tip, i) => (
                                     <li key={i} className="flex items-start gap-2 text-gray-300">
-                                        <span className="text-yellow-400">•</span>
-                                        {tip}
+                                        <span className="text-yellow-400 mt-1">•</span>
+                                        <span>{tip}</span>
                                     </li>
                                 ))}
                             </ul>
