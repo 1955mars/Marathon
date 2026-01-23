@@ -4,11 +4,21 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getCurrentUser, logout, isAuthenticated, User } from "@/lib/auth";
 import Link from "next/link";
+import { useGamification } from "@/hooks/useGamification";
+import {
+    XpProgressBar,
+    StreakDisplay,
+    ReadinessScore,
+    StatsGrid,
+    AchievementsGrid,
+    CompactProgressWidget,
+} from "@/components/GamificationWidgets";
 
 export default function DashboardPage() {
     const router = useRouter();
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const { progress, updateStreak, checkAchievements } = useGamification();
 
     useEffect(() => {
         async function loadUser() {
@@ -25,10 +35,18 @@ export default function DashboardPage() {
 
             setUser(userData);
             setLoading(false);
+
+            // Update streak on dashboard visit
+            updateStreak();
+            // Check for new achievements
+            const newAchievements = checkAchievements();
+            if (newAchievements.length > 0) {
+                console.log("🏆 New achievements unlocked!", newAchievements);
+            }
         }
 
         loadUser();
-    }, [router]);
+    }, [router, updateStreak, checkAchievements]);
 
     const handleLogout = async () => {
         await logout();
@@ -45,7 +63,7 @@ export default function DashboardPage() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
             {/* Navigation */}
-            <nav className="border-b border-white/10 bg-black/20 backdrop-blur-lg">
+            <nav className="border-b border-white/10 bg-black/20 backdrop-blur-lg sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex justify-between items-center">
                         <Link href="/dashboard" className="flex items-center space-x-2">
@@ -54,6 +72,9 @@ export default function DashboardPage() {
                         </Link>
 
                         <div className="flex items-center space-x-4">
+                            {/* Compact Progress Widget in Navbar */}
+                            <CompactProgressWidget />
+
                             {user && (
                                 <>
                                     <img
@@ -76,9 +97,9 @@ export default function DashboardPage() {
             </nav>
 
             {/* Main Content */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Welcome Section */}
-                <div className="mb-12">
+                <div className="mb-8">
                     <h1 className="text-4xl font-bold text-white mb-2">
                         Welcome back, {user?.username}! 👋
                     </h1>
@@ -87,68 +108,81 @@ export default function DashboardPage() {
                     </p>
                 </div>
 
+                {/* XP & Level Progress */}
+                <div className="grid lg:grid-cols-2 gap-6 mb-8">
+                    <XpProgressBar />
+                    <ReadinessScore />
+                </div>
+
+                {/* Streak Display */}
+                <div className="mb-8">
+                    <StreakDisplay />
+                </div>
+
                 {/* Stats Grid */}
-                <div className="grid md:grid-cols-4 gap-6 mb-12">
-                    <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6 border border-white/10">
-                        <div className="text-3xl font-bold text-white mb-1">0%</div>
-                        <div className="text-gray-400">Overall Progress</div>
-                    </div>
-                    <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6 border border-white/10">
-                        <div className="text-3xl font-bold text-white mb-1">0</div>
-                        <div className="text-gray-400">Problems Solved</div>
-                    </div>
-                    <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6 border border-white/10">
-                        <div className="text-3xl font-bold text-white mb-1">0</div>
-                        <div className="text-gray-400">Projects Completed</div>
-                    </div>
-                    <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6 border border-white/10">
-                        <div className="text-3xl font-bold text-white mb-1">0 🔥</div>
-                        <div className="text-gray-400">Day Streak</div>
-                    </div>
+                <div className="mb-8">
+                    <h2 className="text-xl font-bold text-white mb-4">📊 Your Stats</h2>
+                    <StatsGrid />
                 </div>
 
                 {/* Quick Actions */}
-                <h2 className="text-2xl font-bold text-white mb-6">Quick Actions</h2>
-                <div className="grid md:grid-cols-3 gap-6">
+                <h2 className="text-xl font-bold text-white mb-4">⚡ Quick Actions</h2>
+                <div className="grid md:grid-cols-4 gap-4 mb-8">
                     <Link
                         href="/curriculum"
-                        className="bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-xl p-6 border border-purple-500/30 hover:border-purple-500/50 transition-all group"
+                        className="bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-xl p-5 border border-purple-500/30 hover:border-purple-500/50 transition-all group"
                     >
-                        <div className="text-3xl mb-3">📚</div>
-                        <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-purple-300">
+                        <div className="text-2xl mb-2">📚</div>
+                        <h3 className="text-lg font-semibold text-white mb-1 group-hover:text-purple-300">
                             Continue Learning
                         </h3>
-                        <p className="text-gray-400">
-                            Pick up where you left off in the curriculum.
+                        <p className="text-gray-400 text-sm">
+                            Pick up where you left off
                         </p>
                     </Link>
 
                     <Link
                         href="/problems"
-                        className="bg-gradient-to-r from-blue-600/20 to-cyan-600/20 rounded-xl p-6 border border-blue-500/30 hover:border-blue-500/50 transition-all group"
+                        className="bg-gradient-to-r from-blue-600/20 to-cyan-600/20 rounded-xl p-5 border border-blue-500/30 hover:border-blue-500/50 transition-all group"
                     >
-                        <div className="text-3xl mb-3">🎯</div>
-                        <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-blue-300">
+                        <div className="text-2xl mb-2">🎯</div>
+                        <h3 className="text-lg font-semibold text-white mb-1 group-hover:text-blue-300">
                             Practice Problems
                         </h3>
-                        <p className="text-gray-400">
-                            Solve coding challenges from your library.
+                        <p className="text-gray-400 text-sm">
+                            Solve coding challenges
                         </p>
                     </Link>
 
                     <Link
                         href="/projects"
-                        className="bg-gradient-to-r from-green-600/20 to-emerald-600/20 rounded-xl p-6 border border-green-500/30 hover:border-green-500/50 transition-all group"
+                        className="bg-gradient-to-r from-green-600/20 to-emerald-600/20 rounded-xl p-5 border border-green-500/30 hover:border-green-500/50 transition-all group"
                     >
-                        <div className="text-3xl mb-3">💻</div>
-                        <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-green-300">
+                        <div className="text-2xl mb-2">💻</div>
+                        <h3 className="text-lg font-semibold text-white mb-1 group-hover:text-green-300">
                             Build Projects
                         </h3>
-                        <p className="text-gray-400">
-                            Work on portfolio-ready projects.
+                        <p className="text-gray-400 text-sm">
+                            Work on portfolio projects
+                        </p>
+                    </Link>
+
+                    <Link
+                        href="/exercise"
+                        className="bg-gradient-to-r from-orange-600/20 to-yellow-600/20 rounded-xl p-5 border border-orange-500/30 hover:border-orange-500/50 transition-all group"
+                    >
+                        <div className="text-2xl mb-2">⚡</div>
+                        <h3 className="text-lg font-semibold text-white mb-1 group-hover:text-orange-300">
+                            Code Editor
+                        </h3>
+                        <p className="text-gray-400 text-sm">
+                            Practice coding
                         </p>
                     </Link>
                 </div>
+
+                {/* Achievements */}
+                <AchievementsGrid />
             </div>
         </div>
     );

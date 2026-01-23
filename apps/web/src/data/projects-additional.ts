@@ -8,13 +8,20 @@ import { Project } from "./projects";
 // ============================================================
 // PROJECT 3: MEMORY ALLOCATOR
 // ============================================================
+// REAL-WORLD APPLICATIONS:
+// - Operating Systems: Linux's slab allocator, Windows heap manager
+// - Game Engines: Unity, Unreal use custom allocators for performance
+// - Databases: PostgreSQL, MySQL manage their own memory pools
+// - Web Browsers: Chrome's PartitionAlloc handles billions of allocations
+// - Embedded Systems: No OS means you manage your own memory!
+// ============================================================
 export const memoryAllocatorProject: Project = {
     id: "memory-allocator",
     title: "Custom Memory Allocator",
     act: 3,
     difficulty: "Advanced",
     estimatedHours: 12,
-    description: "Build a memory allocator implementing malloc, free, and realloc with different allocation strategies.",
+    description: "Build a memory allocator implementing malloc, free, and realloc. Used in operating systems, game engines, databases, and any performance-critical application.",
     learningOutcomes: [
         "Understand memory layout and heap management",
         "Implement first-fit allocation strategy",
@@ -180,11 +187,34 @@ Each allocation has a **header** with metadata:
 - **next/prev**: Free list pointers
 
 ### Free List:
-A linked list of available blocks, enabling O(1) traversal to find free space.`,
+A linked list of available blocks, enabling O(1) traversal to find free space.
+
+---
+
+## 🌍 Real-World Applications
+
+### 1. **Redis In-Memory Database**
+Redis manages its own memory with \`zmalloc\` - a wrapper around system malloc that tracks memory usage precisely.
+
+### 2. **Game Engines (Unity, Unreal)**
+Games allocate millions of objects per second. Custom allocators:
+- **Pool allocators**: Pre-allocate fixed-size chunks for game objects
+- **Frame allocators**: Reset every frame for temporary calculations
+
+### 3. **Chrome Browser (PartitionAlloc)**
+Handles billions of allocations for DOM nodes, JavaScript objects:
+- Separate heaps for different object types (security!)
+- Fast path for common sizes
+
+### 4. **jemalloc (Facebook, Firefox)**
+Used by Facebook's servers:
+- Thread-local caches reduce lock contention
+- Size classes minimize fragmentation`,
             tips: [
                 "Header size affects minimum allocation",
                 "Align to 8/16 bytes for performance",
                 "Store header just BEFORE user data",
+                "Real allocators use size classes (8, 16, 32, 64... bytes)",
             ],
         },
         {

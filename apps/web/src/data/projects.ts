@@ -4,6 +4,10 @@
  */
 
 import { memoryAllocatorProject, lruCacheProject } from "./projects-additional";
+import { miniShellProject, httpServerProject } from "./projects-systems";
+import { recursionProject, secureAuthProject } from "./projects-priority";
+import { pythonToolkitProject, distributedKVProject, loadBalancerProject } from "./projects-extra";
+import { cppFundamentalsProject, bitManipulationProject, dbQueryEngineProject, threadPoolProject, cicdPipelineProject } from "./projects-final";
 
 export interface ProjectStep {
     id: string;
@@ -740,6 +744,7 @@ D -> [(B, 1), (C, 3)]
 \`\`\`
 
 ### Comparison:
+
 | Representation | Space | Edge Check | Add Edge |
 |----------------|-------|------------|----------|
 | Adjacency List | O(V+E) | O(degree) | O(1) |
@@ -1388,7 +1393,24 @@ Valid orders:
     ],
 };
 
-export const PROJECTS: Project[] = [hashmapProject, graphProject, memoryAllocatorProject, lruCacheProject];
+export const PROJECTS: Project[] = [
+    hashmapProject,
+    graphProject,
+    memoryAllocatorProject,
+    lruCacheProject,
+    miniShellProject,
+    httpServerProject,
+    recursionProject,
+    secureAuthProject,
+    pythonToolkitProject,
+    distributedKVProject,
+    loadBalancerProject,
+    cppFundamentalsProject,
+    bitManipulationProject,
+    dbQueryEngineProject,
+    threadPoolProject,
+    cicdPipelineProject,
+];
 
 // Helper functions
 export function getProjectById(id: string): Project | undefined {

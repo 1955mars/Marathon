@@ -2,12 +2,20 @@
  * Step Content - Educational content for each curriculum step
  */
 
+import { act0Content } from './step-content-act0';
+import { act1Content } from './step-content-act1';
+import { act2Content } from './step-content-act2';
+import { act3Content } from './step-content-act3';
+import { act4Content } from './step-content-act4';
+import { architectureContent, securityContent, versionControlContent, testingContent } from './step-content-new';
+
 export interface StepContentData {
     title: string;
     content: string;
 }
 
-export const stepContent: Record<string, StepContentData> = {
+// Base content (Act 0 Python Basics already defined inline)
+const baseContent: Record<string, StepContentData> = {
     // Act 0: Python Basics
     'step-0-1-1': {
         title: 'Python Basics',
@@ -473,4 +481,18 @@ def max_sum_subarray(arr, k):
 - **Contiguous memory** = cache-friendly = fast iteration
 `,
     },
+};
+
+// Merge all content sources
+export const stepContent: Record<string, StepContentData> = {
+    ...baseContent,
+    ...act0Content,
+    ...act1Content,
+    ...act2Content,
+    ...act3Content,
+    ...act4Content,
+    ...architectureContent,
+    ...securityContent,
+    ...versionControlContent,
+    ...testingContent,
 };

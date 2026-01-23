@@ -149,6 +149,18 @@ export const curriculum: Act[] = [
                     { id: 'step-1-4-4', number: 4, title: 'Project P4: Bit Manipulation Toolkit', type: 'project', estimatedMinutes: 90 },
                 ],
             },
+            {
+                id: 'scene-1-5',
+                number: 5,
+                title: 'Design Patterns & OOP',
+                description: 'Master software design principles and patterns.',
+                steps: [
+                    { id: 'step-1-5-1', number: 1, title: 'SOLID Principles', type: 'read', estimatedMinutes: 45 },
+                    { id: 'step-1-5-2', number: 2, title: 'Creational Patterns', type: 'read', estimatedMinutes: 40 },
+                    { id: 'step-1-5-3', number: 3, title: 'Structural Patterns', type: 'read', estimatedMinutes: 40 },
+                    { id: 'step-1-5-4', number: 4, title: 'Behavioral Patterns', type: 'read', estimatedMinutes: 45 },
+                ],
+            },
         ],
     },
     {
@@ -202,6 +214,30 @@ export const curriculum: Act[] = [
                     { id: 'step-2-4-2', number: 2, title: 'Project P6: HTTP Server', type: 'project', estimatedMinutes: 180 },
                     { id: 'step-2-4-3', number: 3, title: 'Project P7: Database Query Engine', type: 'project', estimatedMinutes: 200 },
                     { id: 'step-2-4-4', number: 4, title: 'Project P8: Thread Pool', type: 'project', estimatedMinutes: 120 },
+                ],
+            },
+            {
+                id: 'scene-2-5',
+                number: 5,
+                title: 'Computer Architecture',
+                description: 'Understand how hardware executes software.',
+                steps: [
+                    { id: 'step-2-5-1', number: 1, title: 'CPU & Instruction Cycle', type: 'read', estimatedMinutes: 40 },
+                    { id: 'step-2-5-2', number: 2, title: 'Memory Hierarchy & Caches', type: 'read', estimatedMinutes: 45 },
+                    { id: 'step-2-5-3', number: 3, title: 'CPU Optimizations', type: 'read', estimatedMinutes: 40 },
+                    { id: 'step-2-5-4', number: 4, title: 'Modern Hardware Concepts', type: 'read', estimatedMinutes: 35 },
+                ],
+            },
+            {
+                id: 'scene-2-6',
+                number: 6,
+                title: 'Security Fundamentals',
+                description: 'Secure your applications against common threats.',
+                steps: [
+                    { id: 'step-2-6-1', number: 1, title: 'Authentication vs Authorization', type: 'read', estimatedMinutes: 30 },
+                    { id: 'step-2-6-2', number: 2, title: 'OWASP Top 10', type: 'read', estimatedMinutes: 45 },
+                    { id: 'step-2-6-3', number: 3, title: 'Secure Coding Practices', type: 'read', estimatedMinutes: 40 },
+                    { id: 'step-2-6-4', number: 4, title: 'Cryptography Basics', type: 'read', estimatedMinutes: 35 },
                 ],
             },
         ],
@@ -308,6 +344,28 @@ export const curriculum: Act[] = [
                 steps: [
                     { id: 'step-4-4-1', number: 1, title: 'Project P13: Mini Twitter Design', type: 'project', estimatedMinutes: 300 },
                     { id: 'step-4-4-2', number: 2, title: 'Project P14: CI/CD Pipeline', type: 'project', estimatedMinutes: 120 },
+                ],
+            },
+            {
+                id: 'scene-4-5',
+                number: 5,
+                title: 'Version Control & Collaboration',
+                description: 'Master Git and team workflows.',
+                steps: [
+                    { id: 'step-4-5-1', number: 1, title: 'Git Fundamentals', type: 'read', estimatedMinutes: 35 },
+                    { id: 'step-4-5-2', number: 2, title: 'Branching Strategies', type: 'read', estimatedMinutes: 30 },
+                    { id: 'step-4-5-3', number: 3, title: 'Code Review Best Practices', type: 'read', estimatedMinutes: 25 },
+                ],
+            },
+            {
+                id: 'scene-4-6',
+                number: 6,
+                title: 'Code Quality & Testing',
+                description: 'Write testable, maintainable code.',
+                steps: [
+                    { id: 'step-4-6-1', number: 1, title: 'Unit Testing & TDD', type: 'read', estimatedMinutes: 40 },
+                    { id: 'step-4-6-2', number: 2, title: 'Integration & E2E Testing', type: 'read', estimatedMinutes: 35 },
+                    { id: 'step-4-6-3', number: 3, title: 'Code Coverage & Linting', type: 'read', estimatedMinutes: 25 },
                 ],
             },
         ],
