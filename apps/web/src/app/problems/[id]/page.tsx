@@ -8,6 +8,7 @@ export function generateStaticParams() {
     }));
 }
 
-export default function ProblemPage({ params }: { params: { id: string } }) {
-    return <ProblemPageClient id={params.id} />;
+export default async function ProblemPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
+    return <ProblemPageClient id={id} />;
 }
