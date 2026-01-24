@@ -378,29 +378,76 @@ print(Date.is_valid_date("2024-01-15"))  # True
         title: 'Arrays & Dynamic Arrays',
         content: `# Arrays & Dynamic Arrays
 
-Understanding the foundation of all data structures.
+## Why This Matters
 
-## What is an Array?
+Arrays are the **foundation of all data structures**. Every other structure builds on array concepts. Understanding arrays helps you:
 
-An array is a contiguous block of memory that stores elements of the same type.
+- Optimize memory usage and cache performance
+- Understand why some operations are O(1) and others O(n)
+- Master essential patterns: **two pointers**, **sliding window**
+- Ace the most common interview questions
 
+---
+
+## The Bookshelf Analogy 📚
+
+| Concept | Bookshelf | Array |
+|---------|-----------|-------|
+| **Contiguous storage** | Books side by side | Elements in adjacent memory |
+| **Index access** | "Get book 5" | arr[5] in O(1) |
+| **Insert in middle** | Shift all books right | Shift all elements right - O(n) |
+| **Fixed size** | Finite shelf space | Static array |
+| **Growing** | Buy new bigger shelf | Dynamic array resize |
+
+---
+
+## Memory Layout
+
+\`\`\`mermaid
+flowchart LR
+    subgraph memory["Contiguous Memory"]
+        M0["Index 0: 10"]
+        M1["Index 1: 20"]
+        M2["Index 2: 30"]
+        M3["Index 3: 40"]
+        M4["Index 4: 50"]
+    end
+    A["arr at 2"] --> M2
+    style M2 fill:#22c55e
 \`\`\`
-Memory Layout:
-┌───┬───┬───┬───┬───┐
-│ 1 │ 2 │ 3 │ 4 │ 5 │
-└───┴───┴───┴───┴───┘
-  0   1   2   3   4  (indices)
-\`\`\`
+
+**Why O(1) access?** Address = base_address + (index × element_size)
+
+---
 
 ## Static vs Dynamic Arrays
 
 | Feature | Static Array | Dynamic Array |
 |---------|--------------|---------------|
-| Size | Fixed at creation | Grows as needed |
-| Memory | Allocated once | Reallocated on resize |
-| Example | C arrays | Python list, Java ArrayList |
+| **Size** | Fixed at creation | Grows as needed |
+| **Memory** | Allocated once | Reallocated on resize |
+| **Language** | C arrays, Java int[] | Python list, Java ArrayList |
 
-## Dynamic Array Implementation
+---
+
+## Dynamic Array Growth
+
+\`\`\`mermaid
+flowchart LR
+    subgraph step1["Cap: 2, Size: 2"]
+        A1["10"]
+        A2["20"]
+    end
+    subgraph step2["Cap: 4, Size: 3"]
+        B1["10"]
+        B2["20"]
+        B3["30"]
+        B4["_"]
+    end
+    step1 -->|"append 30"| step2
+\`\`\`
+
+### Implementation
 
 \`\`\`python
 class DynamicArray:
@@ -410,12 +457,14 @@ class DynamicArray:
         self.array = [None] * self.capacity
     
     def append(self, item):
+        """O(1) amortized"""
         if self.size == self.capacity:
-            self._resize(2 * self.capacity)
+            self._resize(2 * self.capacity)  # Double capacity
         self.array[self.size] = item
         self.size += 1
     
     def _resize(self, new_capacity):
+        """O(n) - copy all elements"""
         new_array = [None] * new_capacity
         for i in range(self.size):
             new_array[i] = self.array[i]
@@ -423,62 +472,129 @@ class DynamicArray:
         self.capacity = new_capacity
     
     def get(self, index):
+        """O(1)"""
         if index < 0 or index >= self.size:
             raise IndexError("Index out of bounds")
         return self.array[index]
     
-    def __len__(self):
-        return self.size
+    def insert(self, index, item):
+        """O(n) - shift elements right"""
+        if self.size == self.capacity:
+            self._resize(2 * self.capacity)
+        for i in range(self.size, index, -1):
+            self.array[i] = self.array[i-1]
+        self.array[index] = item
+        self.size += 1
+    
+    def delete(self, index):
+        """O(n) - shift elements left"""
+        for i in range(index, self.size - 1):
+            self.array[i] = self.array[i+1]
+        self.size -= 1
 \`\`\`
+
+---
 
 ## Time Complexity
 
-| Operation | Average | Worst Case |
-|-----------|---------|------------|
-| Access    | O(1)    | O(1)       |
-| Append    | O(1)*   | O(n)       |
-| Insert    | O(n)    | O(n)       |
-| Delete    | O(n)    | O(n)       |
-| Search    | O(n)    | O(n)       |
+| Operation | Average | Worst Case | Why |
+|-----------|---------|------------|-----|
+| **Access** | O(1) | O(1) | Direct address calculation |
+| **Append** | O(1)* | O(n) | Occasional resize |
+| **Insert** | O(n) | O(n) | Shift elements right |
+| **Delete** | O(n) | O(n) | Shift elements left |
+| **Search** | O(n) | O(n) | Linear scan |
 
-*Amortized - occasional O(n) resize, but averages to O(1)
+*Amortized — occasional O(n) resize averages to O(1)
 
-## Common Interview Patterns
+---
 
-### Two Pointers
+## Essential Patterns
+
+### 1. Two Pointers ⭐
+
 \`\`\`python
 def two_sum_sorted(arr, target):
+    """Find two numbers that sum to target in sorted array"""
     left, right = 0, len(arr) - 1
     while left < right:
         current = arr[left] + arr[right]
         if current == target:
             return [left, right]
         elif current < target:
-            left += 1
+            left += 1   # Need larger sum
         else:
-            right -= 1
+            right -= 1  # Need smaller sum
     return []
+
+# two_sum_sorted([1, 2, 3, 4, 6], 6) → [1, 3] (2+4=6)
 \`\`\`
 
-### Sliding Window
+### 2. Sliding Window ⭐
+
 \`\`\`python
 def max_sum_subarray(arr, k):
+    """Find max sum of k consecutive elements"""
     window_sum = sum(arr[:k])
     max_sum = window_sum
     
     for i in range(k, len(arr)):
-        window_sum += arr[i] - arr[i - k]
+        window_sum += arr[i] - arr[i - k]  # Slide window
         max_sum = max(max_sum, window_sum)
     
     return max_sum
+
+# max_sum_subarray([2, 1, 5, 1, 3, 2], 3) → 9 (5+1+3)
 \`\`\`
+
+### 3. Prefix Sum
+
+\`\`\`python
+def range_sum(arr, queries):
+    """Efficiently answer multiple range sum queries"""
+    # Build prefix sum array
+    prefix = [0]
+    for num in arr:
+        prefix.append(prefix[-1] + num)
+    
+    # Answer queries in O(1) each
+    results = []
+    for left, right in queries:
+        results.append(prefix[right+1] - prefix[left])
+    return results
+\`\`\`
+
+---
+
+## Interview Insights 💡
+
+**Common Questions**:
+1. "Two Sum" (use hash map for O(n), or two pointers if sorted)
+2. "Maximum subarray" (Kadane's algorithm)
+3. "Rotate array" (reverse trick)
+4. "Merge sorted arrays"
+
+**Key Talking Points**:
+- Arrays give O(1) access due to contiguous memory
+- Insertions/deletions are O(n) because of shifting
+- Dynamic arrays double capacity for amortized O(1) append
+- Cache-friendly = faster in practice
+
+**Red Flags**:
+- Using list.insert(0, x) in Python (O(n)!) — use \`deque\` instead
+- Not considering array bounds
+- Modifying array while iterating
+
+---
 
 ## Key Takeaways
 
-- Arrays provide **O(1) random access** by index
-- Dynamic arrays **double capacity** when full (amortized O(1) append)
-- Insertions/deletions in middle are **O(n)** due to shifting
-- **Contiguous memory** = cache-friendly = fast iteration
+✅ Arrays provide **O(1) random access** via index  
+✅ Dynamic arrays **double capacity** when full (amortized O(1) append)  
+✅ Insert/delete in middle is **O(n)** due to shifting  
+✅ **Contiguous memory** = cache-friendly = fast iteration  
+✅ Master **two pointers** and **sliding window** patterns  
+✅ Prefix sums enable O(1) range queries after O(n) preprocessing
 `,
     },
 };

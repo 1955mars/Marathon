@@ -8,6 +8,17 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useState, useCallback, useMemo, useRef, useEffect, memo } from "react";
 import Editor from "@monaco-editor/react";
+import dynamic from "next/dynamic";
+
+// Dynamically import MermaidDiagram to avoid SSR issues
+const MermaidDiagram = dynamic(() => import("@/components/MermaidDiagram"), {
+    ssr: false,
+    loading: () => (
+        <div className="my-6 flex justify-center bg-black/30 rounded-xl p-6 border border-white/10">
+            <div className="animate-pulse text-gray-400">Loading diagram...</div>
+        </div>
+    ),
+});
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -354,14 +365,18 @@ export default function StepPageClient({ actId, sceneId, stepId }: { actId: stri
             <nav className="border-b border-white/10 bg-black/20 backdrop-blur-lg sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex justify-between items-center">
-                        <div className="flex items-center space-x-4">
-                            <Link href="/" className="text-gray-400 hover:text-white">
-                                ← Home
+                        <div className="flex items-center space-x-2 text-sm">
+                            <Link href="/curriculum" className="text-gray-400 hover:text-white">
+                                ← Curriculum
                             </Link>
                             <span className="text-gray-600">/</span>
-                            <Link href="/curriculum" className="text-gray-400 hover:text-white">
-                                Curriculum
+                            <Link href={`/curriculum/${actId}`} className="text-gray-400 hover:text-white">
+                                {act.title}
                             </Link>
+                            <span className="text-gray-600">/</span>
+                            <span className="text-purple-400 truncate max-w-[200px]">
+                                {scene.title}
+                            </span>
                         </div>
                         <div className="flex items-center space-x-4">
                             {/* Reset all button */}
@@ -380,12 +395,6 @@ export default function StepPageClient({ actId, sceneId, stepId }: { actId: stri
                             <span className="text-sm text-gray-500">
                                 Step {currentIndex + 1} of {allSteps.length}
                             </span>
-                            <Link
-                                href="/dashboard"
-                                className="text-gray-300 hover:text-white transition-colors"
-                            >
-                                Dashboard
-                            </Link>
                         </div>
                     </div>
                 </div>
@@ -456,6 +465,13 @@ export default function StepPageClient({ actId, sceneId, stepId }: { actId: stri
 
                                 if (isCodeBlock) {
                                     const codeString = String(children).replace(/\n$/, '');
+                                    const language = match[1].toLowerCase();
+
+                                    // Handle Mermaid diagrams
+                                    if (language === 'mermaid') {
+                                        return <MermaidDiagram chart={codeString} />;
+                                    }
+
                                     const blockId = getBlockId(codeString);
                                     return (
                                         <CodeBlock

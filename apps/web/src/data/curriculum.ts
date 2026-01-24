@@ -81,6 +81,7 @@ export const curriculum: Act[] = [
                 title: 'Language Comparison',
                 description: 'Compare Python and C++ through hands-on implementation.',
                 steps: [
+                    { id: 'step-0-3-0', number: 0, title: 'Python vs C++ Comparison', type: 'read', estimatedMinutes: 45 },
                     { id: 'step-0-3-1', number: 1, title: 'Project P0a: Python Toolkit', type: 'project', estimatedMinutes: 120 },
                     { id: 'step-0-3-2', number: 2, title: 'Project P0b: C++ Fundamentals Lab', type: 'project', estimatedMinutes: 120 },
                 ],

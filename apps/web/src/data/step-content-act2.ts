@@ -42,44 +42,34 @@ When you "run a program," you're placing an order. The OS (restaurant manager) c
 
 A process bundles together:
 
-\`\`\`
-┌─────────────────────────────────────────┐
-│              PROCESS                    │
-├─────────────────────────────────────────┤
-│  Code (Text Segment)    → Instructions  │
-│  Data Segment           → Global vars   │
-│  Heap                   → malloc/new    │
-│  Stack                  → Function calls│
-│  Process ID (PID)       → Unique ID     │
-│  Program Counter        → Current line  │
-│  Open Files             → File handles  │
-│  Environment Variables  → PATH, HOME    │
-└─────────────────────────────────────────┘
+\`\`\`mermaid
+flowchart TB
+    subgraph process["PROCESS"]
+        A["Code - Text Segment"] --> A1["Instructions"]
+        B["Data Segment"] --> B1["Global vars"]
+        C["Heap"] --> C1["malloc/new"]
+        D["Stack"] --> D1["Function calls"]
+        E["Process ID - PID"] --> E1["Unique ID"]
+        F["Program Counter"] --> F1["Current line"]
+        G["Open Files"] --> G1["File handles"]
+        H["Environment Variables"] --> H1["PATH, HOME"]
+    end
+    style process fill:#1e1b4b,stroke:#a78bfa
 \`\`\`
 
 ### Process Lifecycle
 
 Every process moves through these states:
 
-\`\`\`
-        ┌─────────┐
-        │   New   │ ← Process created
-        └────┬────┘
-             │ OS admits to ready queue
-             ▼
-        ┌─────────┐  scheduler   ┌─────────┐
-        │  Ready  │◄────────────│ Running │
-        └────┬────┘  preempt    └────┬────┘
-             │                       │
-             │ dispatch (get CPU)    │ I/O request
-             └───────────────────────┤
-                                     ▼
-                                ┌─────────┐
-                                │ Waiting │ ← Blocked on I/O
-                                └────┬────┘
-                                     │ I/O complete
-                                     ▼
-                                  (Ready)
+\`\`\`mermaid
+stateDiagram-v2
+    [*] --> New : Process created
+    New --> Ready : OS admits to ready queue
+    Ready --> Running : dispatch (get CPU)
+    Running --> Ready : preempt / scheduler
+    Running --> Waiting : I/O request
+    Waiting --> Ready : I/O complete
+    Running --> [*] : exit
 \`\`\`
 
 ---
@@ -109,21 +99,17 @@ Think of threads as **workers in the same kitchen**:
 
 Remember the **call stack** from recursion? Each thread has its own stack:
 
-\`\`\`
-Process Memory Layout
-┌──────────────────────────────────────┐
-│            Thread 1 Stack            │ ↓ grows down
-├──────────────────────────────────────┤
-│            Thread 2 Stack            │ ↓ grows down
-├──────────────────────────────────────┤
-│               ...                    │
-├──────────────────────────────────────┤
-│               Heap                   │ ↑ grows up (malloc)
-├──────────────────────────────────────┤
-│        Data (global variables)       │
-├──────────────────────────────────────┤
-│           Code (read-only)           │
-└──────────────────────────────────────┘
+\`\`\`mermaid
+flowchart TB
+    subgraph mem["Process Memory Layout"]
+        direction TB
+        T1["Thread 1 Stack ↓"] --> T2["Thread 2 Stack ↓"]
+        T2 --> dots["..."]
+        dots --> H["Heap ↑ grows up"]
+        H --> D["Data - global variables"]
+        D --> C["Code - read-only"]
+    end
+    style mem fill:#1e1b4b,stroke:#a78bfa
 \`\`\`
 
 ---
@@ -275,22 +261,20 @@ The key insight: You don't need *all* your books in study rooms *all* the time. 
 
 Not all memory is created equal. Closer to the CPU = faster but smaller:
 
+\`\`\`mermaid
+flowchart TB
+    subgraph hierarchy["Memory Hierarchy"]
+        direction TB
+        R["Registers ~1 cycle ~KB"] --> L1["L1 Cache ~4 cycles ~64KB"]
+        L1 --> L2["L2 Cache ~12 cycles ~256KB"]
+        L2 --> L3["L3 Cache ~40 cycles ~8MB"]
+        L3 --> RAM["RAM ~100+ cycles ~16GB"]
+        RAM --> D["Disk ~10M cycles ~1TB"]
+    end
+    style hierarchy fill:#1e1b4b,stroke:#a78bfa
 \`\`\`
-        ┌────────────┐
-        │ Registers  │  ~1 CPU cycle    | ~KB
-        ├────────────┤
-        │  L1 Cache  │  ~4 cycles       | ~64KB
-        ├────────────┤
-        │  L2 Cache  │  ~12 cycles      | ~256KB
-        ├────────────┤
-        │  L3 Cache  │  ~40 cycles      | ~8MB
-        ├────────────┤
-        │    RAM     │  ~100+ cycles    | ~16GB
-        ├────────────┤
-        │   Disk     │  ~10M cycles     | ~1TB
-        └────────────┘
-           Faster                     Larger
-\`\`\`
+
+**Note**: Faster ↑ | Larger ↓
 
 **Key insight**: A cache miss to RAM is 100x slower than a cache hit. A page fault (accessing disk) is 100,000x slower!
 
@@ -302,23 +286,31 @@ Not all memory is created equal. Closer to the CPU = faster but smaller:
 
 ### How It Works
 
-\`\`\`
-Process A                     Process B
-┌─────────────┐               ┌─────────────┐
-│ 0x0000:Code │               │ 0x0000:Code │   Same virtual
-│ 0x1000:Data │               │ 0x1000:Data │   addresses!
-│ 0x2000:Heap │               │ 0x2000:Heap │
-└──────┬──────┘               └──────┬──────┘
-       │                             │
-       ▼                             ▼
-    Page Table A                  Page Table B
-       │                             │
-       ▼                             ▼
-┌──────────────────────────────────────────┐
-│            Physical RAM                   │
-│  Frame 3 ← A's code   Frame 7 ← B's data │
-│  Frame 5 ← A's heap   Frame 1 ← B's code │
-└──────────────────────────────────────────┘
+\`\`\`mermaid
+flowchart TB
+    subgraph procA["Process A"]
+        A1["0x0000: Code"]
+        A2["0x1000: Data"]
+        A3["0x2000: Heap"]
+    end
+    subgraph procB["Process B"]
+        B1["0x0000: Code"]
+        B2["0x1000: Data"]
+        B3["0x2000: Heap"]
+    end
+    procA --> PTA["Page Table A"]
+    procB --> PTB["Page Table B"]
+    PTA --> RAM
+    PTB --> RAM
+    subgraph RAM["Physical RAM"]
+        F1["Frame 1 B code"]
+        F3["Frame 3 A code"]
+        F5["Frame 5 A heap"]
+        F7["Frame 7 B data"]
+    end
+    style procA fill:#1e1b4b,stroke:#a78bfa
+    style procB fill:#1e1b4b,stroke:#a78bfa
+    style RAM fill:#0f172a,stroke:#22c55e
 \`\`\`
 
 ### Benefits
@@ -337,14 +329,12 @@ Process A                     Process B
 
 Each process has a **page table** that maps virtual pages to physical frames:
 
-\`\`\`
-Virtual Page    Physical Frame    Present?
-─────────────────────────────────────────
-Page 0      →   Frame 5          ✓
-Page 1      →   Frame 12         ✓
-Page 2      →   (on disk)        ✗ ← Page Fault!
-Page 3      →   Frame 1          ✓
-\`\`\`
+| Virtual Page | Physical Frame | Present? |
+|-------------|----------------|----------|
+| Page 0 | Frame 5 | ✓ |
+| Page 1 | Frame 12 | ✓ |
+| Page 2 | (on disk) | ✗ ← Page Fault! |
+| Page 3 | Frame 1 | ✓ |
 
 ### What Happens on a Page Fault?
 
@@ -528,18 +518,18 @@ def increment():
 
 Two threads interleaving:
 
-\`\`\`
-Thread A                Thread B
-────────                ────────
-READ counter (=0)       
-                        READ counter (=0)
-ADD (temp=1)            
-                        ADD (temp=1)
-WRITE counter (=1)      
-                        WRITE counter (=1)
-
-Expected: counter = 2
-Actual:   counter = 1  ← Lost update!
+\`\`\`mermaid
+sequenceDiagram
+    participant A as Thread A
+    participant M as Memory counter
+    participant B as Thread B
+    A->>M: READ counter = 0
+    B->>M: READ counter = 0
+    A->>A: ADD temp = 1
+    B->>B: ADD temp = 1
+    A->>M: WRITE counter = 1
+    B->>M: WRITE counter = 1
+    Note over M: Expected: 2, Actual: 1 - Lost update!
 \`\`\`
 
 ---
@@ -628,31 +618,37 @@ def limited_access():
 
 Five philosophers sit at a round table. Each needs two forks to eat. If everyone picks up their left fork first and waits for the right fork — **deadlock!**
 
+\`\`\`mermaid
+flowchart TB
+    subgraph table["Dining Philosophers"]
+        P1((P1)) --- F1[🍴]
+        F1 --- P2((P2))
+        P2 --- F2[🍴]
+        F2 --- P3((P3))
+        P3 --- F3[🍴]
+        F3 --- P4((P4))
+        P4 --- F4[🍴]
+        F4 --- P5((P5))
+        P5 --- F5[🍴]
+        F5 --- P1
+    end
+    style table fill:#1e1b4b,stroke:#a78bfa
 \`\`\`
-       P1
-     🍴   🍴
-   P5       P2
-  🍴         🍴
-     P4   P3
-       🍴
-       
-Everyone holds left fork, waits for right. Forever.
-\`\`\`
+
+**Problem**: Everyone holds left fork, waits for right. Forever.
 
 ### The Four Conditions (All Required)
 
-\`\`\`
-┌──────────────────────────────────────────────┐
-│           DEADLOCK occurs when:              │
-├──────────────────────────────────────────────┤
-│ 1. Mutual Exclusion: Resources held          │
-│    exclusively                               │
-│ 2. Hold and Wait: Thread holds one resource  │
-│    while waiting for another                 │
-│ 3. No Preemption: Resources can't be         │
-│    forcibly taken                            │
-│ 4. Circular Wait: A→B→C→A waiting cycle      │
-└──────────────────────────────────────────────┘
+\`\`\`mermaid
+flowchart TB
+    subgraph deadlock["DEADLOCK occurs when:"]
+        direction TB
+        C1["1. Mutual Exclusion: Resources held exclusively"]
+        C2["2. Hold and Wait: Thread holds one resource while waiting for another"]
+        C3["3. No Preemption: Resources cannot be forcibly taken"]
+        C4["4. Circular Wait: A→B→C→A waiting cycle"]
+    end
+    style deadlock fill:#7f1d1d,stroke:#ef4444
 \`\`\`
 
 ### How to Prevent Deadlock
@@ -767,13 +763,14 @@ Think of a file system like an office filing cabinet:
 
 A typical Unix file system is organized as:
 
-\`\`\`
-┌────────────┬────────────┬──────────────┬───────────────────┐
-│ Boot Block │ Superblock │  Inode Table │    Data Blocks    │
-└────────────┴────────────┴──────────────┴───────────────────┘
-     ↑             ↑             ↑                 ↑
-  Boot code    Metadata     File info      Actual file data
-              (size, #inodes)  (one per file)
+\`\`\`mermaid
+flowchart LR
+    subgraph disk[" "]
+        A["Boot Block<br>↓<br>Boot code"] --> B["Superblock<br>↓<br>Metadata"]
+        B --> C["Inode Table<br>↓<br>File info"]
+        C --> D["Data Blocks<br>↓<br>Actual data"]
+    end
+    style disk fill:#1e1b4b,stroke:#a78bfa
 \`\`\`
 
 ### The Superblock
@@ -792,19 +789,19 @@ Contains critical filesystem metadata:
 
 ### What's Inside an Inode?
 
-\`\`\`
-┌─────────────────────────────────────┐
-│            INODE #12847             │
-├─────────────────────────────────────┤
-│  File Type     : Regular file       │
-│  Permissions   : rwxr-xr-x          │
-│  Owner         : mansoor            │
-│  Group         : staff              │
-│  Size          : 4,096 bytes        │
-│  Timestamps    : atime, mtime, ctime│
-│  Link Count    : 1                  │
-│  Data Blocks   : [52, 107, 234]     │
-└─────────────────────────────────────┘
+\`\`\`mermaid
+flowchart TB
+    subgraph inode["INODE #12847"]
+        A["File Type: Regular file"]
+        B["Permissions: rwxr-xr-x"]
+        C["Owner: mansoor"]
+        D["Group: staff"]
+        E["Size: 4,096 bytes"]
+        F["Timestamps: atime, mtime, ctime"]
+        G["Link Count: 1"]
+        H["Data Blocks: 52, 107, 234"]
+    end
+    style inode fill:#1e1b4b,stroke:#a78bfa
 \`\`\`
 
 ### Why Separate Names and Inodes?
@@ -997,22 +994,18 @@ Each layer wraps the data from the layer above, adding its own header — like p
 
 The OSI model is a *conceptual* framework for understanding network communication:
 
-\`\`\`
-┌─────────────────────────────────────────────────┐
-│ Layer 7: Application  │ HTTP, FTP, DNS, SMTP    │
-├─────────────────────────────────────────────────┤
-│ Layer 6: Presentation │ SSL/TLS, encryption     │
-├─────────────────────────────────────────────────┤
-│ Layer 5: Session      │ Sockets, sessions       │
-├─────────────────────────────────────────────────┤
-│ Layer 4: Transport    │ TCP, UDP                │
-├─────────────────────────────────────────────────┤
-│ Layer 3: Network      │ IP, ICMP, routing       │
-├─────────────────────────────────────────────────┤
-│ Layer 2: Data Link    │ Ethernet, MAC, switches │
-├─────────────────────────────────────────────────┤
-│ Layer 1: Physical     │ Cables, radio waves     │
-└─────────────────────────────────────────────────┘
+\`\`\`mermaid
+flowchart TB
+    subgraph osi["OSI 7-Layer Model"]
+        direction TB
+        L7["Layer 7: Application - HTTP, FTP, DNS, SMTP"] --> L6["Layer 6: Presentation - SSL/TLS, encryption"]
+        L6 --> L5["Layer 5: Session - Sockets, sessions"]
+        L5 --> L4["Layer 4: Transport - TCP, UDP"]
+        L4 --> L3["Layer 3: Network - IP, ICMP, routing"]
+        L3 --> L2["Layer 2: Data Link - Ethernet, MAC, switches"]
+        L2 --> L1["Layer 1: Physical - Cables, radio waves"]
+    end
+    style osi fill:#1e1b4b,stroke:#a78bfa
 \`\`\`
 
 ### Memory Trick
@@ -1025,16 +1018,15 @@ The OSI model is a *conceptual* framework for understanding network communicatio
 
 In practice, the internet uses a *simpler* 4-layer model:
 
-\`\`\`
-┌─────────────────┐
-│   Application   │  HTTP, DNS, FTP, SSH
-├─────────────────┤
-│    Transport    │  TCP, UDP
-├─────────────────┤
-│    Internet     │  IP, ICMP
-├─────────────────┤
-│  Network Access │  Ethernet, WiFi, ARP
-└─────────────────┘
+\`\`\`mermaid
+flowchart TB
+    subgraph tcpip["TCP/IP Model"]
+        direction TB
+        A["Application - HTTP, DNS, FTP, SSH"] --> T["Transport - TCP, UDP"]
+        T --> I["Internet - IP, ICMP"]
+        I --> N["Network Access - Ethernet, WiFi, ARP"]
+    end
+    style tcpip fill:#1e1b4b,stroke:#a78bfa
 \`\`\`
 
 ---
@@ -1106,16 +1098,14 @@ If an IP address is a building address, a **port** is the apartment number.
 
 Before any data is sent, TCP establishes a connection:
 
-\`\`\`
-Client              Server
-   │                   │
-   │──── SYN ─────────►│  1. Client: "I want to talk"
-   │                   │
-   │◄── SYN-ACK ──────│  2. Server: "OK, I want to talk too"
-   │                   │
-   │──── ACK ─────────►│  3. Client: "Got it, let's go"
-   │                   │
-   Connection Established
+\`\`\`mermaid
+sequenceDiagram
+    participant C as Client
+    participant S as Server
+    C->>S: SYN (I want to talk)
+    S->>C: SYN-ACK (OK, I want to talk too)
+    C->>S: ACK (Got it, lets go)
+    Note over C,S: Connection Established!
 \`\`\`
 
 ---
@@ -1236,16 +1226,17 @@ Think of HTTP like ordering at a restaurant:
 
 Every HTTP request has these components:
 
-\`\`\`
-┌─────────────────────────────────────────────────┐
-│ GET /api/users/123 HTTP/1.1      ← Request Line │
-├─────────────────────────────────────────────────┤
-│ Host: api.example.com            ← Headers      │
-│ Authorization: Bearer abc123                    │
-│ Content-Type: application/json                  │
-├─────────────────────────────────────────────────┤
-│ { "name": "Alice" }              ← Body (opt)   │
-└─────────────────────────────────────────────────┘
+\`\`\`mermaid
+flowchart TB
+    subgraph req["HTTP Request"]
+        direction TB
+        RL["GET /api/users/123 HTTP/1.1 - Request Line"]
+        H1["Host: api.example.com"]
+        H2["Authorization: Bearer abc123"]
+        H3["Content-Type: application/json"]
+        B["Body: { name: Alice }"]
+    end
+    style req fill:#1e1b4b,stroke:#a78bfa
 \`\`\`
 
 ---
@@ -1453,14 +1444,17 @@ Think of sockets like phone calls:
 
 **Definition**: A **socket** is an endpoint for communication between two machines over a network.
 
-\`\`\`
-┌─────────────────┐          ┌─────────────────┐
-│     Client      │          │     Server      │
-│  192.168.1.10   │          │  192.168.1.20   │
-│                 │          │                 │
-│  Socket         │ ◄──────► │  Socket         │
-│  (port 50123)   │   TCP    │  (port 8080)    │
-└─────────────────┘          └─────────────────┘
+\`\`\`mermaid
+flowchart LR
+    subgraph client["Client 192.168.1.10"]
+        CS["Socket port 50123"]
+    end
+    subgraph server["Server 192.168.1.20"]
+        SS["Socket port 8080"]
+    end
+    CS <-->|TCP| SS
+    style client fill:#1e1b4b,stroke:#a78bfa
+    style server fill:#1e1b4b,stroke:#22c55e
 \`\`\`
 
 ---
@@ -1476,22 +1470,21 @@ Think of sockets like phone calls:
 
 ## TCP Server/Client Lifecycle
 
-\`\`\`
-Server                              Client
-──────                              ──────
-socket()  → Create socket           socket()   → Create socket
-   │                                    │
-bind()    → Assign address              │
-   │                                    │
-listen()  → Wait for connections        │
-   │                                    │
-accept()  → Accept connection  ◄───── connect() → Connect to server
-   │                                    │
-recv()    ◄───────────────────────── send()
-   │                                    │
-send()    ─────────────────────────► recv()
-   │                                    │
-close()   → End connection           close()
+\`\`\`mermaid
+sequenceDiagram
+    participant S as Server
+    participant C as Client
+    Note over S: socket() - Create
+    Note over S: bind() - Assign address
+    Note over S: listen() - Wait
+    Note over C: socket() - Create
+    C->>S: connect()
+    Note over S: accept()
+    C->>S: send()
+    Note over S: recv()
+    S->>C: send()
+    Note over C: recv()
+    Note over S,C: close() - End connection
 \`\`\`
 
 ---
@@ -1703,71 +1696,311 @@ print(response.decode())
         title: 'SQL Fundamentals',
         content: `# SQL Fundamentals
 
-Query and manipulate relational databases.
+## Why This Matters
+
+SQL is the language of data. Every backend system, every analytics pipeline, every application with persistent storage speaks SQL (or something that looks like it). Understanding SQL deeply enables you to:
+
+- Write efficient queries that don't bring your database to its knees
+- Design schemas that scale with your application
+- Debug production issues when data looks "wrong"
+- Ace the SQL portion of technical interviews
+
+---
+
+## The Filing Cabinet Analogy 🗄️
+
+Think of a database like a well-organized filing cabinet:
+
+| Filing Cabinet | Database |
+|----------------|----------|
+| **Cabinet** | Database |
+| **Drawer** | Table |
+| **Folder** | Row (record) |
+| **Label on folder** | Primary key |
+| **Contents** | Column values |
+| **Cross-references** | Foreign keys |
+
+---
+
+## Relational Model: Data in Tables
+
+**Definition**: A **relational database** organizes data into **tables** (relations) with **rows** (records) and **columns** (fields).
+
+\`\`\`mermaid
+flowchart LR
+    subgraph users["users table"]
+        U1["id | name | email"]
+        U2["1 | Alice | alice@ex.com"]
+        U3["2 | Bob | bob@ex.com"]
+    end
+    subgraph orders["orders table"]
+        O1["id | user_id | total"]
+        O2["1 | 1 | 99.99"]
+        O3["2 | 1 | 149.50"]
+    end
+    users -->|user_id FK| orders
+\`\`\`
+
+---
 
 ## CRUD Operations
 
+The four fundamental operations on data:
+
+### CREATE (INSERT)
+
 \`\`\`sql
--- Create
+-- Insert a single row
 INSERT INTO users (name, email)
 VALUES ('Alice', 'alice@example.com');
 
--- Read
-SELECT * FROM users WHERE id = 1;
-SELECT name, email FROM users ORDER BY name;
+-- Insert multiple rows
+INSERT INTO users (name, email) VALUES
+    ('Bob', 'bob@example.com'),
+    ('Charlie', 'charlie@example.com');
 
--- Update
-UPDATE users SET email = 'new@example.com' WHERE id = 1;
-
--- Delete
-DELETE FROM users WHERE id = 1;
+-- Insert with returning (PostgreSQL)
+INSERT INTO users (name, email)
+VALUES ('Diana', 'diana@example.com')
+RETURNING id, name;
 \`\`\`
 
-## Joins
+### READ (SELECT)
 
 \`\`\`sql
--- Inner Join: matching rows in both
-SELECT users.name, orders.total
-FROM users
-INNER JOIN orders ON users.id = orders.user_id;
+-- Select all columns
+SELECT * FROM users;
 
--- Left Join: all from left, matching from right
-SELECT users.name, orders.total
-FROM users
-LEFT JOIN orders ON users.id = orders.user_id;
-\`\`\`
+-- Select specific columns with filtering
+SELECT name, email 
+FROM users 
+WHERE created_at > '2024-01-01'
+ORDER BY name ASC
+LIMIT 10;
 
-## Aggregations
-
-\`\`\`sql
--- Count, Sum, Average
+-- Select with alias
 SELECT 
-    department,
-    COUNT(*) as employee_count,
-    AVG(salary) as avg_salary
-FROM employees
-GROUP BY department
-HAVING AVG(salary) > 50000;
+    u.name AS user_name,
+    COUNT(o.id) AS order_count
+FROM users u
+LEFT JOIN orders o ON u.id = o.user_id
+GROUP BY u.id, u.name;
 \`\`\`
 
-## Subqueries
+### UPDATE
 
 \`\`\`sql
--- Find users with above-average orders
-SELECT name FROM users
-WHERE id IN (
-    SELECT user_id FROM orders
-    WHERE total > (SELECT AVG(total) FROM orders)
+-- Update with condition (ALWAYS use WHERE!)
+UPDATE users 
+SET email = 'newemail@example.com',
+    updated_at = NOW()
+WHERE id = 1;
+
+-- Update with subquery
+UPDATE orders
+SET status = 'cancelled'
+WHERE user_id IN (
+    SELECT id FROM users WHERE is_banned = true
 );
 \`\`\`
 
+### DELETE
+
+\`\`\`sql
+-- Delete with condition (ALWAYS use WHERE!)
+DELETE FROM users WHERE id = 1;
+
+-- Soft delete pattern (preferred)
+UPDATE users 
+SET deleted_at = NOW() 
+WHERE id = 1;
+\`\`\`
+
+> ⚠️ **Warning**: Always use WHERE with UPDATE and DELETE. Without it, you affect ALL rows!
+
+---
+
+## JOINs: Combining Tables
+
+\`\`\`mermaid
+flowchart LR
+    subgraph joins["JOIN Types"]
+        INNER["INNER JOIN<br/>Only matching rows"]
+        LEFT["LEFT JOIN<br/>All left + matching right"]
+        RIGHT["RIGHT JOIN<br/>Matching left + all right"]
+        FULL["FULL JOIN<br/>All rows from both"]
+    end
+\`\`\`
+
+### INNER JOIN
+
+Returns only rows where there's a match in **both** tables:
+
+\`\`\`sql
+SELECT users.name, orders.total
+FROM users
+INNER JOIN orders ON users.id = orders.user_id;
+-- Users with no orders are excluded
+\`\`\`
+
+### LEFT JOIN
+
+Returns **all** rows from left table, with matches from right (or NULL):
+
+\`\`\`sql
+SELECT users.name, orders.total
+FROM users
+LEFT JOIN orders ON users.id = orders.user_id;
+-- Users with no orders show NULL for orders.total
+\`\`\`
+
+### Multiple JOINs
+
+\`\`\`sql
+SELECT 
+    u.name,
+    o.id AS order_id,
+    p.name AS product_name
+FROM users u
+JOIN orders o ON u.id = o.user_id
+JOIN order_items oi ON o.id = oi.order_id
+JOIN products p ON oi.product_id = p.id
+WHERE o.status = 'completed';
+\`\`\`
+
+---
+
+## Aggregations & Grouping
+
+### Aggregate Functions
+
+| Function | Description |
+|----------|-------------|
+| COUNT(*) | Number of rows |
+| SUM(col) | Sum of values |
+| AVG(col) | Average value |
+| MIN(col) | Minimum value |
+| MAX(col) | Maximum value |
+
+### GROUP BY
+
+\`\`\`sql
+SELECT 
+    department,
+    COUNT(*) AS employee_count,
+    AVG(salary) AS avg_salary,
+    MAX(salary) AS max_salary
+FROM employees
+GROUP BY department
+HAVING AVG(salary) > 50000  -- Filter AFTER grouping
+ORDER BY avg_salary DESC;
+\`\`\`
+
+**Key insight**: WHERE filters rows *before* grouping; HAVING filters *after* grouping.
+
+---
+
+## Subqueries
+
+### Scalar Subquery (returns single value)
+
+\`\`\`sql
+SELECT name, salary
+FROM employees
+WHERE salary > (SELECT AVG(salary) FROM employees);
+\`\`\`
+
+### IN Subquery (returns list)
+
+\`\`\`sql
+SELECT name FROM users
+WHERE id IN (
+    SELECT user_id FROM orders
+    WHERE total > 1000
+);
+\`\`\`
+
+### EXISTS Subquery (returns boolean)
+
+\`\`\`sql
+SELECT name FROM users u
+WHERE EXISTS (
+    SELECT 1 FROM orders o
+    WHERE o.user_id = u.id AND o.status = 'pending'
+);
+\`\`\`
+
+---
+
+## Common Table Expressions (CTEs)
+
+CTEs make complex queries readable:
+
+\`\`\`sql
+WITH high_value_customers AS (
+    SELECT user_id, SUM(total) AS lifetime_value
+    FROM orders
+    GROUP BY user_id
+    HAVING SUM(total) > 10000
+),
+recent_orders AS (
+    SELECT user_id, COUNT(*) AS recent_count
+    FROM orders
+    WHERE created_at > NOW() - INTERVAL '30 days'
+    GROUP BY user_id
+)
+SELECT 
+    u.name,
+    hvc.lifetime_value,
+    COALESCE(ro.recent_count, 0) AS recent_orders
+FROM users u
+JOIN high_value_customers hvc ON u.id = hvc.user_id
+LEFT JOIN recent_orders ro ON u.id = ro.user_id;
+\`\`\`
+
+---
+
+## Interview Insights 💡
+
+**Common Questions**:
+1. "Write a query to find the second highest salary"
+2. "Find duplicate records in a table"
+3. "Difference between WHERE and HAVING?"
+4. "When would you use a LEFT JOIN vs INNER JOIN?"
+
+**Key Talking Points**:
+- Always think about edge cases: NULLs, empty tables, duplicates
+- Mention query optimization: indexes, avoiding SELECT *
+- Discuss trade-offs: denormalization vs joins
+
+**Classic Interview Query**:
+
+\`\`\`sql
+-- Second highest salary (handles ties)
+SELECT DISTINCT salary
+FROM employees
+ORDER BY salary DESC
+LIMIT 1 OFFSET 1;
+
+-- Or using window function
+SELECT salary FROM (
+    SELECT salary, DENSE_RANK() OVER (ORDER BY salary DESC) AS rank
+    FROM employees
+) ranked
+WHERE rank = 2;
+\`\`\`
+
+---
+
 ## Key Takeaways
 
-- SELECT defines output columns
-- WHERE filters rows
-- GROUP BY aggregates data
-- JOIN combines tables
-- Always use parameterized queries
+✅ **CRUD** = Create (INSERT), Read (SELECT), Update, Delete  
+✅ **JOINs** combine tables: INNER (both match), LEFT (all left + matches)  
+✅ **GROUP BY** aggregates rows; **HAVING** filters after grouping  
+✅ **Subqueries** can return scalars, lists, or booleans  
+✅ **CTEs** make complex queries readable and maintainable  
+✅ Always use **WHERE** with UPDATE/DELETE to avoid catastrophe  
+✅ Never use **SELECT *** in production — specify columns explicitly
 `,
     },
 
@@ -1776,64 +2009,265 @@ WHERE id IN (
         title: 'Indexing & B-Trees',
         content: `# Indexing & B-Trees
 
-Speed up database queries.
+## Why This Matters
+
+Without indexes, every query requires scanning every row in a table. For a table with millions of rows, this is catastrophic. Indexing is the difference between:
+
+- A query that takes **5 milliseconds** → Great user experience
+- A query that takes **5 minutes** → Application timeout, users leave
+
+Understanding indexes is essential for:
+- Writing performant database queries
+- Designing scalable database schemas
+- Answering database optimization interview questions
+
+---
+
+## The Library Analogy 📚
+
+Imagine finding a book in a library:
+
+| Without Index | With Index |
+|---------------|------------|
+| Walk through every aisle, check every book | Look up title in catalog, go directly to shelf |
+| O(n) - check all rows | O(log n) - binary search in tree |
+| **Full table scan** | **Index seek** |
+
+---
 
 ## What is an Index?
 
-Like a book's index: find rows without scanning entire table.
+**Definition**: An **index** is a data structure (usually a B-Tree) that maintains a sorted copy of column values with pointers to the actual rows.
+
+\`\`\`mermaid
+flowchart LR
+    subgraph index["Index on email"]
+        I1["alice@ex.com → Row 3"]
+        I2["bob@ex.com → Row 1"]
+        I3["charlie@ex.com → Row 7"]
+    end
+    subgraph table["users table"]
+        R1["Row 1: Bob"]
+        R3["Row 3: Alice"]
+        R7["Row 7: Charlie"]
+    end
+    I1 --> R3
+    I2 --> R1
+    I3 --> R7
+\`\`\`
+
+### Creating Indexes
 
 \`\`\`sql
--- Create index
+-- Single column index
 CREATE INDEX idx_users_email ON users(email);
 
--- Query uses index
-SELECT * FROM users WHERE email = 'alice@example.com';
--- O(log n) instead of O(n)
+-- Composite index (multiple columns)
+CREATE INDEX idx_orders_user_date ON orders(user_id, created_at);
+
+-- Unique index (enforces uniqueness)
+CREATE UNIQUE INDEX idx_users_email ON users(email);
 \`\`\`
 
-## B-Tree Structure
+---
+
+## B-Tree: The Data Structure Behind Indexes
+
+**Definition**: A **B-Tree** is a self-balancing tree where each node can have multiple children and keys, keeping data sorted and enabling O(log n) operations.
+
+\`\`\`mermaid
+flowchart TB
+    subgraph btree["B-Tree Index"]
+        R["[50]"] --> L["[25, 35]"]
+        R --> M["[75, 90]"]
+        L --> L1["[10, 20]"]
+        L --> L2["[30]"]
+        L --> L3["[40, 45]"]
+        M --> M1["[60, 70]"]
+        M --> M2["[80, 85]"]
+        M --> M3["[95, 99]"]
+    end
+    style btree fill:#1e1b4b,stroke:#a78bfa
+\`\`\`
+
+### Why B-Trees?
+
+| Property | Benefit |
+|----------|---------|
+| **Balanced** | O(log n) height guaranteed |
+| **Wide nodes** | Fewer disk reads (each node = 1 page) |
+| **Sorted leaves** | Efficient range queries |
+| **Self-balancing** | No degradation over time |
+
+### B-Tree Operations
 
 \`\`\`
-              [50]
-           /       \\
-      [25, 35]      [75, 90]
-      /  |  \\        /  |  \\
-   [10] [30] [40]  [60] [80] [95]
+Search for key 35:
+  1. Start at root [50]
+  2. 35 < 50, go left to [25, 35]
+  3. Found 35! Return pointer to row
+
+Time: O(log n) disk reads
 \`\`\`
 
-- Balanced tree structure
-- All leaves at same depth
-- Each node has multiple keys
-- O(log n) search, insert, delete
+---
 
 ## Index Types
 
-| Type | Use Case |
-|------|----------|
-| B-Tree | General purpose, range queries |
-| Hash | Exact match only |
-| GiST | Geometric, full-text |
-| Bitmap | Low cardinality columns |
+| Type | Best For | Example |
+|------|----------|---------|
+| **B-Tree** | Range queries, sorting, equality | WHERE age > 25 |
+| **Hash** | Exact match only (rare in SQL DBs) | WHERE id = 123 |
+| **GIN** | Arrays, full-text search | WHERE tags @> '{sql}' |
+| **GiST** | Geometric, geospatial | WHERE location <-> point |
 
-## When to Index
+---
 
-**Good candidates:**
-- Primary keys (automatic)
-- Foreign keys
-- Frequently filtered columns
-- JOIN columns
+## Composite Indexes
 
-**Avoid indexing:**
-- Small tables
-- Frequently updated columns
-- Low selectivity columns
+A composite index includes multiple columns. **Column order matters!**
+
+\`\`\`sql
+-- Index on (user_id, created_at)
+CREATE INDEX idx_orders_user_date ON orders(user_id, created_at);
+
+-- ✅ Uses index (leftmost columns)
+SELECT * FROM orders WHERE user_id = 1;
+SELECT * FROM orders WHERE user_id = 1 AND created_at > '2024-01-01';
+
+-- ❌ Cannot use index efficiently
+SELECT * FROM orders WHERE created_at > '2024-01-01';
+-- user_id must be specified first!
+\`\`\`
+
+**Rule**: A composite index can be used for queries that filter on a *prefix* of its columns.
+
+---
+
+## When to Index (and When NOT To)
+
+### Good Candidates ✅
+
+- **Primary keys** (automatic in most DBs)
+- **Foreign keys** (JOIN performance)
+- **Frequently filtered columns** (WHERE clauses)
+- **ORDER BY columns**
+- **High cardinality** (many unique values)
+
+### Poor Candidates ❌
+
+- **Small tables** (full scan may be faster)
+- **Frequently updated columns** (index maintenance overhead)
+- **Low cardinality** (e.g., boolean columns)
+- **Columns rarely queried**
+
+---
+
+## Analyzing Query Performance
+
+### EXPLAIN Command
+
+\`\`\`sql
+EXPLAIN ANALYZE SELECT * FROM users WHERE email = 'alice@example.com';
+
+-- Output:
+-- Index Scan using idx_users_email on users
+--   Index Cond: (email = 'alice@example.com'::text)
+--   Actual time: 0.025..0.027 ms
+--   Rows: 1
+\`\`\`
+
+### What to Look For
+
+| Scan Type | Meaning | Performance |
+|-----------|---------|-------------|
+| **Index Scan** | Using index | 👍 Good |
+| **Seq Scan** | Full table scan | 👎 Bad for large tables |
+| **Index Only Scan** | All data from index | 👍👍 Best |
+| **Bitmap Index Scan** | Multiple indexes combined | 👍 Good |
+
+---
+
+## The Trade-off: Reads vs Writes
+
+\`\`\`mermaid
+flowchart LR
+    subgraph tradeoff["Index Trade-offs"]
+        R["🔍 READ: Faster"] 
+        W["✍️ WRITE: Slower"]
+        S["💾 STORAGE: More space"]
+    end
+\`\`\`
+
+Every index:
+- **Speeds up** SELECT queries
+- **Slows down** INSERT, UPDATE, DELETE (must update index too)
+- **Uses disk space** (can be significant)
+
+**Rule of thumb**: Don't over-index. Monitor slow query logs and add indexes strategically.
+
+---
+
+## Code Example: Python with Database
+
+\`\`\`python
+import sqlite3
+
+conn = sqlite3.connect(':memory:')
+cursor = conn.cursor()
+
+# Create table and index
+cursor.execute('''
+    CREATE TABLE users (
+        id INTEGER PRIMARY KEY,
+        email TEXT,
+        name TEXT
+    )
+''')
+cursor.execute('CREATE INDEX idx_email ON users(email)')
+
+# Insert data
+cursor.executemany(
+    'INSERT INTO users (email, name) VALUES (?, ?)',
+    [('alice@ex.com', 'Alice'), ('bob@ex.com', 'Bob')]
+)
+
+# Query using index
+cursor.execute('EXPLAIN QUERY PLAN SELECT * FROM users WHERE email = ?', 
+               ('alice@ex.com',))
+print(cursor.fetchall())
+# Shows: SEARCH users USING INDEX idx_email
+\`\`\`
+
+---
+
+## Interview Insights 💡
+
+**Common Questions**:
+1. "What is an index and how does it work?"
+2. "When would you NOT use an index?"
+3. "Explain B-Trees and why databases use them"
+4. "How would you optimize a slow query?"
+
+**Key Talking Points**:
+- Indexes trade write performance for read performance
+- Composite indexes require leftmost prefix for efficiency
+- Always check EXPLAIN before and after adding indexes
+- Over-indexing wastes space and slows writes
+
+**Gotcha**: Adding indexes to a production database can lock tables. Use CREATE INDEX CONCURRENTLY in PostgreSQL!
+
+---
 
 ## Key Takeaways
 
-- Indexes speed reads, slow writes
-- B-Trees support range queries
-- Monitor query plans: EXPLAIN
-- Don't over-index
+✅ **Indexes** are sorted data structures pointing to actual rows  
+✅ **B-Trees** provide O(log n) search with wide nodes for disk efficiency  
+✅ **Composite indexes** can only be used for leftmost prefix queries  
+✅ Indexes **speed reads** but **slow writes** — don't over-index  
+✅ Use **EXPLAIN** to verify your queries use indexes  
+✅ High cardinality columns are good index candidates  
+✅ Monitor slow query logs to identify missing indexes
 `,
     },
 
@@ -1842,59 +2276,282 @@ SELECT * FROM users WHERE email = 'alice@example.com';
         title: 'Transactions & ACID',
         content: `# Transactions & ACID
 
-Ensure data integrity in databases.
+## Why This Matters
+
+Imagine transferring money between bank accounts. If the system crashes after debiting one account but before crediting the other, money vanishes into thin air. **Transactions** prevent this disaster.
+
+Understanding transactions is essential for:
+- Building reliable financial and e-commerce systems
+- Debugging "impossible" data corruption issues
+- Answering database design interview questions
+- Choosing the right consistency-performance trade-offs
+
+---
+
+## The Bank Transfer Analogy 🏦
+
+Transferring $100 from Alice to Bob requires two operations:
+
+\`\`\`mermaid
+sequenceDiagram
+    participant A as Alice Account
+    participant DB as Database
+    participant B as Bob Account
+    Note over DB: BEGIN TRANSACTION
+    DB->>A: Debit $100
+    Note over A: Balance: $500 → $400
+    DB->>B: Credit $100
+    Note over B: Balance: $200 → $300
+    Note over DB: COMMIT
+    Note over A,B: Both changes are now permanent
+\`\`\`
+
+**The problem**: What if the system crashes between steps 1 and 2?
+
+Without transactions: Alice loses $100, Bob gets nothing.
+With transactions: The entire operation is rolled back — nothing happens.
+
+---
 
 ## ACID Properties
 
-| Property | Description |
-|----------|-------------|
-| **A**tomicity | All or nothing |
-| **C**onsistency | Valid state to valid state |
-| **I**solation | Concurrent transactions don't interfere |
-| **D**urability | Committed data survives crashes |
+**Definition**: **ACID** is a set of properties that guarantee database transactions are processed reliably.
 
-## Transaction Example
+\`\`\`mermaid
+flowchart TB
+    subgraph acid["ACID Properties"]
+        A["**A**tomicity<br/>All or nothing"]
+        C["**C**onsistency<br/>Valid state to valid state"]
+        I["**I**solation<br/>Transactions don't interfere"]
+        D["**D**urability<br/>Committed data survives crashes"]
+    end
+    style acid fill:#1e1b4b,stroke:#a78bfa
+\`\`\`
+
+### Atomicity
+
+All operations in a transaction succeed, or none do.
 
 \`\`\`sql
-BEGIN TRANSACTION;
+BEGIN;
+UPDATE accounts SET balance = balance - 100 WHERE id = 1;  -- Succeeds
+UPDATE accounts SET balance = balance + 100 WHERE id = 2;  -- Fails!
+ROLLBACK;  -- First update is undone
+\`\`\`
 
+### Consistency
+
+The database moves from one valid state to another. Constraints are always satisfied.
+
+\`\`\`sql
+-- Constraint: balance >= 0
+UPDATE accounts SET balance = balance - 1000 WHERE id = 1;
+-- If this would make balance negative, transaction is rejected
+\`\`\`
+
+### Isolation
+
+Concurrent transactions don't see each other's uncommitted changes (depending on isolation level).
+
+### Durability
+
+Once committed, data survives power outages, crashes, and disasters (via write-ahead logging).
+
+---
+
+## Transaction Syntax
+
+\`\`\`sql
+-- Start a transaction
+BEGIN;  -- or BEGIN TRANSACTION or START TRANSACTION
+
+-- Perform operations
 UPDATE accounts SET balance = balance - 100 WHERE id = 1;
 UPDATE accounts SET balance = balance + 100 WHERE id = 2;
 
--- Check constraint
-IF (SELECT balance FROM accounts WHERE id = 1) < 0 THEN
-    ROLLBACK;
-ELSE
-    COMMIT;
-END IF;
+-- If everything is good, make it permanent
+COMMIT;
+
+-- If something went wrong, undo everything
+-- ROLLBACK;
 \`\`\`
+
+### Python Example
+
+\`\`\`python
+import psycopg2
+
+conn = psycopg2.connect("dbname=bank")
+cursor = conn.cursor()
+
+try:
+    cursor.execute("UPDATE accounts SET balance = balance - 100 WHERE id = 1")
+    cursor.execute("UPDATE accounts SET balance = balance + 100 WHERE id = 2")
+    
+    # Check constraint
+    cursor.execute("SELECT balance FROM accounts WHERE id = 1")
+    if cursor.fetchone()[0] < 0:
+        raise Exception("Insufficient funds")
+    
+    conn.commit()  # Make changes permanent
+    print("Transfer successful!")
+except Exception as e:
+    conn.rollback()  # Undo all changes
+    print(f"Transfer failed: {e}")
+finally:
+    conn.close()
+\`\`\`
+
+---
 
 ## Isolation Levels
 
-| Level | Dirty Read | Non-Repeatable | Phantom |
-|-------|------------|----------------|---------|
-| Read Uncommitted | ✗ | ✗ | ✗ |
-| Read Committed | ✓ | ✗ | ✗ |
-| Repeatable Read | ✓ | ✓ | ✗ |
-| Serializable | ✓ | ✓ | ✓ |
+Isolation levels control what concurrent transactions can see:
 
-## Locking
+| Level | Dirty Read | Non-Repeatable Read | Phantom Read |
+|-------|------------|---------------------|--------------|
+| **Read Uncommitted** | Possible | Possible | Possible |
+| **Read Committed** | ✗ Prevented | Possible | Possible |
+| **Repeatable Read** | ✗ Prevented | ✗ Prevented | Possible |
+| **Serializable** | ✗ Prevented | ✗ Prevented | ✗ Prevented |
+
+### What Are These Problems?
+
+**Dirty Read**: Reading uncommitted changes from another transaction
+\`\`\`
+T1: UPDATE balance SET amount = 0;  -- Not committed yet
+T2: SELECT amount FROM balance;     -- Reads 0 (dirty!)
+T1: ROLLBACK;                       -- T2 read data that never existed
+\`\`\`
+
+**Non-Repeatable Read**: Same query returns different results within one transaction
+\`\`\`
+T1: SELECT balance FROM accounts WHERE id = 1;  -- Returns 100
+T2: UPDATE accounts SET balance = 200 WHERE id = 1; COMMIT;
+T1: SELECT balance FROM accounts WHERE id = 1;  -- Returns 200! 
+\`\`\`
+
+**Phantom Read**: New rows appear in repeated queries
+\`\`\`
+T1: SELECT COUNT(*) FROM orders WHERE status = 'pending';  -- Returns 5
+T2: INSERT INTO orders (status) VALUES ('pending'); COMMIT;
+T1: SELECT COUNT(*) FROM orders WHERE status = 'pending';  -- Returns 6!
+\`\`\`
+
+### Setting Isolation Level
 
 \`\`\`sql
--- Pessimistic locking
-SELECT * FROM accounts WHERE id = 1 FOR UPDATE;
-
--- Row is locked until transaction ends
-UPDATE accounts SET balance = balance - 100 WHERE id = 1;
+-- PostgreSQL
+SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+BEGIN;
+-- Your queries here
 COMMIT;
 \`\`\`
 
+---
+
+## Locking Strategies
+
+### Pessimistic Locking
+
+Lock rows before modifying to prevent conflicts:
+
+\`\`\`sql
+BEGIN;
+-- Lock the row for update
+SELECT * FROM accounts WHERE id = 1 FOR UPDATE;
+-- Other transactions wait until we release the lock
+UPDATE accounts SET balance = balance - 100 WHERE id = 1;
+COMMIT;  -- Lock released
+\`\`\`
+
+### Optimistic Locking
+
+Assume no conflicts, check at commit time:
+
+\`\`\`sql
+-- Read with version number
+SELECT balance, version FROM accounts WHERE id = 1;
+-- Returns: balance=500, version=3
+
+-- Update only if version hasn't changed
+UPDATE accounts 
+SET balance = 400, version = 4 
+WHERE id = 1 AND version = 3;
+
+-- If affected_rows = 0, someone else updated it first!
+\`\`\`
+
+### When to Use Which?
+
+| Strategy | Use When | Trade-off |
+|----------|----------|-----------|
+| **Pessimistic** | High contention, short transactions | Blocks other transactions |
+| **Optimistic** | Low contention, read-heavy workloads | Retries on conflict |
+
+---
+
+## Deadlocks
+
+**Definition**: **Deadlock** occurs when two transactions wait for each other's locks.
+
+\`\`\`mermaid
+flowchart LR
+    T1["Transaction 1<br/>Holds Lock A<br/>Wants Lock B"] 
+    T2["Transaction 2<br/>Holds Lock B<br/>Wants Lock A"]
+    T1 -->|waiting| T2
+    T2 -->|waiting| T1
+\`\`\`
+
+### Prevention
+
+1. **Lock ordering**: Always acquire locks in the same order
+2. **Lock timeout**: Give up after waiting too long
+3. **Deadlock detection**: Database detects and kills one transaction
+
+\`\`\`sql
+-- PostgreSQL: Set lock timeout
+SET lock_timeout = '5s';
+\`\`\`
+
+---
+
+## Interview Insights 💡
+
+**Common Questions**:
+1. "Explain ACID properties with examples"
+2. "What's the difference between optimistic and pessimistic locking?"
+3. "How would you handle a bank transfer transaction?"
+4. "What are isolation levels and when would you change them?"
+
+**Key Talking Points**:
+- ACID ensures reliability at the cost of performance
+- Higher isolation = more consistency, less concurrency
+- Optimistic locking scales better for read-heavy workloads
+- Always handle transaction failures gracefully
+
+**Gotcha**: Most databases default to "Read Committed" — not "Serializable"! Know your database's default.
+
+---
+
+## Connection to Previous Topics
+
+- **Indexes**: Transactions may need to update multiple indexes atomically
+- **Concurrency**: Transactions use locks similar to mutexes we learned in OS
+- **Networking**: Distributed transactions span multiple databases (2PC protocol)
+
+---
+
 ## Key Takeaways
 
-- Use transactions for multi-step operations
-- Higher isolation = more consistency, less concurrency
-- Deadlocks can occur with pessimistic locking
-- Consider optimistic locking for high concurrency
+✅ **ACID** = Atomicity, Consistency, Isolation, Durability  
+✅ **Atomicity**: All operations succeed or all fail together  
+✅ Higher **isolation levels** prevent anomalies but reduce concurrency  
+✅ **Pessimistic locking**: Lock first, prevents conflicts but blocks  
+✅ **Optimistic locking**: Check at commit, scales better for reads  
+✅ **Deadlocks** occur when transactions wait for each other's locks  
+✅ Always handle transaction failures with proper rollback  
+✅ Know your database's default isolation level
 `,
     },
 
@@ -1903,16 +2560,47 @@ COMMIT;
         title: 'Project P5: Mini Shell',
         content: `# Project P5: Mini Shell
 
-Build a Unix shell from scratch.
+## Why This Project Matters
 
-## Features
+Every time you type \`ls\`, \`cd\`, or run a Python script, a shell is interpreting your commands. Building your own shell teaches you:
 
-- Execute commands with arguments
-- Handle pipes: \`ls | grep .txt\`
-- I/O redirection: \`cat < file.txt > output.txt\`
-- Background processes: \`sleep 10 &\`
+- **Process management**: fork(), exec(), wait() — the core of Unix
+- **I/O redirection**: How \`>\` and \`<\` actually work
+- **Pipes**: The magic behind \`cmd1 | cmd2\`
+- **Job control**: Background processes, signals
 
-## Basic Implementation
+This is a **classic systems programming interview project** — it demonstrates low-level OS knowledge.
+
+---
+
+## What You'll Build
+
+\`\`\`mermaid
+flowchart LR
+    subgraph shell["Mini Shell"]
+        R[Read Input] --> P[Parse Command]
+        P --> E{Execute}
+        E --> |Built-in| B[cd, exit, etc.]
+        E --> |External| F[Fork + Exec]
+        F --> W[Wait for Child]
+    end
+\`\`\`
+
+### Features
+
+| Feature | Example | Concepts |
+|---------|---------|----------|
+| Basic commands | \`ls -la\` | fork, exec, wait |
+| Pipes | \`ls | grep .txt\` | pipe(), dup2 |
+| Redirection | \`cat < in.txt > out.txt\` | open, dup2 |
+| Background | \`sleep 10 &\` | WNOHANG, signals |
+| Built-ins | \`cd\`, \`exit\`, \`history\` | No fork needed |
+
+---
+
+## Phase 1: Basic Command Execution
+
+Start with the simplest shell — read, parse, fork, exec:
 
 \`\`\`c
 #include <stdio.h>
@@ -1924,44 +2612,232 @@ Build a Unix shell from scratch.
 #define MAX_LINE 1024
 #define MAX_ARGS 64
 
+// Parse input line into args array
+int parse_line(char *line, char **args) {
+    int argc = 0;
+    char *token = strtok(line, " \\t\\n");
+    while (token != NULL && argc < MAX_ARGS - 1) {
+        args[argc++] = token;
+        token = strtok(NULL, " \\t\\n");
+    }
+    args[argc] = NULL;
+    return argc;
+}
+
+// Execute external command
+void execute(char **args) {
+    pid_t pid = fork();
+    
+    if (pid < 0) {
+        perror("fork failed");
+    } else if (pid == 0) {
+        // Child process
+        execvp(args[0], args);
+        perror("command not found");
+        exit(1);
+    } else {
+        // Parent waits for child
+        int status;
+        waitpid(pid, &status, 0);
+    }
+}
+
 int main() {
     char line[MAX_LINE];
     char *args[MAX_ARGS];
     
     while (1) {
         printf("mysh> ");
-        fgets(line, MAX_LINE, stdin);
+        fflush(stdout);
         
-        // Parse command
-        int argc = 0;
-        args[argc] = strtok(line, " \\t\\n");
-        while (args[argc] != NULL) {
-            args[++argc] = strtok(NULL, " \\t\\n");
-        }
+        if (fgets(line, MAX_LINE, stdin) == NULL) break;
         
+        int argc = parse_line(line, args);
         if (argc == 0) continue;
+        
+        // Built-in: exit
         if (strcmp(args[0], "exit") == 0) break;
         
-        // Fork and execute
-        pid_t pid = fork();
-        if (pid == 0) {
-            execvp(args[0], args);
-            perror("exec failed");
-            exit(1);
-        } else {
-            wait(NULL);
+        // Built-in: cd
+        if (strcmp(args[0], "cd") == 0) {
+            if (args[1]) chdir(args[1]);
+            continue;
         }
+        
+        execute(args);
     }
+    
     return 0;
 }
 \`\`\`
 
-## Learning Objectives
+---
 
-- Process creation (fork/exec)
-- Signal handling
-- File descriptor manipulation
-- Input parsing
+## Phase 2: Pipes
+
+Enable \`cmd1 | cmd2\` — connect stdout of cmd1 to stdin of cmd2:
+
+\`\`\`c
+void execute_pipe(char **cmd1, char **cmd2) {
+    int pipefd[2];
+    pipe(pipefd);  // pipefd[0] = read end, pipefd[1] = write end
+    
+    pid_t pid1 = fork();
+    if (pid1 == 0) {
+        // First command: stdout -> pipe write end
+        close(pipefd[0]);
+        dup2(pipefd[1], STDOUT_FILENO);
+        close(pipefd[1]);
+        execvp(cmd1[0], cmd1);
+        exit(1);
+    }
+    
+    pid_t pid2 = fork();
+    if (pid2 == 0) {
+        // Second command: stdin <- pipe read end
+        close(pipefd[1]);
+        dup2(pipefd[0], STDIN_FILENO);
+        close(pipefd[0]);
+        execvp(cmd2[0], cmd2);
+        exit(1);
+    }
+    
+    // Parent closes both ends and waits
+    close(pipefd[0]);
+    close(pipefd[1]);
+    waitpid(pid1, NULL, 0);
+    waitpid(pid2, NULL, 0);
+}
+\`\`\`
+
+---
+
+## Phase 3: I/O Redirection
+
+Handle \`>\`, \`<\`, and \`>>\`:
+
+\`\`\`c
+#include <fcntl.h>
+
+void handle_redirection(char **args) {
+    for (int i = 0; args[i] != NULL; i++) {
+        if (strcmp(args[i], ">") == 0) {
+            // Output redirection
+            int fd = open(args[i+1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+            dup2(fd, STDOUT_FILENO);
+            close(fd);
+            args[i] = NULL;  // Remove > and filename from args
+        } else if (strcmp(args[i], "<") == 0) {
+            // Input redirection
+            int fd = open(args[i+1], O_RDONLY);
+            dup2(fd, STDIN_FILENO);
+            close(fd);
+            args[i] = NULL;
+        } else if (strcmp(args[i], ">>") == 0) {
+            // Append redirection
+            int fd = open(args[i+1], O_WRONLY | O_CREAT | O_APPEND, 0644);
+            dup2(fd, STDOUT_FILENO);
+            close(fd);
+            args[i] = NULL;
+        }
+    }
+}
+\`\`\`
+
+---
+
+## Phase 4: Background Processes
+
+Handle \`&\` for background execution:
+
+\`\`\`c
+#include <signal.h>
+
+// Reap zombie processes
+void sigchld_handler(int sig) {
+    while (waitpid(-1, NULL, WNOHANG) > 0);
+}
+
+int main() {
+    // Set up signal handler
+    signal(SIGCHLD, sigchld_handler);
+    
+    // In execute():
+    int background = 0;
+    // Check if last arg is "&"
+    if (argc > 0 && strcmp(args[argc-1], "&") == 0) {
+        background = 1;
+        args[argc-1] = NULL;
+    }
+    
+    pid_t pid = fork();
+    if (pid > 0 && !background) {
+        waitpid(pid, NULL, 0);  // Only wait if foreground
+    }
+}
+\`\`\`
+
+---
+
+## Testing Your Shell
+
+\`\`\`bash
+# Compile
+gcc -o mysh mysh.c
+
+# Test basic commands
+./mysh
+mysh> ls -la
+mysh> echo "Hello World"
+
+# Test pipes
+mysh> ls | grep .c
+mysh> cat file.txt | wc -l
+
+# Test redirection
+mysh> echo "test" > output.txt
+mysh> cat < input.txt
+
+# Test background
+mysh> sleep 5 &
+mysh> echo "This prints immediately"
+\`\`\`
+
+---
+
+## Extension Ideas
+
+| Extension | Difficulty | What You'll Learn |
+|-----------|------------|-------------------|
+| Command history | ⭐⭐ | File I/O, readline |
+| Tab completion | ⭐⭐⭐ | Directory scanning |
+| Environment variables | ⭐⭐ | getenv, setenv |
+| Job control (fg, bg, jobs) | ⭐⭐⭐ | Process groups, signals |
+| Scripting support | ⭐⭐⭐⭐ | Parsing, control flow |
+
+---
+
+## Interview Relevance
+
+**Commonly asked in**: Systems/infrastructure roles at Google, Meta, Bloomberg
+
+**Key concepts to explain**:
+- fork() creates a copy of the process
+- exec() replaces the process image
+- Why we fork before exec (don't want to replace shell itself)
+- How pipes use file descriptors
+- Zombie processes and why we need to wait()
+
+---
+
+## Key Takeaways
+
+✅ **fork()** creates child process, **exec()** runs program  
+✅ **Pipes** connect stdout of one process to stdin of another  
+✅ **dup2()** redirects file descriptors for I/O redirection  
+✅ **waitpid()** with WNOHANG prevents blocking on background jobs  
+✅ Signal handlers clean up zombie processes  
+✅ Built-in commands (cd, exit) must run in parent process
 `,
     },
 
@@ -1969,49 +2845,284 @@ int main() {
         title: 'Project P6: HTTP Server',
         content: `# Project P6: HTTP Server
 
-Build an HTTP server from scratch.
+## Why This Project Matters
 
-## Basic HTTP Server
+Every web application depends on HTTP servers. Understanding how they work under the hood teaches you:
+
+- **Socket programming**: The foundation of network communication
+- **HTTP protocol**: Request/response format, headers, status codes
+- **Concurrency**: Handling multiple clients simultaneously
+- **I/O patterns**: Blocking vs non-blocking, event loops
+
+Building an HTTP server is a **staple systems interview project** at companies like Stripe, Cloudflare, and any infrastructure team.
+
+---
+
+## What You'll Build
+
+\`\`\`mermaid
+flowchart LR
+    subgraph server["HTTP Server"]
+        L["Listen on Port"] --> A["Accept Connection"]
+        A --> R["Read Request"]
+        R --> P["Parse HTTP"]
+        P --> H["Handle Route"]
+        H --> S["Send Response"]
+        S --> A
+    end
+    C1["Client 1"] --> L
+    C2["Client 2"] --> L
+\`\`\`
+
+### Features
+
+| Feature | What You'll Learn |
+|---------|-------------------|
+| Parse HTTP requests | String parsing, protocol format |
+| Route handling | URL matching, handlers |
+| Static file serving | File I/O, MIME types |
+| Concurrent connections | Threading or async I/O |
+| Keep-alive | Connection reuse |
+
+---
+
+## Phase 1: Basic Single-Threaded Server
 
 \`\`\`python
 import socket
 
-def handle_request(request):
-    lines = request.split('\\r\\n')
-    method, path, _ = lines[0].split(' ')
+def parse_request(data: bytes) -> dict:
+    """Parse HTTP request into components."""
+    lines = data.decode().split('\\r\\n')
+    request_line = lines[0].split(' ')
+    
+    return {
+        'method': request_line[0],
+        'path': request_line[1],
+        'version': request_line[2] if len(request_line) > 2 else 'HTTP/1.0',
+        'headers': dict(
+            line.split(': ', 1) for line in lines[1:] 
+            if ': ' in line
+        )
+    }
+
+def build_response(status: int, body: str, content_type: str = 'text/html') -> bytes:
+    """Build HTTP response."""
+    status_text = {200: 'OK', 404: 'Not Found', 500: 'Internal Server Error'}
+    response = f"HTTP/1.1 {status} {status_text.get(status, 'Unknown')}\\r\\n"
+    response += f"Content-Type: {content_type}\\r\\n"
+    response += f"Content-Length: {len(body)}\\r\\n"
+    response += "Connection: close\\r\\n"
+    response += "\\r\\n"
+    response += body
+    return response.encode()
+
+def handle_request(request: dict) -> bytes:
+    """Route request to handler."""
+    path = request['path']
     
     if path == '/':
-        body = '<h1>Hello, World!</h1>'
-        return f'HTTP/1.1 200 OK\\r\\nContent-Length: {len(body)}\\r\\n\\r\\n{body}'
+        return build_response(200, '<h1>Welcome to My Server!</h1>')
+    elif path == '/api/health':
+        return build_response(200, '{"status": "healthy"}', 'application/json')
     else:
-        body = '<h1>404 Not Found</h1>'
-        return f'HTTP/1.1 404 Not Found\\r\\nContent-Length: {len(body)}\\r\\n\\r\\n{body}'
+        return build_response(404, '<h1>404 Not Found</h1>')
 
 def main():
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    server.bind(('localhost', 8080))
+    server.bind(('0.0.0.0', 8080))
     server.listen(5)
     
-    print("Server running on http://localhost:8080")
+    print("🚀 Server running on http://localhost:8080")
     
     while True:
         client, addr = server.accept()
-        request = client.recv(1024).decode()
-        response = handle_request(request)
-        client.send(response.encode())
-        client.close()
+        print(f"📥 Connection from {addr}")
+        
+        try:
+            data = client.recv(4096)
+            if data:
+                request = parse_request(data)
+                print(f"   {request['method']} {request['path']}")
+                response = handle_request(request)
+                client.send(response)
+        finally:
+            client.close()
 
 if __name__ == '__main__':
     main()
 \`\`\`
 
-## Features to Add
+---
 
-- Static file serving
-- Multiple concurrent connections
-- Keep-alive connections
-- Request logging
+## Phase 2: Static File Serving
+
+\`\`\`python
+import os
+import mimetypes
+
+def serve_static_file(path: str, static_dir: str = './public') -> bytes:
+    """Serve static files from directory."""
+    # Prevent directory traversal attacks!
+    safe_path = os.path.normpath(path).lstrip('/')
+    file_path = os.path.join(static_dir, safe_path)
+    
+    # Security check
+    if not file_path.startswith(os.path.abspath(static_dir)):
+        return build_response(403, 'Forbidden')
+    
+    if not os.path.exists(file_path):
+        return build_response(404, 'File not found')
+    
+    if os.path.isdir(file_path):
+        file_path = os.path.join(file_path, 'index.html')
+    
+    mime_type, _ = mimetypes.guess_type(file_path)
+    mime_type = mime_type or 'application/octet-stream'
+    
+    with open(file_path, 'rb') as f:
+        content = f.read()
+    
+    return build_response(200, content.decode(), mime_type)
+\`\`\`
+
+---
+
+## Phase 3: Multi-Threaded Server
+
+Handle multiple clients concurrently:
+
+\`\`\`python
+import threading
+
+def handle_client(client: socket.socket, addr: tuple):
+    """Handle a single client in its own thread."""
+    try:
+        data = client.recv(4096)
+        if data:
+            request = parse_request(data)
+            print(f"[{threading.current_thread().name}] {request['method']} {request['path']}")
+            response = handle_request(request)
+            client.send(response)
+    except Exception as e:
+        print(f"Error: {e}")
+        client.send(build_response(500, 'Internal Server Error'))
+    finally:
+        client.close()
+
+def main_threaded():
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    server.bind(('0.0.0.0', 8080))
+    server.listen(100)
+    
+    print("🚀 Multi-threaded server on http://localhost:8080")
+    
+    while True:
+        client, addr = server.accept()
+        thread = threading.Thread(target=handle_client, args=(client, addr))
+        thread.start()
+\`\`\`
+
+---
+
+## Phase 4: Thread Pool (Production-Ready)
+
+\`\`\`python
+from concurrent.futures import ThreadPoolExecutor
+
+def main_pooled():
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    server.bind(('0.0.0.0', 8080))
+    server.listen(100)
+    
+    print("🚀 Thread-pooled server on http://localhost:8080")
+    
+    # Limit concurrent connections
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        while True:
+            client, addr = server.accept()
+            executor.submit(handle_client, client, addr)
+\`\`\`
+
+---
+
+## Testing Your Server
+
+\`\`\`bash
+# Start the server
+python server.py
+
+# Test with curl
+curl http://localhost:8080/
+curl http://localhost:8080/api/health
+curl http://localhost:8080/nonexistent
+
+# Load test with Apache Bench
+ab -n 1000 -c 10 http://localhost:8080/
+
+# Test with browser
+open http://localhost:8080
+\`\`\`
+
+---
+
+## Extension Ideas
+
+| Extension | Difficulty | What You'll Learn |
+|-----------|------------|-------------------|
+| Keep-alive connections | ⭐⭐ | Connection pooling, timeouts |
+| Chunked transfer encoding | ⭐⭐ | Streaming responses |
+| HTTPS support | ⭐⭐⭐ | TLS, certificates |
+| WebSocket upgrade | ⭐⭐⭐ | Protocol switching |
+| Async I/O (asyncio) | ⭐⭐⭐ | Event loops, non-blocking |
+| HTTP/2 support | ⭐⭐⭐⭐ | Multiplexing, HPACK |
+
+---
+
+## HTTP Protocol Quick Reference
+
+\`\`\`
+Request:
+GET /path HTTP/1.1\\r\\n
+Host: localhost:8080\\r\\n
+User-Agent: curl/7.64.1\\r\\n
+Accept: */*\\r\\n
+\\r\\n
+
+Response:
+HTTP/1.1 200 OK\\r\\n
+Content-Type: text/html\\r\\n
+Content-Length: 13\\r\\n
+\\r\\n
+Hello, World!
+\`\`\`
+
+---
+
+## Interview Relevance
+
+**Commonly asked in**: Backend roles at Stripe, Cloudflare, AWS, any infrastructure team
+
+**Key concepts to explain**:
+- Why we use TCP for HTTP (reliable, ordered delivery)
+- How thread pools prevent resource exhaustion
+- C10K problem and solutions (async, epoll, io_uring)
+- Keep-alive reduces connection overhead
+- Security: input validation, path traversal prevention
+
+---
+
+## Key Takeaways
+
+✅ HTTP is a text-based request/response protocol over TCP  
+✅ Parse request line → headers → body (separated by \\\\r\\\\n)  
+✅ Always set Content-Length or use chunked encoding  
+✅ Thread pools prevent creating unlimited threads  
+✅ Validate paths to prevent directory traversal attacks  
+✅ Keep-alive connections reduce TCP handshake overhead
 `,
     },
 
@@ -2019,65 +3130,381 @@ if __name__ == '__main__':
         title: 'Project P7: Database Query Engine',
         content: `# Project P7: Database Query Engine
 
-Parse and execute SQL-like queries.
+## Why This Project Matters
 
-## Query Parser
+Every time you write a SQL query, a complex system parses it, optimizes it, and executes it against stored data. Building your own teaches you:
 
-\`\`\`python
-class QueryParser:
-    def parse(self, query):
-        tokens = query.strip().split()
-        command = tokens[0].upper()
-        
-        if command == 'SELECT':
-            return self.parse_select(tokens)
-        elif command == 'INSERT':
-            return self.parse_insert(tokens)
-        return None
-    
-    def parse_select(self, tokens):
-        # SELECT col1, col2 FROM table WHERE condition
-        from_idx = tokens.index('FROM')
-        columns = tokens[1:from_idx]
-        table = tokens[from_idx + 1]
-        return {
-            'type': 'SELECT',
-            'columns': [c.strip(',') for c in columns],
-            'table': table
-        }
+- **Parsing**: Turning text into structured data (AST)
+- **Query optimization**: Choosing efficient execution strategies
+- **Storage engines**: How data is actually stored and retrieved
+- **Compiler design**: The same techniques power programming languages
+
+This is an **impressive portfolio project** and common at database companies (Snowflake, MongoDB, Cockroach Labs).
+
+---
+
+## What You'll Build
+
+\`\`\`mermaid
+flowchart LR
+    subgraph engine["Query Engine"]
+        SQL["SQL Text"] --> L["Lexer/Tokenizer"]
+        L --> P["Parser"]
+        P --> AST["Abstract Syntax Tree"]
+        AST --> O["Optimizer"]
+        O --> E["Executor"]
+        E --> S["Storage Engine"]
+        S --> R["Results"]
+    end
 \`\`\`
 
-## CSV Storage Engine
+### Features
+
+| Feature | What You'll Learn |
+|---------|-------------------|
+| SQL parsing | Tokenization, recursive descent |
+| SELECT queries | Projection, filtering |
+| WHERE clauses | Expression evaluation |
+| JOINs | Nested loops, hash joins |
+| Aggregations | GROUP BY, COUNT, SUM |
+
+---
+
+## Phase 1: Tokenizer
+
+Break SQL text into tokens:
+
+\`\`\`python
+from enum import Enum, auto
+from dataclasses import dataclass
+from typing import List
+
+class TokenType(Enum):
+    SELECT = auto()
+    FROM = auto()
+    WHERE = auto()
+    AND = auto()
+    OR = auto()
+    INSERT = auto()
+    INTO = auto()
+    VALUES = auto()
+    IDENTIFIER = auto()
+    NUMBER = auto()
+    STRING = auto()
+    STAR = auto()
+    COMMA = auto()
+    EQUALS = auto()
+    LESS_THAN = auto()
+    GREATER_THAN = auto()
+    LPAREN = auto()
+    RPAREN = auto()
+    EOF = auto()
+
+@dataclass
+class Token:
+    type: TokenType
+    value: str
+
+class Tokenizer:
+    KEYWORDS = {
+        'SELECT': TokenType.SELECT,
+        'FROM': TokenType.FROM,
+        'WHERE': TokenType.WHERE,
+        'AND': TokenType.AND,
+        'OR': TokenType.OR,
+        'INSERT': TokenType.INSERT,
+        'INTO': TokenType.INTO,
+        'VALUES': TokenType.VALUES,
+    }
+    
+    def __init__(self, sql: str):
+        self.sql = sql
+        self.pos = 0
+    
+    def tokenize(self) -> List[Token]:
+        tokens = []
+        while self.pos < len(self.sql):
+            self.skip_whitespace()
+            if self.pos >= len(self.sql):
+                break
+            tokens.append(self.next_token())
+        tokens.append(Token(TokenType.EOF, ''))
+        return tokens
+    
+    def next_token(self) -> Token:
+        char = self.sql[self.pos]
+        
+        if char == '*': self.pos += 1; return Token(TokenType.STAR, '*')
+        if char == ',': self.pos += 1; return Token(TokenType.COMMA, ',')
+        if char == '=': self.pos += 1; return Token(TokenType.EQUALS, '=')
+        if char == '<': self.pos += 1; return Token(TokenType.LESS_THAN, '<')
+        if char == '>': self.pos += 1; return Token(TokenType.GREATER_THAN, '>')
+        if char == '(': self.pos += 1; return Token(TokenType.LPAREN, '(')
+        if char == ')': self.pos += 1; return Token(TokenType.RPAREN, ')')
+        
+        if char == "'" or char == '"':
+            return self.read_string(char)
+        
+        if char.isdigit():
+            return self.read_number()
+        
+        if char.isalpha() or char == '_':
+            return self.read_identifier()
+        
+        raise SyntaxError(f"Unexpected character: {char}")
+    
+    def read_identifier(self) -> Token:
+        start = self.pos
+        while self.pos < len(self.sql) and (self.sql[self.pos].isalnum() or self.sql[self.pos] == '_'):
+            self.pos += 1
+        value = self.sql[start:self.pos].upper()
+        token_type = self.KEYWORDS.get(value, TokenType.IDENTIFIER)
+        return Token(token_type, self.sql[start:self.pos])
+    
+    def skip_whitespace(self):
+        while self.pos < len(self.sql) and self.sql[self.pos].isspace():
+            self.pos += 1
+\`\`\`
+
+---
+
+## Phase 2: Parser (AST Builder)
+
+Build an Abstract Syntax Tree from tokens:
+
+\`\`\`python
+from dataclasses import dataclass
+from typing import List, Optional
+
+@dataclass
+class SelectStatement:
+    columns: List[str]
+    table: str
+    where: Optional['Expression'] = None
+
+@dataclass
+class Expression:
+    left: str
+    operator: str
+    right: str
+
+class Parser:
+    def __init__(self, tokens: List[Token]):
+        self.tokens = tokens
+        self.pos = 0
+    
+    def parse(self):
+        token = self.current()
+        if token.type == TokenType.SELECT:
+            return self.parse_select()
+        raise SyntaxError(f"Unexpected token: {token}")
+    
+    def parse_select(self) -> SelectStatement:
+        self.expect(TokenType.SELECT)
+        
+        # Parse columns
+        columns = []
+        if self.current().type == TokenType.STAR:
+            columns.append('*')
+            self.advance()
+        else:
+            columns.append(self.expect(TokenType.IDENTIFIER).value)
+            while self.current().type == TokenType.COMMA:
+                self.advance()
+                columns.append(self.expect(TokenType.IDENTIFIER).value)
+        
+        # Parse FROM
+        self.expect(TokenType.FROM)
+        table = self.expect(TokenType.IDENTIFIER).value
+        
+        # Parse optional WHERE
+        where = None
+        if self.current().type == TokenType.WHERE:
+            self.advance()
+            where = self.parse_expression()
+        
+        return SelectStatement(columns, table, where)
+    
+    def parse_expression(self) -> Expression:
+        left = self.expect(TokenType.IDENTIFIER).value
+        
+        op_token = self.current()
+        if op_token.type in (TokenType.EQUALS, TokenType.LESS_THAN, TokenType.GREATER_THAN):
+            self.advance()
+            operator = op_token.value
+        else:
+            raise SyntaxError(f"Expected operator, got {op_token}")
+        
+        right_token = self.current()
+        self.advance()
+        return Expression(left, operator, right_token.value)
+    
+    def current(self) -> Token:
+        return self.tokens[self.pos]
+    
+    def advance(self) -> Token:
+        token = self.tokens[self.pos]
+        self.pos += 1
+        return token
+    
+    def expect(self, expected: TokenType) -> Token:
+        token = self.current()
+        if token.type != expected:
+            raise SyntaxError(f"Expected {expected}, got {token.type}")
+        return self.advance()
+\`\`\`
+
+---
+
+## Phase 3: Storage Engine
+
+Simple CSV-based storage:
 
 \`\`\`python
 import csv
+from typing import List, Dict, Callable, Optional
 
-class CSVTable:
-    def __init__(self, filename):
+class Table:
+    def __init__(self, name: str, filename: str):
+        self.name = name
         self.filename = filename
-        self.rows = []
-        self.columns = []
+        self.columns: List[str] = []
+        self.rows: List[Dict[str, str]] = []
         self.load()
     
     def load(self):
-        with open(self.filename) as f:
+        with open(self.filename, 'r') as f:
             reader = csv.DictReader(f)
-            self.columns = reader.fieldnames
+            self.columns = reader.fieldnames or []
             self.rows = list(reader)
     
-    def select(self, columns, where=None):
-        results = []
-        for row in self.rows:
-            if where is None or where(row):
-                results.append({c: row[c] for c in columns})
-        return results
+    def scan(self, predicate: Optional[Callable] = None) -> List[Dict]:
+        if predicate is None:
+            return self.rows
+        return [row for row in self.rows if predicate(row)]
+    
+    def project(self, rows: List[Dict], columns: List[str]) -> List[Dict]:
+        if '*' in columns:
+            return rows
+        return [{col: row[col] for col in columns} for row in rows]
+
+class Database:
+    def __init__(self):
+        self.tables: Dict[str, Table] = {}
+    
+    def create_table(self, name: str, filename: str):
+        self.tables[name] = Table(name, filename)
+    
+    def get_table(self, name: str) -> Table:
+        return self.tables[name.lower()]
 \`\`\`
 
-## Learning Objectives
+---
 
-- Query parsing and AST
-- Execution planning
-- Storage engine design
+## Phase 4: Query Executor
+
+Execute the AST against storage:
+
+\`\`\`python
+class Executor:
+    def __init__(self, database: Database):
+        self.database = database
+    
+    def execute(self, statement) -> List[Dict]:
+        if isinstance(statement, SelectStatement):
+            return self.execute_select(statement)
+        raise ValueError(f"Unknown statement type: {type(statement)}")
+    
+    def execute_select(self, stmt: SelectStatement) -> List[Dict]:
+        table = self.database.get_table(stmt.table)
+        
+        # Build predicate from WHERE clause
+        predicate = None
+        if stmt.where:
+            predicate = self.build_predicate(stmt.where)
+        
+        # Scan with filter
+        rows = table.scan(predicate)
+        
+        # Project columns
+        return table.project(rows, stmt.columns)
+    
+    def build_predicate(self, expr: Expression):
+        def predicate(row):
+            left_val = row.get(expr.left, expr.left)
+            right_val = expr.right.strip("'\"")
+            
+            if expr.operator == '=':
+                return str(left_val) == str(right_val)
+            elif expr.operator == '<':
+                return float(left_val) < float(right_val)
+            elif expr.operator == '>':
+                return float(left_val) > float(right_val)
+            return False
+        return predicate
+\`\`\`
+
+---
+
+## Putting It Together
+
+\`\`\`python
+def run_query(sql: str, db: Database) -> List[Dict]:
+    # Tokenize
+    tokenizer = Tokenizer(sql)
+    tokens = tokenizer.tokenize()
+    
+    # Parse
+    parser = Parser(tokens)
+    ast = parser.parse()
+    
+    # Execute
+    executor = Executor(db)
+    return executor.execute(ast)
+
+# Usage
+db = Database()
+db.create_table('users', 'users.csv')
+
+results = run_query("SELECT name, email FROM users WHERE age > 25", db)
+for row in results:
+    print(row)
+\`\`\`
+
+---
+
+## Extension Ideas
+
+| Extension | Difficulty | What You'll Learn |
+|-----------|------------|-------------------|
+| ORDER BY | ⭐⭐ | Sorting algorithms |
+| GROUP BY + aggregates | ⭐⭐⭐ | Hash aggregation |
+| JOINs | ⭐⭐⭐ | Nested loop, hash join |
+| Indexes (B-Tree) | ⭐⭐⭐⭐ | Tree structures |
+| Query optimizer | ⭐⭐⭐⭐ | Cost estimation |
+
+---
+
+## Interview Relevance
+
+**Commonly asked in**: Database companies (Snowflake, MongoDB), Big Tech infra teams
+
+**Key concepts to explain**:
+- Parsing: lexer → tokens → parser → AST
+- Full table scan vs index scan
+- Hash join vs nested loop join
+- Query optimization (predicate pushdown, join reordering)
+
+---
+
+## Key Takeaways
+
+✅ **Tokenizer** breaks SQL into tokens (keywords, identifiers, operators)  
+✅ **Parser** builds an Abstract Syntax Tree from tokens  
+✅ **Storage engine** handles data persistence and retrieval  
+✅ **Executor** traverses AST and performs operations  
+✅ WHERE clauses filter rows; SELECT projects columns  
+✅ Real databases add optimizer between parser and executor
 `,
     },
 
@@ -2085,9 +3512,149 @@ class CSVTable:
         title: 'Project P8: Thread Pool',
         content: `# Project P8: Thread Pool
 
-Implement a thread pool for concurrent task execution.
+## Why This Project Matters
+
+Creating a new thread for every task is expensive — thread creation takes ~1ms and significant memory. Thread pools solve this by **reusing a fixed number of threads** for many tasks. Understanding thread pools teaches you:
+
+- **Concurrency patterns**: Producer-consumer, work stealing
+- **Synchronization**: Mutexes, condition variables
+- **Resource management**: Graceful shutdown, RAII
+- **Performance optimization**: Why servers use pools
+
+This pattern is used in **every high-performance server** — from NGINX to database connection pools.
+
+---
+
+## What You'll Build
+
+\`\`\`mermaid
+flowchart LR
+    subgraph pool["Thread Pool"]
+        Q["Task Queue"] 
+        W1["Worker 1"]
+        W2["Worker 2"]
+        W3["Worker 3"]
+    end
+    P["Producer"] -->|enqueue| Q
+    Q -->|dequeue| W1
+    Q -->|dequeue| W2
+    Q -->|dequeue| W3
+    W1 --> R["Results"]
+    W2 --> R
+    W3 --> R
+\`\`\`
+
+### Core Concepts
+
+| Component | Purpose |
+|-----------|---------|
+| **Task Queue** | Thread-safe queue holding pending tasks |
+| **Workers** | Threads that continuously pull and execute tasks |
+| **Mutex** | Protects queue from concurrent access |
+| **Condition Variable** | Workers sleep until tasks available |
+
+---
+
+## Python Implementation
+
+Let's build a thread pool from scratch:
+
+\`\`\`python
+import threading
+import queue
+from typing import Callable, Any, List
+from dataclasses import dataclass
+import time
+
+@dataclass
+class Task:
+    func: Callable
+    args: tuple = ()
+    kwargs: dict = None
+    
+    def __post_init__(self):
+        if self.kwargs is None:
+            self.kwargs = {}
+
+class ThreadPool:
+    def __init__(self, num_workers: int = 4):
+        self.task_queue = queue.Queue()
+        self.workers: List[threading.Thread] = []
+        self.shutdown_flag = threading.Event()
+        self.results: List[Any] = []
+        self.results_lock = threading.Lock()
+        
+        # Start worker threads
+        for i in range(num_workers):
+            worker = threading.Thread(
+                target=self._worker_loop,
+                name=f"Worker-{i}",
+                daemon=True
+            )
+            worker.start()
+            self.workers.append(worker)
+        
+        print(f"🚀 Thread pool started with {num_workers} workers")
+    
+    def _worker_loop(self):
+        """Main loop for each worker thread."""
+        while not self.shutdown_flag.is_set():
+            try:
+                # Block for at most 0.1s, then check shutdown
+                task = self.task_queue.get(timeout=0.1)
+            except queue.Empty:
+                continue
+            
+            try:
+                result = task.func(*task.args, **task.kwargs)
+                with self.results_lock:
+                    self.results.append(result)
+            except Exception as e:
+                print(f"[{threading.current_thread().name}] Task failed: {e}")
+            finally:
+                self.task_queue.task_done()
+    
+    def submit(self, func: Callable, *args, **kwargs):
+        """Submit a task to the pool."""
+        if self.shutdown_flag.is_set():
+            raise RuntimeError("Pool is shut down")
+        self.task_queue.put(Task(func, args, kwargs))
+    
+    def map(self, func: Callable, items: list) -> None:
+        """Submit func(item) for each item."""
+        for item in items:
+            self.submit(func, item)
+    
+    def wait(self):
+        """Wait for all tasks to complete."""
+        self.task_queue.join()
+    
+    def shutdown(self, wait: bool = True):
+        """Shutdown the pool."""
+        if wait:
+            self.wait()
+        self.shutdown_flag.set()
+        for worker in self.workers:
+            worker.join(timeout=1.0)
+        print("🛑 Thread pool shut down")
+
+# Usage
+def process_item(x):
+    time.sleep(0.1)  # Simulate work
+    return x * x
+
+pool = ThreadPool(num_workers=4)
+pool.map(process_item, range(10))
+pool.wait()
+print(f"Results: {pool.results}")
+pool.shutdown()
+\`\`\`
+
+---
 
 ## C++ Implementation
+
+More control with C++ threads:
 
 \`\`\`cpp
 #include <queue>
@@ -2096,10 +3663,12 @@ Implement a thread pool for concurrent task execution.
 #include <condition_variable>
 #include <functional>
 #include <vector>
+#include <future>
 
 class ThreadPool {
     std::vector<std::thread> workers;
     std::queue<std::function<void()>> tasks;
+    
     std::mutex queue_mutex;
     std::condition_variable condition;
     bool stop = false;
@@ -2115,7 +3684,9 @@ public:
                         condition.wait(lock, [this] {
                             return stop || !tasks.empty();
                         });
+                        
                         if (stop && tasks.empty()) return;
+                        
                         task = std::move(tasks.front());
                         tasks.pop();
                     }
@@ -2125,10 +3696,12 @@ public:
         }
     }
     
-    void enqueue(std::function<void()> task) {
+    template<class F>
+    void enqueue(F&& f) {
         {
             std::unique_lock<std::mutex> lock(queue_mutex);
-            tasks.push(std::move(task));
+            if (stop) throw std::runtime_error("Pool stopped");
+            tasks.push(std::forward<F>(f));
         }
         condition.notify_one();
     }
@@ -2139,17 +3712,177 @@ public:
             stop = true;
         }
         condition.notify_all();
-        for (auto& worker : workers) worker.join();
+        for (auto& worker : workers) {
+            worker.join();
+        }
     }
 };
+
+// Usage
+int main() {
+    ThreadPool pool(4);
+    
+    for (int i = 0; i < 10; ++i) {
+        pool.enqueue([i] {
+            std::cout << "Task " << i << " on thread " 
+                      << std::this_thread::get_id() << std::endl;
+        });
+    }
+    
+    // Pool destructor waits for all tasks
+    return 0;
+}
 \`\`\`
 
-## Learning Objectives
+---
 
-- Thread synchronization
-- Condition variables
+## Key Implementation Details
+
+### Why Condition Variables?
+
+\`\`\`mermaid
+sequenceDiagram
+    participant W as Worker Thread
+    participant Q as Task Queue
+    participant CV as Condition Variable
+    
+    W->>CV: wait() - release lock, sleep
+    Note over W: Sleeping (no CPU usage)
+    Q->>CV: notify_one() - task added
+    CV->>W: wake up, acquire lock
+    W->>Q: pop task
+    W->>W: execute task
+\`\`\`
+
+Without condition variables, workers would **busy-wait** (spin in a loop), wasting CPU.
+
+### Graceful Shutdown
+
+1. Set shutdown flag
+2. Notify all workers (wake them up)
+3. Workers check flag, exit if set
+4. Join all worker threads
+
+\`\`\`python
+def shutdown(self, wait=True):
+    if wait:
+        self.task_queue.join()  # Wait for pending tasks
+    self.shutdown_flag.set()     # Signal workers to stop
+    for worker in self.workers:
+        worker.join()            # Wait for workers to exit
+\`\`\`
+
+---
+
+## Advanced: Future-based Results
+
+Return futures for task results:
+
+\`\`\`python
+from concurrent.futures import Future
+
+class ThreadPoolWithFutures(ThreadPool):
+    def submit(self, func: Callable, *args, **kwargs) -> Future:
+        future = Future()
+        
+        def wrapped():
+            try:
+                result = func(*args, **kwargs)
+                future.set_result(result)
+            except Exception as e:
+                future.set_exception(e)
+        
+        self.task_queue.put(Task(wrapped))
+        return future
+
+# Usage
+pool = ThreadPoolWithFutures(4)
+futures = [pool.submit(process_item, i) for i in range(10)]
+results = [f.result() for f in futures]  # Blocks until complete
+\`\`\`
+
+---
+
+## Testing Your Thread Pool
+
+\`\`\`python
+import time
+
+def test_thread_pool():
+    pool = ThreadPool(4)
+    
+    # Test basic execution
+    results = []
+    def append_result(x):
+        results.append(x * 2)
+    
+    for i in range(8):
+        pool.submit(append_result, i)
+    
+    pool.wait()
+    assert len(results) == 8
+    print(f"✅ Basic test passed: {sorted(results)}")
+    
+    # Test concurrent execution
+    start = time.time()
+    def slow_task(x):
+        time.sleep(0.1)
+        return x
+    
+    pool.map(slow_task, range(8))
+    pool.wait()
+    elapsed = time.time() - start
+    
+    # 8 tasks × 0.1s / 4 workers = 0.2s (not 0.8s)
+    assert elapsed < 0.5, f"Too slow: {elapsed}s"
+    print(f"✅ Concurrency test passed: {elapsed:.2f}s")
+    
+    pool.shutdown()
+
+test_thread_pool()
+\`\`\`
+
+---
+
+## Extension Ideas
+
+| Extension | Difficulty | What You'll Learn |
+|-----------|------------|-------------------|
+| Priority queue | ⭐⭐ | Heap data structure |
+| Work stealing | ⭐⭐⭐ | Lock-free queues |
+| Dynamic sizing | ⭐⭐ | Adaptive algorithms |
+| Task cancellation | ⭐⭐⭐ | Interruption handling |
+| Async/await integration | ⭐⭐⭐ | Coroutines |
+
+---
+
+## Interview Relevance
+
+**Commonly asked in**: Any systems or backend role
+
+**Key concepts to explain**:
+- Why pools: thread creation overhead, resource limits
 - Producer-consumer pattern
-- Resource management
+- Condition variables prevent busy-waiting
+- Graceful shutdown: drain queue, then stop workers
+- C++ RAII: destructor joins threads
+
+**Common follow-ups**:
+- "How would you handle task priorities?"
+- "What if a task throws an exception?"
+- "How would you implement timeouts?"
+
+---
+
+## Key Takeaways
+
+✅ Thread pools **reuse threads** to avoid creation overhead  
+✅ **Mutex** protects the shared task queue  
+✅ **Condition variables** let workers sleep until tasks arrive  
+✅ **Graceful shutdown**: set flag, notify all, join threads  
+✅ Use \`queue.Queue\` in Python (thread-safe by default)  
+✅ Return **Futures** if callers need task results  
+✅ Consider work-stealing for better load balancing
 `,
     },
 };

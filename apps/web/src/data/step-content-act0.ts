@@ -4,16 +4,793 @@
  */
 
 export const act0Content: Record<string, { title: string; content: string }> = {
+    // Step 0-1-1: Python Basics
+    'step-0-1-1': {
+        title: 'Python Basics',
+        content: `# Python Basics
+
+## Why This Matters
+
+Python is one of the **most popular languages** for software interviews and production code. Mastering these fundamentals is essential for:
+
+- **Coding interviews** (most common language choice)
+- **Rapid prototyping** and scripting
+- **Data science** and machine learning
+- **Backend development** with frameworks like Django/FastAPI
+
+---
+
+## What is a Variable?
+
+A **variable** is a named container that stores a value in the computer's memory. Think of it as a labeled box where you can put data and retrieve it later using the label.
+
+\`\`\`python
+# Creating a variable is called "assignment"
+# The = sign means "store the value on the right into the name on the left"
+message = "Hello"    # Store "Hello" in a box labeled 'message'
+count = 10           # Store 10 in a box labeled 'count'
+
+# Later, you can use the variable to get the value
+print(message)       # Prints: Hello
+print(count + 5)     # Prints: 15
+\`\`\`
+
+**Variable naming rules:**
+- Must start with a letter or underscore
+- Can contain letters, numbers, and underscores
+- Case-sensitive (\`Name\` and \`name\` are different)
+- Use **snake_case** by convention: \`user_name\`, \`total_count\`
+
+---
+
+## What is a Data Type?
+
+A **data type** defines what kind of value a variable holds and what operations you can perform on it. Python has several built-in types:
+
+| Type | What It Stores | Example |
+|------|---------------|---------|
+| \`int\` | Whole numbers | \`42\`, \`-7\`, \`0\` |
+| \`float\` | Decimal numbers | \`3.14\`, \`-0.5\` |
+| \`str\` | Text (strings) | \`"Hello"\`, \`'World'\` |
+| \`bool\` | True/False | \`True\`, \`False\` |
+| \`None\` | No value | \`None\` |
+
+Python is **dynamically typed** - you don't declare types explicitly, Python figures them out:
+
+\`\`\`python
+# Python automatically determines the type
+name = "Marathon"      # str (string/text)
+age = 25               # int (integer/whole number)
+price = 19.99          # float (decimal number)
+is_active = True       # bool (boolean/true or false)
+nothing = None         # NoneType (represents "no value")
+
+# Check a variable's type
+print(type(name))      # <class 'str'>
+print(type(age))       # <class 'int'>
+
+# Convert between types (called "type casting")
+str_num = "42"
+num = int(str_num)     # Convert string to int: 42
+pi_str = str(3.14)     # Convert float to string: "3.14"
+\`\`\`
+
+---
+
+## What is a String?
+
+A **string** is a sequence of characters (text). In Python, you create strings using quotes - single \`'\` or double \`"\` quotes work the same:
+
+\`\`\`python
+message = "Hello, World!"
+name = 'Python'
+\`\`\`
+
+**Why strings matter:** Almost every program deals with text - user input, file contents, API responses, etc.
+
+### String Operations
+
+\`\`\`python
+message = "Hello, World!"
+
+# Get the length (number of characters)
+print(len(message))          # 13
+
+# Change case
+print(message.upper())       # "HELLO, WORLD!"
+print(message.lower())       # "hello, world!"
+
+# Split into parts
+print(message.split(", "))   # ["Hello", "World!"]
+\`\`\`
+
+### String Formatting (F-strings)
+
+F-strings let you embed variables directly in text - this is the modern, preferred way:
+
+\`\`\`python
+name = "Alice"
+age = 30
+print(f"{name} is {age} years old")  # "Alice is 30 years old"
+\`\`\`
+
+### String Indexing and Slicing
+
+Strings are sequences, so you can access individual characters by position (starting from 0):
+
+\`\`\`python
+text = "Python"
+#       012345   <- positions (indices)
+
+print(text[0])       # 'P' (first character)
+print(text[5])       # 'n' (last character)
+print(text[-1])      # 'n' (last character using negative index)
+
+# Slicing: get a substring [start:end]
+print(text[0:3])     # 'Pyt' (characters 0, 1, 2)
+print(text[2:])      # 'thon' (from index 2 to end)
+print(text[::-1])    # 'nohtyP' (reverse the string)
+\`\`\`
+
+### Common String Methods for Interviews
+
+\`\`\`python
+s = "  hello world  "
+s.strip()            # "hello world" (remove surrounding whitespace)
+s.replace("o", "0")  # "hell0 w0rld" (replace characters)
+"hello".isalpha()    # True (only letters?)
+"123".isdigit()      # True (only digits?)
+\`\`\`
+
+---
+
+## What is Control Flow?
+
+**Control flow** determines the order in which your code executes. By default, Python runs code line by line from top to bottom. Control flow statements let you:
+
+- **Make decisions** - Run different code based on conditions (if/else)
+- **Repeat actions** - Execute code multiple times (loops)
+- **Skip or stop** - Jump over or exit from loops (break/continue)
+
+### Conditional Statements (if/elif/else)
+
+A **conditional statement** runs code only when a condition is true. Think of it as a fork in the road - you take different paths based on the situation.
+
+\`\`\`python
+score = 85
+
+# Check conditions in order - only ONE block runs
+if score >= 90:          # Is score >= 90? No (85 >= 90 is False)
+    grade = "A"
+elif score >= 80:        # Is score >= 80? Yes! (85 >= 80 is True)
+    grade = "B"          # This runs, then we skip the rest
+elif score >= 70:
+    grade = "C"
+else:                    # Runs if ALL conditions above were False
+    grade = "F"
+
+# Ternary operator - one-line if/else
+status = "pass" if score >= 60 else "fail"
+\`\`\`
+
+### What is a Loop?
+
+A **loop** repeats a block of code multiple times. Without loops, you'd have to copy-paste code - loops save you from that.
+
+**For loop** - Use when you know how many times to repeat, or when iterating over a collection:
+
+\`\`\`python
+# range(5) generates: 0, 1, 2, 3, 4
+for i in range(5):
+    print(i)  # Runs 5 times
+
+# range(start, stop, step)
+for i in range(2, 10, 2):
+    print(i)  # 2, 4, 6, 8
+
+# Iterating over a list
+fruits = ["apple", "banana", "cherry"]
+for fruit in fruits:
+    print(fruit)
+
+# enumerate() - get both index AND value
+for idx, fruit in enumerate(fruits):
+    print(f"{idx}: {fruit}")  # 0: apple, 1: banana, etc.
+\`\`\`
+
+**While loop** - Use when you don't know how many times to repeat, but you know when to stop:
+
+\`\`\`python
+count = 0
+while count < 5:     # Keep going while condition is True
+    print(count)
+    count += 1       # Don't forget to update, or infinite loop!
+\`\`\`
+
+### break and continue
+
+\`\`\`python
+for i in range(10):
+    if i == 3:
+        continue  # Skip the rest of this iteration, go to next
+    if i == 7:
+        break     # Exit the loop entirely
+    print(i)      # Prints: 0, 1, 2, 4, 5, 6
+\`\`\`
+
+---
+
+## What is a Function?
+
+A **function** is a reusable block of code that performs a specific task. Functions help you:
+
+- **Avoid repetition** - Write once, use many times
+- **Organize code** - Break complex problems into smaller pieces
+- **Abstract complexity** - Hide details behind a simple name
+
+### Anatomy of a Function
+
+\`\`\`python
+def greet(name):           # 'def' defines a function, 'name' is a parameter
+    """Say hello to someone."""  # Docstring describes what it does
+    return f"Hello, {name}!"     # 'return' sends back a result
+
+# Calling the function
+message = greet("Alice")   # "Alice" is an argument passed to parameter 'name'
+print(message)             # "Hello, Alice!"
+\`\`\`
+
+### Parameters vs Arguments
+
+- **Parameter**: The variable name in the function definition (like a placeholder)
+- **Argument**: The actual value you pass when calling the function
+
+### Default Parameters
+
+\`\`\`python
+def greet(name, greeting="Hello"):  # greeting has a default value
+    return f"{greeting}, {name}!"
+
+print(greet("Alice"))           # "Hello, Alice!" (uses default)
+print(greet("Bob", "Hi"))       # "Hi, Bob!" (overrides default)
+\`\`\`
+
+### Returning Multiple Values
+
+Python functions can return multiple values as a tuple:
+
+\`\`\`python
+def get_stats(numbers):
+    minimum = min(numbers)
+    maximum = max(numbers)
+    average = sum(numbers) / len(numbers)
+    return minimum, maximum, average  # Returns a tuple
+
+# Unpack the returned values
+low, high, avg = get_stats([1, 2, 3, 4, 5])
+
+minimum, maximum, average = get_stats([1, 2, 3, 4, 5])
+
+# Docstrings
+def calculate_area(length: float, width: float) -> float:
+    """
+    Calculate the area of a rectangle.
+    
+    Args:
+        length: The length of the rectangle
+        width: The width of the rectangle
+        
+    Returns:
+        The area of the rectangle
+    """
+    return length * width
+\`\`\`
+
+---
+
+## Key Takeaways
+
+✅ Python is **dynamically typed** - no type declarations needed  
+✅ **F-strings** are the modern way to format strings  
+✅ Use **enumerate()** to get index in loops  
+✅ Functions can return **multiple values** via tuples  
+✅ Always write **docstrings** for clear documentation
+`,
+    },
+
+    // Step 0-1-2: Data Structures in Python
+    'step-0-1-2': {
+        title: 'Data Structures in Python',
+        content: `# Data Structures in Python
+
+## Why This Matters
+
+Python's built-in data structures are **interview essentials**. Understanding their time complexities and use cases will help you:
+
+- Choose the **right tool** for each problem
+- Write **efficient** solutions
+- Communicate **trade-offs** clearly
+
+---
+
+## What is a Data Structure?
+
+A **data structure** is a way of organizing and storing data so that it can be accessed and modified efficiently. Different structures are optimized for different operations.
+
+Think of it like organizing items in your home:
+- A **list** is like a numbered shelf - items have positions
+- A **dictionary** is like a phone book - look up by name
+- A **set** is like a bag of unique marbles - no duplicates allowed
+
+---
+
+## Lists (Arrays)
+
+A **list** is an ordered, mutable collection of items. Items are stored in sequence and accessed by their position (index).
+
+**When to use lists:**
+- When order matters
+- When you need to access items by position
+- When duplicates are allowed
+
+\`\`\`python
+# Creating lists
+nums = [1, 2, 3, 4, 5]       # A list of integers
+empty = []                    # An empty list
+mixed = [1, "hello", 3.14]    # Lists can hold different types
+
+# Accessing items by index (0-based)
+nums[0]        # 1 (first item)
+nums[-1]       # 5 (last item)
+nums[1:4]      # [2, 3, 4] (slice from index 1 to 3)
+
+# Modifying lists
+nums.append(6)      # Add to end: O(1) - fast!
+nums.insert(0, 0)   # Add at position: O(n) - slow (shifts everything)
+nums.pop()          # Remove last: O(1) - fast!
+nums.pop(0)         # Remove first: O(n) - slow (shifts everything)
+nums.remove(3)      # Remove first occurrence of value: O(n)
+
+# List comprehension - a Pythonic way to create lists
+squares = [x**2 for x in range(10)]        # [0, 1, 4, 9, 16, ...]
+evens = [x for x in range(10) if x % 2 == 0]  # [0, 2, 4, 6, 8]
+
+# Nested comprehension
+matrix = [[i*j for j in range(3)] for i in range(3)]
+
+# Sorting
+nums.sort()                    # In-place, O(n log n)
+sorted_nums = sorted(nums)     # Returns new list
+nums.sort(reverse=True)        # Descending
+nums.sort(key=lambda x: -x)    # Custom key
+\`\`\`
+
+---
+
+## Dictionaries (Hash Maps)
+
+A **dictionary** (or **hash map**) stores key-value pairs. You look up values by their key, like looking up a word in a dictionary to find its definition.
+
+**When to use dictionaries:**
+- When you need fast lookups by a unique key
+- When storing related pieces of information together
+- When counting occurrences (e.g., word frequency)
+
+**Time complexity:** O(1) average for get/set/delete - this is why dicts are *essential* for interviews!
+
+\`\`\`python
+# Creating dictionaries
+person = {"name": "Alice", "age": 30}  # Key: value pairs
+empty = {}
+
+# Accessing values by key
+person["name"]              # "Alice"
+person.get("name")          # "Alice" (same result)
+person.get("email", "N/A")  # "N/A" (returns default if key missing)
+
+# Adding and modifying
+person["email"] = "alice@example.com"  # Add new key or update
+del person["age"]                       # Delete a key
+person.pop("name", None)                # Safe delete (no error if missing)
+
+# Iterating
+for key in person:              # Iterate over keys
+    print(key)
+for key, value in person.items():  # Iterate over key-value pairs
+    print(f"{key}: {value}")
+
+# Dict comprehension
+squares = {x: x**2 for x in range(5)}  # {0: 0, 1: 1, 2: 4, 3: 9, 4: 16}
+
+# Checking if key exists
+if "name" in person:
+    print(person["name"])
+
+# defaultdict - auto-initializes missing keys (very useful!)
+from collections import defaultdict
+word_count = defaultdict(int)  # Missing keys default to 0
+for word in ["a", "b", "a"]:
+    word_count[word] += 1      # No KeyError! Result: {"a": 2, "b": 1}
+\`\`\`
+
+---
+
+## Sets
+
+A **set** is an unordered collection of **unique** elements. Think of it as a bag where each item can only appear once.
+
+**When to use sets:**
+- When you need to remove duplicates
+- When you need fast membership checking ("Is X in the collection?")
+- When you need mathematical set operations (union, intersection)
+
+**Time complexity:** O(1) for add/remove/contains!
+
+\`\`\`python
+# Creating sets
+unique = {1, 2, 3, 3, 3}  # Duplicates removed: {1, 2, 3}
+from_list = set([1, 2, 2, 3])
+
+# Operations
+unique.add(4)        # Add element
+unique.remove(1)     # Remove (raises if missing)
+unique.discard(99)   # Remove (no error if missing)
+
+# Set operations
+a = {1, 2, 3}
+b = {2, 3, 4}
+
+a | b    # Union: {1, 2, 3, 4}
+a & b    # Intersection: {2, 3}
+a - b    # Difference: {1}
+a ^ b    # Symmetric difference: {1, 4}
+
+# Membership check O(1)
+if 2 in unique:
+    print("Found!")
+\`\`\`
+
+---
+
+## Tuples
+
+A **tuple** is an ordered, **immutable** (unchangeable) sequence of elements. Once created, you cannot add, remove, or modify elements.
+
+**When to use tuples:**
+- When data shouldn't change (coordinates, RGB colors)
+- As dictionary keys (lists can't be keys because they're mutable)
+- Returning multiple values from functions
+
+\`\`\`python
+# Creating tuples
+point = (3, 4)         # A tuple of two integers
+single = (42,)         # Note the comma! Without it, just parentheses
+empty = ()
+
+# Unpacking
+x, y = point
+first, *rest = (1, 2, 3, 4)  # first=1, rest=[2,3,4]
+
+# Named tuples (better readability)
+from collections import namedtuple
+Point = namedtuple("Point", ["x", "y"])
+p = Point(3, 4)
+print(p.x, p.y)  # 3, 4
+\`\`\`
+
+---
+
+## Time Complexity Summary
+
+| Operation | List | Dict | Set |
+|-----------|------|------|-----|
+| Access | O(1) | O(1) | N/A |
+| Search | O(n) | O(1) | O(1) |
+| Insert | O(n)* | O(1) | O(1) |
+| Delete | O(n) | O(1) | O(1) |
+| Append | O(1) | O(1) | O(1) |
+
+*O(1) for append, O(n) for insert at index
+
+---
+
+## Key Takeaways
+
+✅ **Lists** for ordered sequences with fast append  
+✅ **Dicts** for key-value lookups (most used in interviews!)  
+✅ **Sets** for uniqueness and O(1) membership  
+✅ **Tuples** for immutable sequences and dict keys  
+✅ Use **defaultdict** to avoid KeyError checks
+
+---
+
+## Python vs C++ Collections
+
+| Python | C++ Equivalent | Key Difference |
+|--------|----------------|----------------|
+| \`list\` | \`std::vector\` | Python: dynamic types, C++: single type |
+| \`dict\` | \`std::unordered_map\` | Python: insertion order (3.7+), C++: no order guarantee |
+| \`set\` | \`std::unordered_set\` | Similar O(1) membership |
+| \`tuple\` | \`std::tuple\` | Python: heterogeneous, C++: fixed types |
+| \`deque\` | \`std::deque\` | Similar double-ended queue |
+| \`heapq\` | \`std::priority_queue\` | Python: min-heap, C++: max-heap by default |
+`,
+    },
+
+    // Step 0-1-3: OOP in Python
+    'step-0-1-3': {
+        title: 'OOP in Python',
+        content: `# Object-Oriented Programming in Python
+
+## Why This Matters
+
+OOP in Python is essential for:
+
+- **Clean code** organization
+- **Design patterns** implementation
+- **Framework usage** (Django, Flask, FastAPI)
+- **Interview questions** on class design
+
+---
+
+## What is a Class?
+
+A **class** is a blueprint or template for creating objects. It defines what data an object holds (attributes) and what it can do (methods).
+
+Think of it like a cookie cutter - the class is the cutter shape, and each cookie you make is an **object** (or **instance**).
+
+\`\`\`python
+class Dog:
+    # Class attribute - shared by ALL dogs
+    species = "Canis familiaris"
+    
+    # Constructor - called when you create a new Dog
+    def __init__(self, name: str, age: int):
+        # Instance attributes - unique to each dog
+        self.name = name
+        self.age = age
+    
+    # Instance method - something a dog can do
+    def bark(self) -> str:
+        return f"{self.name} says woof!"
+    
+    # Special method for string representation
+    def __repr__(self) -> str:
+        return f"Dog(name='{self.name}', age={self.age})"
+
+# Creating objects (instances) from the class
+buddy = Dog("Buddy", 3)    # Calls __init__ with name="Buddy", age=3
+max = Dog("Max", 5)
+
+print(buddy.name)        # "Buddy" - instance attribute
+print(buddy.bark())      # "Buddy says woof!" - instance method
+print(Dog.species)       # "Canis familiaris" - class attribute
+\`\`\`
+
+### Key OOP Terms
+
+| Term | Meaning |
+|------|---------|
+| **Class** | Blueprint for objects |
+| **Object/Instance** | A specific thing created from a class |
+| **Attribute** | Data stored in an object |
+| **Method** | Function that belongs to a class |
+| **self** | Reference to the current instance |
+| **\`__init__\`** | Constructor, runs when object is created |
+
+---
+
+## What is Encapsulation?
+
+**Encapsulation** means bundling data and methods together, and controlling access to the internal state. It protects your data from accidental modification.
+
+In Python, encapsulation is by *convention*, not enforced:
+- \`public\` - No underscore: \`self.name\`
+- \`_protected\` - Single underscore: \`self._internal\` (convention: "don't touch unless you know what you're doing")
+- \`__private\` - Double underscore: \`self.__secret\` (name mangling makes it harder to access)
+
+\`\`\`python
+class BankAccount:
+    def __init__(self, owner: str, balance: float = 0):
+        self.owner = owner         # Public
+        self._balance = balance    # Protected (convention)
+        self.__id = 12345          # Private (name mangled)
+    
+    # Property - controlled access to _balance
+    @property
+    def balance(self) -> float:
+        """Getter - called when you read account.balance"""
+        return self._balance
+    
+    @balance.setter
+    def balance(self, value: float):
+        """Setter - called when you write account.balance = x"""
+        if value < 0:
+            raise ValueError("Balance cannot be negative")
+        self._balance = value
+    
+    def deposit(self, amount: float):
+        if amount > 0:
+            self._balance += amount
+    
+    def withdraw(self, amount: float) -> bool:
+        if 0 < amount <= self._balance:
+            self._balance -= amount
+            return True
+        return False
+
+account = BankAccount("Alice", 100)
+account.deposit(50)
+print(account.balance)     # 150 (uses @property getter)
+account.balance = 200      # Uses @balance.setter
+# account.balance = -50    # Would raise ValueError!
+\`\`\`
+
+---
+
+## What is Inheritance?
+
+**Inheritance** lets a class (child) inherit attributes and methods from another class (parent). This enables code reuse and creates "is-a" relationships.
+
+\`\`\`python
+# Parent class (also called base class or superclass)
+class Animal:
+    def __init__(self, name: str):
+        self.name = name
+    
+    def speak(self) -> str:
+        raise NotImplementedError("Subclass must implement")
+
+# Child classes (also called derived classes or subclasses)
+class Dog(Animal):          # Dog inherits from Animal
+    def speak(self) -> str:
+        return "Woof!"
+
+class Cat(Animal):          # Cat inherits from Animal
+    def speak(self) -> str:
+        return "Meow!"
+
+# Polymorphism
+animals = [Dog("Buddy"), Cat("Whiskers")]
+for animal in animals:
+    print(f"{animal.name}: {animal.speak()}")
+# Buddy: Woof!
+# Whiskers: Meow!
+
+# Check inheritance
+print(isinstance(Dog("Rex"), Animal))  # True
+print(issubclass(Dog, Animal))         # True
+\`\`\`
+
+---
+
+## Special (Dunder) Methods
+
+\`\`\`python
+class Vector:
+    def __init__(self, x: float, y: float):
+        self.x = x
+        self.y = y
+    
+    def __repr__(self) -> str:
+        return f"Vector({self.x}, {self.y})"
+    
+    def __add__(self, other: "Vector") -> "Vector":
+        return Vector(self.x + other.x, self.y + other.y)
+    
+    def __eq__(self, other: "Vector") -> bool:
+        return self.x == other.x and self.y == other.y
+    
+    def __len__(self) -> int:
+        return int((self.x**2 + self.y**2)**0.5)
+    
+    def __getitem__(self, index: int) -> float:
+        if index == 0:
+            return self.x
+        elif index == 1:
+            return self.y
+        raise IndexError("Vector index out of range")
+
+v1 = Vector(3, 4)
+v2 = Vector(1, 2)
+print(v1 + v2)      # Vector(4, 6)
+print(v1 == v2)     # False
+print(len(v1))      # 5
+print(v1[0])        # 3
+\`\`\`
+
+---
+
+## Abstract Base Classes
+
+\`\`\`python
+from abc import ABC, abstractmethod
+
+class Shape(ABC):
+    @abstractmethod
+    def area(self) -> float:
+        pass
+    
+    @abstractmethod
+    def perimeter(self) -> float:
+        pass
+
+class Rectangle(Shape):
+    def __init__(self, width: float, height: float):
+        self.width = width
+        self.height = height
+    
+    def area(self) -> float:
+        return self.width * self.height
+    
+    def perimeter(self) -> float:
+        return 2 * (self.width + self.height)
+
+# shape = Shape()  # TypeError: Can't instantiate abstract class
+rect = Rectangle(5, 3)
+print(rect.area())  # 15
+\`\`\`
+
+---
+
+## Common Dunder Methods
+
+| Method | Purpose | Example |
+|--------|---------|---------|
+| \`__init__\` | Constructor | \`obj = Class()\` |
+| \`__repr__\` | Debug string | \`repr(obj)\` |
+| \`__str__\` | User string | \`str(obj)\` |
+| \`__eq__\` | Equality | \`obj1 == obj2\` |
+| \`__hash__\` | Hash (for dict/set) | \`hash(obj)\` |
+| \`__len__\` | Length | \`len(obj)\` |
+| \`__getitem__\` | Index access | \`obj[i]\` |
+| \`__iter__\` | Iteration | \`for x in obj\` |
+| \`__call__\` | Call as function | \`obj()\` |
+
+---
+
+## Key Takeaways
+
+✅ Use **@property** for controlled attribute access  
+✅ Use **inheritance** to share behavior and enable polymorphism  
+✅ **Dunder methods** make your classes Pythonic  
+✅ Use **ABC** for interfaces that must be implemented  
+✅ Prefer **composition over inheritance** for flexibility
+
+---
+
+## Python vs C++ OOP
+
+| Feature | Python | C++ |
+|---------|--------|-----|
+| **Access control** | Convention (\`_\`, \`__\`) | Keywords (\`private\`, \`protected\`, \`public\`) |
+| **Multiple inheritance** | Yes (MRO resolves order) | Yes (diamond problem needs \`virtual\`) |
+| **Interfaces** | \`ABC\` with \`@abstractmethod\` | Pure virtual classes (\`= 0\`) |
+| **Constructors** | \`__init__\` | Same name as class, overloadable |
+| **Destructors** | \`__del__\` (GC timing) | \`~ClassName()\` (deterministic) |
+| **Method binding** | All virtual by default | Explicit \`virtual\` keyword needed |
+`,
+    },
+
     // Step 0-1-4: Functional Python
     'step-0-1-4': {
         title: 'Functional Python',
         content: `# Functional Python
 
-Master lambdas, higher-order functions, and generators for elegant, concise code.
+## Why This Matters
 
-## Lambda Functions
+Functional programming concepts are essential for:
 
-Anonymous functions for simple operations:
+- Writing **clean, composable** code
+- Processing **large datasets** efficiently with generators
+- **Interview problems** that require elegant transformations
+- Understanding **modern Python** libraries like pandas and itertools
+
+---
+
+## What is a Lambda Function?
+
+A **lambda function** (also called an anonymous function) is a small, one-line function without a name. Use lambdas for simple operations where defining a full function would be overkill.
 
 \`\`\`python
 # Traditional function
@@ -32,7 +809,18 @@ sorted(numbers, key=lambda x: -x)  # [9, 5, 3, 2, 1]
 
 Functions that take or return other functions:
 
+## What are Higher-Order Functions?
+
+A **higher-order function** is a function that either:
+1. Takes another function as an argument, OR
+2. Returns a function as its result
+
+Python's built-in \`map()\`, \`filter()\`, and \`reduce()\` are higher-order functions - they take a function and apply it to data.
+
 ### map() - Transform each element
+
+\`map(function, iterable)\` applies a function to every item and returns the results.
+
 \`\`\`python
 numbers = [1, 2, 3, 4, 5]
 
@@ -45,7 +833,10 @@ strings = list(map(str, numbers))
 # ['1', '2', '3', '4', '5']
 \`\`\`
 
-### filter() - Keep elements matching condition
+### filter() - Keep elements matching a condition
+
+\`filter(function, iterable)\` keeps only items where the function returns True.
+
 \`\`\`python
 numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
@@ -58,13 +849,16 @@ positives = list(filter(lambda x: x > 0, [-2, -1, 0, 1, 2]))
 # [1, 2]
 \`\`\`
 
-### reduce() - Combine all elements
+### reduce() - Combine all elements into one
+
+\`reduce(function, iterable)\` repeatedly applies a function to pairs of elements until only one remains.
+
 \`\`\`python
 from functools import reduce
 
 numbers = [1, 2, 3, 4, 5]
 
-# Sum all numbers
+# Sum all numbers: ((((1+2)+3)+4)+5) = 15
 total = reduce(lambda acc, x: acc + x, numbers)
 # 15
 
@@ -73,28 +867,35 @@ maximum = reduce(lambda a, b: a if a > b else b, numbers)
 # 5
 \`\`\`
 
-## Generators
+---
 
-Memory-efficient iterables using \`yield\`:
+## What is a Generator?
+
+A **generator** is a special function that produces a sequence of values **lazily** (one at a time, on demand). Instead of returning all values at once, it **yields** them one by one.
+
+**Why use generators?**
+- **Memory efficient** - Don't load entire dataset into memory
+- **Infinite sequences** - Can represent endless streams
+- **Pipeline processing** - Chain operations without intermediate lists
 
 \`\`\`python
-# Generator function
+# Generator function uses 'yield' instead of 'return'
 def count_up_to(n):
     i = 1
     while i <= n:
-        yield i
+        yield i    # Pause here, give this value, resume when asked for next
         i += 1
 
-# Use the generator
+# Using the generator
 for num in count_up_to(5):
     print(num)  # 1, 2, 3, 4, 5
 
-# Generator expression (like list comprehension)
+# Generator expression (like list comprehension but with parentheses)
 squares_gen = (x**2 for x in range(1000000))
-# Uses almost no memory!
+# Uses almost no memory! Values computed on demand
 
-# Get values lazily
-first = next(squares_gen)  # 0
+# Get values one at a time
+first = next(squares_gen)   # 0
 second = next(squares_gen)  # 1
 \`\`\`
 
@@ -147,11 +948,26 @@ for key, group in groupby(data, key=lambda x: x[0]):
         title: 'Pythonic Idioms',
         content: `# Pythonic Idioms
 
-Write code that experienced Python developers will recognize and appreciate.
+## Why This Matters
 
-## Context Managers (with statement)
+Writing "Pythonic" code is crucial for:
 
-Automatically handle setup and cleanup:
+- **Code reviews** - Senior developers expect idiomatic code
+- **Interview performance** - Shows deep language understanding
+- **Maintainability** - Pythonic patterns are recognizable and debuggable
+- **Using frameworks** like Django, Flask, and FastAPI effectively
+
+---
+
+## What is a Context Manager?
+
+A **context manager** handles setup and cleanup automatically using the \`with\` statement. It guarantees cleanup happens even if an error occurs.
+
+**Common uses:**
+- Opening/closing files
+- Acquiring/releasing locks
+- Database connections/transactions
+- Timing code execution
 
 \`\`\`python
 # File handling - automatically closes file
@@ -175,14 +991,23 @@ with timer():
     sum(range(1000000))
 \`\`\`
 
-## Decorators
+---
 
-Modify function behavior without changing function code:
+## What is a Decorator?
+
+A **decorator** is a function that modifies another function's behavior without changing its code. Decorators use the \`@decorator_name\` syntax placed above a function definition.
+
+**Common uses:**
+- Logging (log every call)
+- Timing (measure execution time)
+- Authentication (check permissions)
+- Caching/memoization (cache results)
 
 \`\`\`python
 import functools
 import time
 
+# A decorator is a function that takes a function and returns a wrapped version
 def timing_decorator(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
@@ -216,13 +1041,19 @@ def say_hello():
     print("Hello!")
 \`\`\`
 
-## Type Hints
+---
 
-Add type information for better tooling and documentation:
+## What are Type Hints?
+
+**Type hints** are optional annotations that specify what types a function expects and returns. They don't enforce types at runtime, but help with:
+- **IDE autocomplete** and error detection
+- **Documentation** - types serve as documentation
+- **Static analysis** - tools like mypy can catch bugs
 
 \`\`\`python
-from typing import List, Dict, Optional, Tuple, Callable
+from typing import List, Dict, Optional, Callable
 
+# Parameter types come after :, return type comes after ->
 def greet(name: str) -> str:
     return f"Hello, {name}!"
 
@@ -232,23 +1063,28 @@ def process_items(items: List[int]) -> Dict[str, int]:
         "count": len(items)
     }
 
+# Optional means it could be None
 def find_user(user_id: int) -> Optional[str]:
     users = {1: "Alice", 2: "Bob"}
-    return users.get(user_id)
+    return users.get(user_id)  # Could return None
 
-# Function type hints
+# Callable[[arg_types], return_type] for function parameters
 def apply(func: Callable[[int], int], value: int) -> int:
     return func(value)
 \`\`\`
 
-## *args and **kwargs
+---
 
-Handle variable arguments:
+## What are *args and **kwargs?
+
+These let a function accept **any number of arguments**:
+- \`*args\` - Captures extra positional arguments as a **tuple**
+- \`**kwargs\` - Captures extra keyword arguments as a **dict**
 
 \`\`\`python
 def log(*args, **kwargs):
-    print("Args:", args)
-    print("Kwargs:", kwargs)
+    print("Args:", args)      # Tuple of positional args
+    print("Kwargs:", kwargs)  # Dict of keyword args
 
 log(1, 2, 3, name="test", level="info")
 # Args: (1, 2, 3)
@@ -456,57 +1292,103 @@ assert stack.get_max() == 5
         title: 'C++ Basics',
         content: `# C++ Basics
 
-Master the fundamentals of C++ programming.
+## Why This Matters
 
-## Variables and Types
+C++ is essential for:
+
+- **System programming** - Operating systems, drivers, embedded systems
+- **Performance-critical applications** - Games, trading systems, browsers
+- **Understanding how computers work** - Memory, pointers, low-level control
+- **Competitive programming** - Often faster than other languages
+
+---
+
+## Key Difference from Python
+
+| Feature | Python | C++ |
+|---------|--------|-----|
+| **Typing** | Dynamic (runtime) | Static (compile-time) |
+| **Memory** | Automatic (garbage collected) | Manual/RAII |
+| **Speed** | Slower (interpreted) | Fast (compiled) |
+| **Syntax** | Indentation | Braces \`{}\` |
+
+---
+
+## What are Variables and Types?
+
+In C++, you must **declare** a variable's type before using it. The compiler checks types at compile time, catching errors early.
 
 \`\`\`cpp
 #include <iostream>
 #include <string>
 
 int main() {
-    // Fundamental types
-    int age = 25;
-    double price = 19.99;
-    char grade = 'A';
-    bool isActive = true;
+    // Declare type first - C++ is statically typed
+    int age = 25;              // Integer (whole numbers)
+    double price = 19.99;      // Floating-point (decimals)
+    char grade = 'A';          // Single character
+    bool isActive = true;      // Boolean (true/false)
     
-    // String (from <string> header)
+    // String requires the <string> header
     std::string name = "Marathon";
     
-    // Type inference with auto
-    auto count = 100;      // int
-    auto rate = 3.14;      // double
-    auto text = "Hello";   // const char*
+    // 'auto' lets compiler infer the type (C++11)
+    auto count = 100;      // Deduced as int
+    auto rate = 3.14;      // Deduced as double
     
-    // Constants
-    const int MAX_SIZE = 100;
-    constexpr int ARRAY_SIZE = 50;  // Compile-time constant
+    // Constants - values that cannot change
+    const int MAX_SIZE = 100;        // Runtime constant
+    constexpr int ARRAY_SIZE = 50;   // Compile-time constant (faster)
     
     return 0;
 }
 \`\`\`
 
-## Pointers vs References
+---
+
+## What are Pointers and References?
+
+**Pointers** and **references** are C++'s way of referring to data stored elsewhere in memory. Understanding them is crucial for C++ mastery.
+
+### Pointer
+
+A **pointer** is a variable that stores a **memory address**. Think of it as a piece of paper with an address written on it - it tells you where to find the actual house (data).
 
 \`\`\`cpp
 int value = 42;
 
-// Pointer: stores memory address
-int* ptr = &value;
-std::cout << *ptr;     // 42 (dereference)
-std::cout << ptr;      // 0x7ffd... (address)
+// Creating a pointer
+int* ptr = &value;    // &value = "address of value"
 
-// Reference: alias for existing variable
-int& ref = value;
-std::cout << ref;      // 42
-ref = 100;             // value is now 100
+// Using a pointer
+std::cout << ptr;     // 0x7ffd... (prints the address)
+std::cout << *ptr;    // 42 (dereference = "go to that address and get the value")
 
-// Key differences:
-// - References cannot be null
-// - References cannot be reassigned
-// - Pointers can point to different addresses
+*ptr = 100;           // Change the value at that address
+// Now value == 100
 \`\`\`
+
+### Reference
+
+A **reference** is an **alias** (another name) for an existing variable. Once bound, it always refers to the same variable.
+
+\`\`\`cpp
+int value = 42;
+int& ref = value;     // ref is now another name for value
+
+std::cout << ref;     // 42
+ref = 100;            // Changes value (they're the same thing!)
+// Now value == 100
+\`\`\`
+
+### Key Differences
+
+| Feature | Pointer | Reference |
+|---------|---------|-----------|
+| Can be null | ✅ Yes | ❌ No |
+| Can be reassigned | ✅ Yes | ❌ No |
+| Syntax | \`*\` and \`&\` | Just \`&\` at declaration |
+| Use case | Dynamic memory, optional values | Function parameters, aliases |
 
 ## Control Flow
 
@@ -543,52 +1425,84 @@ int j = 0;
 while (j < 5) {
     std::cout << j++ << " ";
 }
-\`\`\`
+---
 
-## Functions
+## What are Functions in C++?
+
+Like Python, functions in C++ are reusable blocks of code. The key difference is how you pass arguments:
+
+### Pass by Value vs Reference
+
+| Method | Syntax | What Happens |
+|--------|--------|--------------|
+| **By value** | \`void f(int x)\` | Makes a copy - original unchanged |
+| **By reference** | \`void f(int& x)\` | Passes the original - can modify |
+| **By const ref** | \`void f(const int& x)\` | Passes original, read-only, efficient |
 
 \`\`\`cpp
-// Pass by value (copy)
+// Pass by value - makes a copy
 void incrementValue(int x) {
-    x++;  // Only changes local copy
+    x++;  // Only changes the local copy!
 }
 
-// Pass by reference (modify original)
+// Pass by reference - modifies the original
 void incrementReference(int& x) {
-    x++;  // Modifies original
+    x++;  // Changes the caller's variable
 }
 
-// Pass by const reference (read-only, efficient)
+// Pass by const reference - efficient + read-only
 void printVector(const std::vector<int>& vec) {
     for (int x : vec) {
         std::cout << x << " ";
     }
 }
 
-// Function overloading
+// Usage
+int num = 5;
+incrementValue(num);     // num is still 5
+incrementReference(num); // num is now 6
+
+// Function overloading - same name, different parameters
 int add(int a, int b) { return a + b; }
 double add(double a, double b) { return a + b; }
 \`\`\`
 
-## Arrays and Vectors
+---
+
+## What are Arrays and Vectors?
+
+C++ has several ways to store collections of items:
+
+| Type | Size | Where | When to Use |
+|------|------|-------|-------------|
+| C-array | Fixed | Stack | Legacy code, low-level |
+| \`std::array\` | Fixed | Stack | Fixed size, type-safe |
+| \`std::vector\` | Dynamic | Heap | **Most common choice** |
 
 \`\`\`cpp
 #include <vector>
 #include <array>
 
-// C-style array (fixed size, stack)
+// C-style array - avoid in modern C++
 int arr[5] = {1, 2, 3, 4, 5};
 
-// std::array (fixed size, safer)
+// std::array - fixed size, safer
 std::array<int, 5> stdArr = {1, 2, 3, 4, 5};
 
-// std::vector (dynamic size, heap)
+// std::vector - dynamic size, use this!
 std::vector<int> vec = {1, 2, 3};
-vec.push_back(4);     // Add element
+vec.push_back(4);     // Add to end
 vec.pop_back();       // Remove last
-vec.size();           // Get size
-vec[0];               // Access element
+vec.size();           // Get size (3)
+vec[0];               // Access element (1)
+
+// Range-based for loop (C++11)
+for (int x : vec) {
+    std::cout << x << " ";
+}
 \`\`\`
+
+---
 
 ## Key Takeaways
 
@@ -611,96 +1525,143 @@ vec[0];               // Access element
         title: 'Memory Management',
         content: `# C++ Memory Management
 
-Understand stack, heap, and smart pointers for robust code.
+## Why This Matters
 
-## Stack vs Heap
+Memory management is **the most important C++ concept** to understand:
+
+- **Performance** - Control over memory = control over speed
+- **Bug prevention** - Memory bugs cause crashes, security vulnerabilities
+- **Interview essential** - Almost always asked in C++ interviews
+- Unlike Python, C++ **does not have garbage collection**
+
+---
+
+## What is Stack vs Heap Memory?
+
+All programs have two areas of memory:
+
+| Feature | Stack | Heap |
+|---------|-------|------|
+| **Allocation** | Automatic | Manual (\`new\`/\`delete\`) |
+| **Speed** | Very fast | Slower |
+| **Size** | Limited (~1MB) | Large (GBs) |
+| **Lifetime** | Until function returns | Until you \`delete\` |
+| **Cleanup** | Automatic | **Your responsibility!** |
 
 \`\`\`cpp
 void example() {
-    // Stack allocation: automatic, fast, limited size
-    int stackVar = 42;
-    int stackArray[100];
+    // STACK allocation - automatic cleanup
+    int stackVar = 42;        // Goes away when function ends
+    int stackArray[100];      // Fixed size, must know at compile time
     
-    // Heap allocation: manual, slower, flexible size
-    int* heapVar = new int(42);
-    int* heapArray = new int[100];
+    // HEAP allocation - manual cleanup required!
+    int* heapVar = new int(42);      // Allocate one int
+    int* heapArray = new int[100];   // Allocate array
     
-    // Must manually free heap memory!
+    // YOU must free heap memory, or it's a MEMORY LEAK!
     delete heapVar;
-    delete[] heapArray;
+    delete[] heapArray;  // Use delete[] for arrays!
 }
 // stackVar automatically destroyed here
 \`\`\`
 
-## RAII (Resource Acquisition Is Initialization)
+---
 
-Core C++ idiom: tie resource lifetime to object lifetime.
+## What is RAII?
+
+**RAII** (Resource Acquisition Is Initialization) is C++'s most important idiom. The idea:
+
+> **Acquire resources in constructor, release in destructor.**
+
+This guarantees cleanup even if exceptions occur.
 
 \`\`\`cpp
 class FileHandle {
     FILE* file;
 public:
+    // Constructor - ACQUIRE resource
     FileHandle(const char* path) {
-        file = fopen(path, "r");  // Acquire resource
+        file = fopen(path, "r");
     }
     
+    // Destructor - RELEASE resource (automatically called!)
     ~FileHandle() {
-        if (file) fclose(file);   // Release resource
+        if (file) fclose(file);
     }
     
-    // Prevent copying (Rule of Three)
+    // Prevent copying to avoid double-free
     FileHandle(const FileHandle&) = delete;
     FileHandle& operator=(const FileHandle&) = delete;
 };
 
 void useFile() {
     FileHandle fh("data.txt");
-    // File automatically closed when fh goes out of scope
-}
+    // ... use the file ...
+}  // fh destructor called here - file automatically closed!
+   // Even if an exception was thrown!
 \`\`\`
 
-## Smart Pointers (Modern C++)
+---
 
-Automatic memory management without garbage collection:
+## What are Smart Pointers?
 
-### unique_ptr - Exclusive ownership
+**Smart pointers** are C++11 classes that act like pointers but **automatically manage memory**. They're RAII wrappers around raw pointers.
+
+**Rule: Never use \`new\`/\`delete\` directly in modern C++. Use smart pointers!**
+
+| Smart Pointer | Ownership | When to Use |
+|--------------|-----------|-------------|
+| \`unique_ptr\` | **Sole** owner | Default choice (90% of cases) |
+| \`shared_ptr\` | **Shared** owners | When multiple objects need ownership |
+| \`weak_ptr\` | **No** ownership | Break circular refs, optional access |
+
+### unique_ptr - One Owner
+
+A \`unique_ptr\` **exclusively owns** the object. When it goes out of scope, the object is deleted. Cannot be copied (only moved).
+
 \`\`\`cpp
 #include <memory>
 
-// Create unique_ptr
+// Create unique_ptr - the RIGHT way to allocate
 std::unique_ptr<int> ptr = std::make_unique<int>(42);
 std::cout << *ptr;  // 42
 
-// Cannot copy, only move
-// std::unique_ptr<int> ptr2 = ptr;  // Error!
-std::unique_ptr<int> ptr2 = std::move(ptr);
-// ptr is now nullptr
+// Cannot copy (would create two owners!)
+// std::unique_ptr<int> ptr2 = ptr;  // COMPILE ERROR!
 
-// Automatic cleanup when out of scope
+// Can move (transfer ownership)
+std::unique_ptr<int> ptr2 = std::move(ptr);
+// ptr is now nullptr, ptr2 owns the int
 \`\`\`
 
-### shared_ptr - Shared ownership
+### shared_ptr - Shared Ownership
+
+A \`shared_ptr\` uses **reference counting**. The object is deleted when the **last** shared_ptr is destroyed.
+
 \`\`\`cpp
 std::shared_ptr<int> ptr1 = std::make_shared<int>(42);
-std::shared_ptr<int> ptr2 = ptr1;  // OK, shares ownership
+std::shared_ptr<int> ptr2 = ptr1;  // Both own the int
 
-std::cout << ptr1.use_count();  // 2
+std::cout << ptr1.use_count();  // 2 (two owners)
 
 ptr1.reset();  // ptr1 releases, count = 1
-// Memory freed when last shared_ptr destroyed
+// Memory freed when ptr2 is destroyed (count reaches 0)
 \`\`\`
 
-### weak_ptr - Non-owning observer
+### weak_ptr - Non-Owning Observer
+
+A \`weak_ptr\` observes a shared_ptr **without owning** it. Used to break circular references.
+
 \`\`\`cpp
 std::shared_ptr<int> shared = std::make_shared<int>(42);
-std::weak_ptr<int> weak = shared;
+std::weak_ptr<int> weak = shared;  // Does NOT increase count
 
-// Check if object still exists
+// Must convert to shared_ptr to use
 if (auto locked = weak.lock()) {
     std::cout << *locked;  // Safe access
 }
 
-shared.reset();
+shared.reset();           // Object deleted
 // weak.lock() now returns nullptr
 \`\`\`
 
@@ -754,24 +1715,41 @@ void useAfterFree() {
         title: 'OOP in C++',
         content: `# Object-Oriented Programming in C++
 
-Classes, inheritance, and polymorphism in C++.
+## Why This Matters
 
-## Classes
+C++ OOP differs from Python in important ways:
+
+- **Access control** is enforced (public/private/protected)
+- **Manual memory management** in classes (Rule of 5)
+- **Virtual functions** enable runtime polymorphism
+- **Performance control** - you decide what's on stack vs heap
+
+---
+
+## What is a Class in C++?
+
+A **class** defines a type with data (member variables) and behavior (member functions). Key differences from Python:
+
+| Feature | Python | C++ |
+|---------|--------|-----|
+| Access control | By convention (\`_\`) | Enforced (\`private:\`, \`public:\`) |
+| \`this\` keyword | \`self\` (explicit) | \`this\` (implicit pointer) |
+| Constructor name | \`__init__\` | Same as class name |
 
 \`\`\`cpp
 class Rectangle {
-private:
+private:    // Only accessible within this class
     double width;
     double height;
 
-public:
-    // Constructor
+public:     // Accessible from anywhere
+    // Constructor with initializer list (preferred)
     Rectangle(double w, double h) : width(w), height(h) {}
     
     // Default constructor
     Rectangle() : width(0), height(0) {}
     
-    // Getter methods
+    // Getter methods (const = doesn't modify object)
     double getWidth() const { return width; }
     double getHeight() const { return height; }
     
@@ -783,66 +1761,96 @@ public:
     double area() const { return width * height; }
 };
 
-// Usage
+// Using the class
 Rectangle rect(5.0, 3.0);
 std::cout << rect.area();  // 15.0
 \`\`\`
 
+---
+
+---
+
 ## Constructors and Destructors
+
+In C++, you must manage what happens when objects are **created**, **copied**, **moved**, and **destroyed**.
+
+### The Rule of Five
+
+If your class manages a resource (memory, file, etc.), you should define these 5 special members:
+
+| Special Member | Purpose |
+|----------------|---------|
+| **Destructor** | Cleanup when object is destroyed |
+| **Copy constructor** | Create new object as copy |
+| **Copy assignment** | Assign to existing object |
+| **Move constructor** | Create from temporary (C++11) |
+| **Move assignment** | Assign from temporary (C++11) |
 
 \`\`\`cpp
 class Resource {
     int* data;
+    size_t size;
     
 public:
     // Constructor
-    Resource(int size) {
-        data = new int[size];
+    Resource(size_t sz) : size(sz), data(new int[sz]) {
         std::cout << "Resource acquired\\n";
     }
     
-    // Destructor
+    // Destructor - called when object goes out of scope
     ~Resource() {
         delete[] data;
         std::cout << "Resource released\\n";
     }
     
-    // Copy constructor
-    Resource(const Resource& other) {
-        // Deep copy
-        data = new int[/*size*/];
-        // Copy data...
+    // Copy constructor - deep copy
+    Resource(const Resource& other) : size(other.size), data(new int[other.size]) {
+        std::copy(other.data, other.data + size, data);
     }
     
-    // Move constructor (C++11)
-    Resource(Resource&& other) noexcept {
-        data = other.data;
-        other.data = nullptr;  // Leave source in valid state
+    // Move constructor - steal resources (C++11)
+    Resource(Resource&& other) noexcept : data(other.data), size(other.size) {
+        other.data = nullptr;  // Leave source in valid empty state
+        other.size = 0;
     }
+    
+    // Copy and move assignment operators similar...
 };
 \`\`\`
 
-## Inheritance
+---
+
+## What is Inheritance in C++?
+
+**Inheritance** creates an "is-a" relationship. The child class gets all members of the parent.
+
+Key C++ concepts:
+- \`public\` inheritance: "is-a" (most common)
+- \`protected\`: accessible to derived classes
+- \`virtual\`: enables polymorphism (overriding)
 
 \`\`\`cpp
 class Animal {
-protected:
+protected:           // Accessible to child classes
     std::string name;
     
 public:
     Animal(const std::string& n) : name(n) {}
     
+    // virtual = can be overridden by child classes
     virtual void speak() const {
         std::cout << name << " makes a sound\\n";
     }
     
-    virtual ~Animal() = default;  // Virtual destructor
+    // IMPORTANT: Always make destructor virtual in base classes!
+    virtual ~Animal() = default;
 };
 
-class Dog : public Animal {
+class Dog : public Animal {    // Dog IS-A Animal
 public:
     Dog(const std::string& n) : Animal(n) {}
     
+    // override = explicitly overriding (catches errors)
     void speak() const override {
         std::cout << name << " says woof!\\n";
     }
@@ -856,30 +1864,35 @@ public:
         std::cout << name << " says meow!\\n";
     }
 };
-
-// Polymorphism in action
-void makeSpeak(const Animal& animal) {
-    animal.speak();  // Calls correct version
-}
 \`\`\`
 
-## Virtual Functions and Polymorphism
+---
+
+## What is Polymorphism?
+
+**Polymorphism** means "many forms." With virtual functions, a pointer/reference to a base class can call the correct derived class method.
 
 \`\`\`cpp
-Animal* animals[] = {
-    new Dog("Buddy"),
-    new Cat("Whiskers")
-};
-
-for (Animal* a : animals) {
-    a->speak();  // Dynamic dispatch
+// Polymorphism in action
+void makeSpeak(const Animal& animal) {
+    animal.speak();  // Calls Dog::speak() or Cat::speak() as appropriate!
 }
-// Output:
-// Buddy says woof!
-// Whiskers says meow!
+
+Dog dog("Buddy");
+Cat cat("Whiskers");
+makeSpeak(dog);  // "Buddy says woof!"
+makeSpeak(cat);  // "Whiskers says meow!"
+
+// Using pointers
+std::vector<Animal*> animals = { new Dog("Rex"), new Cat("Luna") };
+for (Animal* a : animals) {
+    a->speak();  // Dynamic dispatch at runtime
+}
 \`\`\`
 
-## Abstract Classes
+---
+
+## What are Abstract Classes?
 
 \`\`\`cpp
 class Shape {
@@ -921,44 +1934,73 @@ public:
         title: 'Modern C++ (11/14/17)',
         content: `# Modern C++ Features
 
-Essential C++11/14/17 features for writing better code.
+## Why This Matters
 
-## auto and Type Deduction
+Modern C++ (C++11 and beyond) introduced features that make the language:
+
+- **Safer** - Smart pointers, nullptr, strongly-typed enums
+- **Faster** - Move semantics, constexpr
+- **Easier** - auto, range-for, lambdas, structured bindings
+- **Interview essential** - All C++ interviews expect modern C++ knowledge
+
+---
+
+## What is \`auto\`?
+
+\`auto\` lets the **compiler deduce the type** from the initializer. Reduces verbosity, especially with complex types.
 
 \`\`\`cpp
-// Let compiler deduce type
+// Compiler figures out the type
 auto x = 42;           // int
 auto pi = 3.14;        // double
-auto name = "Hello";   // const char*
+auto name = "Hello";   // const char* (not std::string!)
 
-// Useful with complex types
+// Most useful with complex types
 std::map<std::string, std::vector<int>> data;
-for (auto& [key, value] : data) {  // C++17 structured bindings
+
+// Without auto: painful!
+std::map<std::string, std::vector<int>>::iterator it = data.begin();
+
+// With auto: clean!
+auto it = data.begin();
+
+// C++17 structured bindings
+for (auto& [key, value] : data) {  
     // key is std::string, value is vector<int>
 }
 \`\`\`
 
-## Range-based for Loops
+---
+
+## What are Range-based For Loops?
+
+Iterate over containers without indices or iterators:
 
 \`\`\`cpp
 std::vector<int> nums = {1, 2, 3, 4, 5};
 
-// By value (copy)
-for (int n : nums) { }
-
-// By reference (modify)
-for (int& n : nums) {
-    n *= 2;
+// By value (makes a copy each iteration)
+for (int n : nums) { 
+    // n is a copy, modifying it doesn't affect nums
 }
 
-// By const reference (read-only, efficient)
+// By reference (can modify)
+for (int& n : nums) {
+    n *= 2;  // Actually doubles the values!
+}
+
+// By const reference (read-only, efficient - PREFERRED)
 for (const int& n : nums) { }
 
-// With auto
+// With auto (let compiler figure it out)
 for (const auto& n : nums) { }
 \`\`\`
 
-## Lambda Expressions
+---
+
+## What are Lambda Expressions?
+
+**Lambdas** are anonymous functions you can define inline. Essential for algorithms and callbacks.
 
 \`\`\`cpp
 // Basic lambda
@@ -1358,6 +2400,268 @@ std::string result = StringBuilder()
 - RAII ensures resources are always cleaned up
 - STL algorithms make code cleaner and safer
 - Move semantics avoid unnecessary copies
+`,
+    },
+
+    // Step 0-3-0: Python vs C++ Comparison
+    'step-0-3-0': {
+        title: 'Python vs C++ Comparison',
+        content: `# Python vs C++ Comparison
+
+## Why Compare These Languages?
+
+Understanding both Python and C++ makes you a more versatile engineer:
+
+- **Interview flexibility** - Some problems are easier in Python, others need C++ speed
+- **Project selection** - Knowing trade-offs helps you choose the right tool
+- **Deeper understanding** - Learning both reveals what's happening "under the hood"
+
+---
+
+## Syntax: Side-by-Side
+
+### Hello World
+
+| Python | C++ |
+|--------|-----|
+| \\\`print("Hello")\\\` | \\\`std::cout << "Hello" << std::endl;\\\` |
+| No boilerplate | Requires \\\`#include\\\` and \\\`main()\\\` |
+
+\\\`\\\`\\\`python
+# Python - runs immediately
+print("Hello, World!")
+\\\`\\\`\\\`
+
+\\\`\\\`\\\`cpp
+// C++ - needs compilation
+#include <iostream>
+
+int main() {
+    std::cout << "Hello, World!" << std::endl;
+    return 0;
+}
+\\\`\\\`\\\`
+
+### Loops
+
+\\\`\\\`\\\`python
+# Python - iterate directly over elements
+numbers = [1, 2, 3, 4, 5]
+for num in numbers:
+    print(num)
+\\\`\\\`\\\`
+
+\\\`\\\`\\\`cpp
+// C++ - range-based for (C++11) or index-based
+#include <vector>
+#include <iostream>
+
+std::vector<int> numbers = {1, 2, 3, 4, 5};
+
+// Modern C++ (range-based)
+for (int num : numbers) {
+    std::cout << num << std::endl;
+}
+
+// Traditional (index-based)
+for (size_t i = 0; i < numbers.size(); i++) {
+    std::cout << numbers[i] << std::endl;
+}
+\\\`\\\`\\\`
+
+---
+
+## Type System
+
+| Feature | Python | C++ |
+|---------|--------|-----|
+| **Type checking** | Runtime (dynamic) | Compile-time (static) |
+| **Declaration** | Implicit | Explicit (or \\\`auto\\\`) |
+| **Type errors** | Crash at runtime | Caught during compilation |
+| **Flexibility** | Very high | Type-safe |
+
+### Example: The Difference in Practice
+
+\\\`\\\`\\\`python
+# Python - types are checked at runtime
+def add(a, b):
+    return a + b
+
+add(1, 2)        # Works: 3
+add("x", "y")    # Works: "xy"
+add(1, "2")      # Runtime error! Can mix types by accident
+\\\`\\\`\\\`
+
+\\\`\\\`\\\`cpp
+// C++ - types are checked at compile time
+int add(int a, int b) {
+    return a + b;
+}
+
+add(1, 2);       // Works: 3
+add("x", "y");   // Compile error! Won't even build
+\\\`\\\`\\\`
+
+---
+
+## Memory Management
+
+| Aspect | Python | C++ |
+|--------|--------|-----|
+| **Allocation** | Automatic | Manual or Smart Pointers |
+| **Deallocation** | Garbage Collector | RAII / \\\`delete\\\` |
+| **Memory overhead** | Higher (~28 bytes per int) | Lower (~4 bytes per int) |
+| **Control** | None | Complete |
+| **Memory leaks** | Rare (GC handles it) | Possible if mismanaged |
+
+### Python's Simplicity
+
+\\\`\\\`\\\`python
+# Python - memory is automatic
+def process():
+    data = [1, 2, 3, 4, 5]  # Allocated automatically
+    return sum(data)
+    # 'data' is garbage collected when no longer referenced
+\\\`\\\`\\\`
+
+### C++'s Control
+
+\\\`\\\`\\\`cpp
+#include <vector>
+#include <memory>
+
+void process() {
+    // Stack allocation - automatic cleanup
+    std::vector<int> data = {1, 2, 3, 4, 5};
+    
+    // Heap allocation with smart pointer - automatic cleanup
+    auto ptr = std::make_unique<std::vector<int>>();
+    
+    // Manual heap allocation - YOU must delete!
+    int* raw = new int[5];  // Allocated
+    delete[] raw;           // Must remember to free!
+}
+// Stack variables automatically cleaned up when function exits
+\\\`\\\`\\\`
+
+---
+
+## OOP Comparison
+
+| Feature | Python | C++ |
+|---------|--------|-----|
+| **Access control** | Convention (\\\`_\\\`, \\\`__\\\`) | Keywords (\\\`private\\\`, \\\`protected\\\`) |
+| **Constructors** | \\\`__init__\\\` | Constructor (same name as class) |
+| **Destructors** | \\\`__del__\\\` (unreliable) | \\\`~ClassName()\\\` (deterministic) |
+| **Inheritance** | \\\`class Child(Parent)\\\` | \\\`class Child : public Parent\\\` |
+| **Virtual methods** | All methods are virtual | Must use \\\`virtual\\\` keyword |
+| **Abstract classes** | \\\`ABC\\\` module | Pure virtual functions (\\\`= 0\\\`) |
+
+### Class Definition Comparison
+
+\\\`\\\`\\\`python
+# Python class
+class Animal:
+    def __init__(self, name):
+        self.name = name        # Public by convention
+        self._age = 0           # "Private" by convention
+    
+    def speak(self):            # All methods are virtual
+        raise NotImplementedError
+
+class Dog(Animal):
+    def speak(self):
+        return f"{self.name} says Woof!"
+\\\`\\\`\\\`
+
+\\\`\\\`\\\`cpp
+// C++ class
+#include <string>
+
+class Animal {
+protected:
+    std::string name;          // Truly protected
+    int age = 0;               // Truly private (default)
+    
+public:
+    Animal(const std::string& n) : name(n) {}
+    virtual ~Animal() = default;
+    
+    virtual std::string speak() const = 0;  // Pure virtual (abstract)
+};
+
+class Dog : public Animal {
+public:
+    Dog(const std::string& n) : Animal(n) {}
+    
+    std::string speak() const override {
+        return name + " says Woof!";
+    }
+};
+\\\`\\\`\\\`
+
+---
+
+## Performance
+
+| Benchmark | Python | C++ | Difference |
+|-----------|--------|-----|------------|
+| Loop (1M iterations) | ~50ms | ~1ms | **50x faster** |
+| Function calls | ~100ns | ~1ns | **100x faster** |
+| Memory per int | 28 bytes | 4 bytes | **7x smaller** |
+
+> **When does performance matter?**
+> - ✅ Games, real-time systems, trading platforms
+> - ✅ Processing millions of records
+> - ❌ Web APIs, scripts, prototypes (Python is fine)
+
+---
+
+## Ecosystem & Use Cases
+
+### When to Choose Python 🐍
+
+| Use Case | Why Python Wins |
+|----------|-----------------|
+| **Data Science / ML** | NumPy, Pandas, TensorFlow |
+| **Scripting & Automation** | Quick to write, no compilation |
+| **Web Development** | Django, FastAPI, Flask |
+| **Prototyping** | Iterate faster, less boilerplate |
+| **Coding Interviews** | Write solutions quickly |
+
+### When to Choose C++ ⚡
+
+| Use Case | Why C++ Wins |
+|----------|--------------|
+| **Systems Programming** | OS, drivers, embedded |
+| **Game Development** | Unreal Engine, performance |
+| **High-Frequency Trading** | Microsecond latency |
+| **Competitive Programming** | Speed advantage in time-limited problems |
+| **Resource-Constrained** | IoT, embedded systems |
+
+---
+
+## Quick Reference: Converting Between Languages
+
+| Task | Python | C++ |
+|------|--------|-----|
+| **Print** | \\\`print(x)\\\` | \\\`std::cout << x << std::endl;\\\` |
+| **List/Vector** | \\\`[1, 2, 3]\\\` | \\\`std::vector<int>{1, 2, 3}\\\` |
+| **Dictionary/Map** | \\\`{"a": 1}\\\` | \\\`std::map<std::string, int>{{"a", 1}}\\\` |
+| **String format** | \\\`f"Value: {x}"\\\` | \\\`std::format("Value: {}", x)\\\` (C++20) |
+| **Null/None** | \\\`None\\\` | \\\`nullptr\\\` |
+| **Length** | \\\`len(arr)\\\` | \\\`arr.size()\\\` |
+| **Append** | \\\`arr.append(x)\\\` | \\\`arr.push_back(x)\\\` |
+| **Range loop** | \\\`for i in range(n)\\\` | \\\`for (int i = 0; i < n; i++)\\\` |
+
+---
+
+## Key Takeaways
+
+- **Python** = Faster development, easier to read, automatic memory
+- **C++** = Faster execution, more control, compile-time safety
+- Both are valuable - learn Python for productivity, C++ for performance
+- Interview tip: Use Python for quick solutions, mention C++ when discussing optimizations
 `,
     },
 
