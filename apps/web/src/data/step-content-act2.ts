@@ -9,80 +9,234 @@ export const act2Content: Record<string, { title: string; content: string }> = {
         title: 'Processes & Threads',
         content: `# Processes & Threads
 
-Fundamental units of execution in operating systems.
+## Why This Matters
 
-## Process vs Thread
+When you run \`python script.py\`, something remarkable happens. Your code transforms from static text on disk into a *living entity* that can think, remember, and act. That entity is called a **process**.
+
+Understanding processes and threads is essential for:
+- Writing concurrent programs that don't crash mysteriously
+- Debugging race conditions that only appear in production
+- Answering systems questions in technical interviews
+
+---
+
+## What is a Process?
+
+**Definition**: A **process** is a *running instance of a program* — your code loaded into memory, given its own private workspace, and granted time on the CPU to execute.
+
+### The Restaurant Analogy 🍳
+
+Think of your computer as a busy restaurant:
+
+| Restaurant | Computer |
+|------------|----------|
+| **Chef** | CPU (does the actual work) |
+| **Order ticket** | Process (a specific customer's meal being prepared) |
+| **Recipe book** | Program (instructions sitting on disk) |
+| **Kitchen station** | Memory space (ingredients and tools for this order) |
+| **Kitchen tasks** | Threads (chop onions, grill steak — parallel work on one order) |
+
+When you "run a program," you're placing an order. The OS (restaurant manager) creates a process (order ticket), allocates memory (kitchen station), and schedules CPU time (chef's attention).
+
+### A Process Is More Than Code
+
+A process bundles together:
+
+\`\`\`
+┌─────────────────────────────────────────┐
+│              PROCESS                    │
+├─────────────────────────────────────────┤
+│  Code (Text Segment)    → Instructions  │
+│  Data Segment           → Global vars   │
+│  Heap                   → malloc/new    │
+│  Stack                  → Function calls│
+│  Process ID (PID)       → Unique ID     │
+│  Program Counter        → Current line  │
+│  Open Files             → File handles  │
+│  Environment Variables  → PATH, HOME    │
+└─────────────────────────────────────────┘
+\`\`\`
+
+### Process Lifecycle
+
+Every process moves through these states:
+
+\`\`\`
+        ┌─────────┐
+        │   New   │ ← Process created
+        └────┬────┘
+             │ OS admits to ready queue
+             ▼
+        ┌─────────┐  scheduler   ┌─────────┐
+        │  Ready  │◄────────────│ Running │
+        └────┬────┘  preempt    └────┬────┘
+             │                       │
+             │ dispatch (get CPU)    │ I/O request
+             └───────────────────────┤
+                                     ▼
+                                ┌─────────┐
+                                │ Waiting │ ← Blocked on I/O
+                                └────┬────┘
+                                     │ I/O complete
+                                     ▼
+                                  (Ready)
+\`\`\`
+
+---
+
+## What is a Thread?
+
+**Definition**: A **thread** is a lightweight unit of execution *within* a process. All threads in a process share the same memory space but each has its own stack.
+
+### Process vs Thread: The Key Insight
+
+Think of threads as **workers in the same kitchen**:
+- They share ingredients (memory), pots and pans (resources)
+- But each follows their own checklist (stack, registers)
+- They must coordinate to avoid collisions (synchronization)
 
 | Aspect | Process | Thread |
 |--------|---------|--------|
-| Memory | Separate address space | Shared address space |
-| Creation | Expensive | Lightweight |
-| Communication | IPC required | Shared memory |
-| Isolation | High | Low |
+| **Memory** | Private address space | Shared with other threads |
+| **Creation** | Expensive (~10ms) | Cheap (~1ms) |
+| **Communication** | IPC (pipes, sockets) | Direct memory access |
+| **Crash impact** | Isolated | Can crash entire process |
+| **Use case** | Isolation, security | Parallelism, responsiveness |
 
-## Process States
+---
+
+## Connecting to Fundamentals
+
+Remember the **call stack** from recursion? Each thread has its own stack:
 
 \`\`\`
-    ┌──────────┐
-    │  New     │
-    └────┬─────┘
-         │ admit
-         ▼
-    ┌──────────┐     interrupt     ┌──────────┐
-    │  Ready   │◄──────────────────│ Running  │
-    └────┬─────┘                   └────┬─────┘
-         │                              │
-         │ dispatch                     │ I/O or wait
-         │                              ▼
-         │                         ┌──────────┐
-         └────────────────────────►│ Waiting  │
-                                   └──────────┘
+Process Memory Layout
+┌──────────────────────────────────────┐
+│            Thread 1 Stack            │ ↓ grows down
+├──────────────────────────────────────┤
+│            Thread 2 Stack            │ ↓ grows down
+├──────────────────────────────────────┤
+│               ...                    │
+├──────────────────────────────────────┤
+│               Heap                   │ ↑ grows up (malloc)
+├──────────────────────────────────────┤
+│        Data (global variables)       │
+├──────────────────────────────────────┤
+│           Code (read-only)           │
+└──────────────────────────────────────┘
 \`\`\`
 
-## Creating Processes (Python)
+---
+
+## Code Examples
+
+### Creating Processes (Python)
 
 \`\`\`python
 import multiprocessing
 import os
 
 def worker(name):
+    """Each process has its own PID and memory space"""
     print(f"Worker {name}, PID: {os.getpid()}")
+    # Changes to variables here don't affect other processes
 
 if __name__ == "__main__":
     processes = []
     for i in range(4):
         p = multiprocessing.Process(target=worker, args=(i,))
         processes.append(p)
-        p.start()
+        p.start()  # Fork: creates a copy of this process
     
     for p in processes:
-        p.join()
+        p.join()  # Wait for child to finish
 \`\`\`
 
-## Creating Threads (Python)
+### Creating Threads (Python)
 
 \`\`\`python
 import threading
 
+counter = 0  # Shared between threads — danger zone!
+
 def worker(name):
-    print(f"Thread {name}")
+    global counter
+    for _ in range(100000):
+        counter += 1  # This is NOT atomic!
 
-threads = []
-for i in range(4):
-    t = threading.Thread(target=worker, args=(i,))
-    threads.append(t)
+threads = [threading.Thread(target=worker, args=(i,)) for i in range(4)]
+for t in threads:
     t.start()
-
 for t in threads:
     t.join()
+
+print(counter)  # Probably NOT 400000! (race condition)
 \`\`\`
+
+### Creating Threads (C++)
+
+\`\`\`cpp
+#include <iostream>
+#include <thread>
+#include <vector>
+
+void worker(int id) {
+    std::cout << "Thread " << id << " running\\n";
+}
+
+int main() {
+    std::vector<std::thread> threads;
+    for (int i = 0; i < 4; ++i) {
+        threads.emplace_back(worker, i);
+    }
+    for (auto& t : threads) {
+        t.join();  // Must join before thread goes out of scope
+    }
+    return 0;
+}
+\`\`\`
+
+---
+
+## Context Switching: The Hidden Cost
+
+When the OS switches between processes/threads, it must:
+
+1. **Save** current state (registers, program counter)
+2. **Load** next process's state
+3. **Flush** CPU caches (for process switch)
+
+**Cost**: ~1-10μs for threads, ~100μs-1ms for processes
+
+This is why creating thousands of threads is faster than thousands of processes.
+
+---
+
+## Interview Insights 💡
+
+**Common Questions**:
+1. "What's the difference between a process and a thread?"
+2. "When would you use multiprocessing vs multithreading?"
+3. "What happens when you call \`fork()\`?"
+
+**Key Talking Points**:
+- Processes for **isolation** (one crash doesn't kill others)
+- Threads for **shared-memory parallelism** (faster communication)
+- Python GIL means threads don't give CPU parallelism — use processes
+- Thread creation is ~10x cheaper than process creation
+
+**Gotcha**: In Python, \`threading\` doesn't speed up CPU-bound work due to the GIL. Use \`multiprocessing\` for true parallelism.
+
+---
 
 ## Key Takeaways
 
-- Use processes for CPU-bound tasks (bypass GIL)
-- Use threads for I/O-bound tasks
-- Context switching has overhead
-- Shared memory requires synchronization
+✅ A **process** is a running program with its own memory space  
+✅ A **thread** is a lightweight execution unit sharing process memory  
+✅ Use **processes** for isolation and CPU-bound work (in Python)  
+✅ Use **threads** for I/O-bound work and shared-memory parallelism  
+✅ **Context switching** has real performance cost  
+✅ Shared memory between threads requires **synchronization** (next lesson!)
 `,
     },
 
@@ -91,71 +245,227 @@ for t in threads:
         title: 'Memory Management',
         content: `# Memory Management
 
-How operating systems manage memory.
+## Why This Matters
 
-## Memory Hierarchy
+Every variable you create, every object you instantiate, every function you call — they all need a home in memory. Understanding how the OS manages this precious resource is crucial for:
+
+- Writing memory-efficient programs
+- Debugging segmentation faults and memory leaks
+- Building high-performance systems that don't crash
+
+---
+
+## The Library Analogy 📚
+
+Think of physical memory (RAM) as a **library with limited study rooms**:
+
+| Library | Memory |
+|---------|--------|
+| **Study rooms** | Physical memory frames (fixed-size slots) |
+| **Books** | Data (your variables, objects) |
+| **Library card** | Virtual address (your "ticket" to access data) |
+| **Librarian** | Operating System (manages who gets what room) |
+| **Storage room** | Disk (overflow when rooms are full) |
+
+The key insight: You don't need *all* your books in study rooms *all* the time. You can store some in the back and fetch them when needed. This is **virtual memory**.
+
+---
+
+## The Memory Hierarchy
+
+Not all memory is created equal. Closer to the CPU = faster but smaller:
 
 \`\`\`
-  Registers (fastest, smallest)
-       ▼
-    L1 Cache
-       ▼
-    L2 Cache
-       ▼
-    L3 Cache
-       ▼
-      RAM
-       ▼
-  Disk/SSD (slowest, largest)
+        ┌────────────┐
+        │ Registers  │  ~1 CPU cycle    | ~KB
+        ├────────────┤
+        │  L1 Cache  │  ~4 cycles       | ~64KB
+        ├────────────┤
+        │  L2 Cache  │  ~12 cycles      | ~256KB
+        ├────────────┤
+        │  L3 Cache  │  ~40 cycles      | ~8MB
+        ├────────────┤
+        │    RAM     │  ~100+ cycles    | ~16GB
+        ├────────────┤
+        │   Disk     │  ~10M cycles     | ~1TB
+        └────────────┘
+           Faster                     Larger
 \`\`\`
 
-## Virtual Memory
+**Key insight**: A cache miss to RAM is 100x slower than a cache hit. A page fault (accessing disk) is 100,000x slower!
 
-- Each process has its own virtual address space
-- MMU translates virtual → physical addresses
-- Enables memory isolation and protection
+---
 
-## Paging
+## Virtual Memory: The Grand Illusion
+
+**Definition**: **Virtual memory** gives each process the *illusion* of having the entire address space to itself, even though physical RAM is shared.
+
+### How It Works
 
 \`\`\`
-Virtual Address Space     Physical Memory
-┌─────────────────┐      ┌─────────────┐
-│ Page 0          │──────│ Frame 3     │
-│ Page 1          │──────│ Frame 7     │
-│ Page 2          │──────│ Frame 1     │
-│ Page 3          │─ X ──│ (on disk)   │
-└─────────────────┘      └─────────────┘
-        Page Table
+Process A                     Process B
+┌─────────────┐               ┌─────────────┐
+│ 0x0000:Code │               │ 0x0000:Code │   Same virtual
+│ 0x1000:Data │               │ 0x1000:Data │   addresses!
+│ 0x2000:Heap │               │ 0x2000:Heap │
+└──────┬──────┘               └──────┬──────┘
+       │                             │
+       ▼                             ▼
+    Page Table A                  Page Table B
+       │                             │
+       ▼                             ▼
+┌──────────────────────────────────────────┐
+│            Physical RAM                   │
+│  Frame 3 ← A's code   Frame 7 ← B's data │
+│  Frame 5 ← A's heap   Frame 1 ← B's code │
+└──────────────────────────────────────────┘
 \`\`\`
+
+### Benefits
+
+1. **Isolation**: Process A can't access Process B's memory
+2. **Simplicity**: Every process thinks it starts at address 0
+3. **Overcommit**: Total virtual memory can exceed physical RAM
+
+---
+
+## Paging: Dividing Memory into Chunks
+
+**Definition**: **Paging** divides virtual and physical memory into fixed-size blocks called **pages** (virtual) and **frames** (physical), typically 4KB each.
+
+### The Page Table
+
+Each process has a **page table** that maps virtual pages to physical frames:
+
+\`\`\`
+Virtual Page    Physical Frame    Present?
+─────────────────────────────────────────
+Page 0      →   Frame 5          ✓
+Page 1      →   Frame 12         ✓
+Page 2      →   (on disk)        ✗ ← Page Fault!
+Page 3      →   Frame 1          ✓
+\`\`\`
+
+### What Happens on a Page Fault?
+
+1. CPU tries to access virtual address in Page 2
+2. Page table says "not in RAM" → **Page fault!**
+3. OS pauses process, loads page from disk into a free frame
+4. Updates page table, resumes process
+5. **Cost**: ~10 milliseconds (that's MILLIONS of CPU cycles)
+
+---
 
 ## Page Replacement Algorithms
 
-| Algorithm | Description |
-|-----------|-------------|
-| FIFO | Replace oldest page |
-| LRU | Replace least recently used |
-| Optimal | Replace page used furthest in future |
-| Clock | Circular buffer with use bit |
+When RAM is full and a new page is needed, which page gets evicted?
 
-## Memory Allocation
+| Algorithm | Strategy | Pros/Cons |
+|-----------|----------|-----------|
+| **FIFO** | Evict oldest page | Simple, but may evict frequently-used pages |
+| **LRU** | Evict least recently used | Good, but expensive to track exactly |
+| **Clock** | Circular scan with "used" bits | Practical approximation of LRU |
+| **Optimal** | Evict page used furthest in future | Impossible (requires predicting the future!) |
 
-\`\`\`c
-// C memory allocation
+### Connection to Data Structures
+
+Remember the **LRU Cache** from data structures? Same algorithm! Often implemented with a **HashMap + Doubly Linked List**.
+
+---
+
+## Stack vs Heap: Two Ways to Allocate
+
+### The Stack (Automatic)
+
+- **Fast**: Just move the stack pointer
+- **LIFO**: Last allocated, first freed
+- **Limited**: Typically 1-8MB per thread
+- **Use for**: Local variables, function arguments
+
+\`\`\`cpp
+void foo() {
+    int x = 42;       // Allocated on stack
+    int arr[100];     // Also on stack
+}  // x and arr automatically freed here
+\`\`\`
+
+### The Heap (Manual)
+
+- **Flexible**: Allocate any size, any time
+- **Persistent**: Lives until explicitly freed
+- **Fragmented**: Can develop holes over time
+- **Use for**: Dynamic data, large objects
+
+\`\`\`cpp
+void bar() {
+    int* p = new int[1000];  // Allocated on heap
+    // ... use p ...
+    delete[] p;               // Must manually free!
+}
+\`\`\`
+
+---
+
+## Code Examples
+
+### Python Memory (Abstracted)
+
+\`\`\`python
+# Python manages memory automatically (garbage collection)
+my_list = [1, 2, 3]  # Allocated on heap
+my_list.append(4)    # May reallocate to grow
+
+# When no references remain, garbage collector frees it
+my_list = None  # Old list is now eligible for GC
+\`\`\`
+
+### C/C++ Memory (Manual Control)
+
+\`\`\`cpp
+#include <cstdlib>  // C-style
+#include <memory>   // Modern C++
+
+// C-style (error-prone)
 int* arr = (int*)malloc(10 * sizeof(int));
-// ... use arr ...
 free(arr);
 
-// C++ with new/delete
-int* arr = new int[10];
-delete[] arr;
+// C++ raw pointers (still manual)
+int* arr2 = new int[10];
+delete[] arr2;
+
+// Modern C++ (RAII - automatic cleanup)
+auto ptr = std::make_unique<int[]>(10);
+// Automatically freed when ptr goes out of scope!
 \`\`\`
+
+---
+
+## Interview Insights 💡
+
+**Common Questions**:
+1. "Explain the difference between stack and heap"
+2. "What is virtual memory and why do we need it?"
+3. "What happens when you access memory that's been freed?"
+
+**Key Talking Points**:
+- Virtual memory provides **isolation** and allows **overcommit**
+- Page faults are expensive — locality of reference matters
+- Stack is fast but limited; heap is flexible but requires management
+- Modern C++ uses **RAII** (smart pointers) to prevent memory leaks
+
+**Gotcha**: In C++, \`delete\` on a null pointer is safe, but \`delete\` on an already-freed pointer is **undefined behavior** (double-free bug).
+
+---
 
 ## Key Takeaways
 
-- Virtual memory provides isolation
-- Page faults are expensive (disk access)
-- Cache locality matters for performance
-- Memory leaks exhaust available memory
+✅ **Memory hierarchy**: Registers → Cache → RAM → Disk (speed vs size tradeoff)  
+✅ **Virtual memory**: Each process sees its own private address space  
+✅ **Paging**: Memory divided into fixed-size pages for efficient management  
+✅ **Page faults**: Accessing memory on disk is ~100,000x slower than RAM  
+✅ **Stack**: Fast, automatic, limited size (local variables)  
+✅ **Heap**: Flexible, manual/GC, unlimited size (dynamic allocation)  
+✅ Use **smart pointers** in C++ to avoid memory leaks
 `,
     },
 
@@ -164,21 +474,81 @@ delete[] arr;
         title: 'Concurrency & Synchronization',
         content: `# Concurrency & Synchronization
 
-Coordinate multiple threads safely.
+## Why This Matters
 
-## Race Conditions
+In the previous lesson, we saw that threads share memory. This is powerful — but dangerous. When two threads modify the same data simultaneously, **chaos ensues**. This lesson teaches you how to coordinate threads safely.
+
+Without proper synchronization:
+- Bank accounts lose money (or create it from thin air!)
+- Data structures become corrupted
+- Programs crash with impossible-to-reproduce bugs
+
+---
+
+## The Bathroom Lock Analogy 🚽
+
+Imagine a single-occupancy bathroom at a coffee shop:
+
+| Bathroom | Thread Synchronization |
+|----------|----------------------|
+| **Bathroom** | Critical section (shared resource) |
+| **Lock** | Mutex (only one person at a time) |
+| **Turning the lock** | Acquiring the mutex |
+| **Opening after done** | Releasing the mutex |
+| **Line outside** | Threads waiting for the lock |
+
+**The rule**: Only one person can use the bathroom at a time. Everyone else waits in line.
+
+---
+
+## The Race Condition Problem
+
+**Definition**: A **race condition** occurs when the behavior of a program depends on the *timing* of thread execution — a race you can't control.
+
+### The Classic Example
 
 \`\`\`python
-# Unsafe: race condition
 counter = 0
 
 def increment():
     global counter
     for _ in range(100000):
-        counter += 1  # Not atomic!
+        counter += 1  # Looks atomic, but ISN'T!
 \`\`\`
 
-## Mutex (Lock)
+**What's happening under the hood?**
+
+\`counter += 1\` actually expands to three operations:
+
+\`\`\`
+1. READ:  temp = counter     (load from memory)
+2. ADD:   temp = temp + 1    (increment)
+3. WRITE: counter = temp     (store back to memory)
+\`\`\`
+
+Two threads interleaving:
+
+\`\`\`
+Thread A                Thread B
+────────                ────────
+READ counter (=0)       
+                        READ counter (=0)
+ADD (temp=1)            
+                        ADD (temp=1)
+WRITE counter (=1)      
+                        WRITE counter (=1)
+
+Expected: counter = 2
+Actual:   counter = 1  ← Lost update!
+\`\`\`
+
+---
+
+## Mutex: The Universal Lock
+
+**Definition**: A **mutex** (mutual exclusion) ensures only ONE thread can access a critical section at a time.
+
+### Python Implementation
 
 \`\`\`python
 import threading
@@ -189,65 +559,175 @@ counter = 0
 def safe_increment():
     global counter
     for _ in range(100000):
-        with lock:  # Acquire and release
+        lock.acquire()      # Wait for lock
+        counter += 1        # Critical section
+        lock.release()      # Release for others
+
+# Better: use context manager
+def better_increment():
+    global counter
+    for _ in range(100000):
+        with lock:          # Auto-acquire and release
             counter += 1
 \`\`\`
 
-## Semaphore
+### C++ Implementation
+
+\`\`\`cpp
+#include <mutex>
+
+std::mutex mtx;
+int counter = 0;
+
+void increment() {
+    for (int i = 0; i < 100000; ++i) {
+        std::lock_guard<std::mutex> guard(mtx);  // RAII!
+        ++counter;
+    }  // Lock automatically released here
+}
+\`\`\`
+
+---
+
+## Semaphore: Counting Lock
+
+**Definition**: A **semaphore** allows up to N threads to access a resource simultaneously.
+
+### The Analogy
+
+Think of a parking lot with 3 spaces:
+- Cars enter until all 3 spots are full
+- New arrivals wait until someone leaves
 
 \`\`\`python
-# Limit concurrent access
-semaphore = threading.Semaphore(3)  # Max 3 threads
+import threading
+
+# Only 3 threads can run do_work() simultaneously
+semaphore = threading.Semaphore(3)
 
 def limited_access():
     with semaphore:
-        # Only 3 threads can be here at once
-        do_work()
+        do_work()  # At most 3 threads here at once
 \`\`\`
 
-## Deadlock
+### Mutex vs Semaphore
 
-Four conditions (all required):
-1. **Mutual Exclusion**: Resource held exclusively
-2. **Hold and Wait**: Hold one, wait for another
-3. **No Preemption**: Can't force release
-4. **Circular Wait**: A waits for B, B waits for A
+| Feature | Mutex | Semaphore(N) |
+|---------|-------|--------------|
+| Concurrent access | 1 thread | N threads |
+| Use case | Exclusive access | Resource pooling |
+| Example | Writing to file | Connection pool |
+
+---
+
+## Deadlock: The Deadly Embrace
+
+**Definition**: **Deadlock** occurs when two or more threads are waiting for each other, and none can proceed.
+
+### The Dining Philosophers Problem
+
+Five philosophers sit at a round table. Each needs two forks to eat. If everyone picks up their left fork first and waits for the right fork — **deadlock!**
+
+\`\`\`
+       P1
+     🍴   🍴
+   P5       P2
+  🍴         🍴
+     P4   P3
+       🍴
+       
+Everyone holds left fork, waits for right. Forever.
+\`\`\`
+
+### The Four Conditions (All Required)
+
+\`\`\`
+┌──────────────────────────────────────────────┐
+│           DEADLOCK occurs when:              │
+├──────────────────────────────────────────────┤
+│ 1. Mutual Exclusion: Resources held          │
+│    exclusively                               │
+│ 2. Hold and Wait: Thread holds one resource  │
+│    while waiting for another                 │
+│ 3. No Preemption: Resources can't be         │
+│    forcibly taken                            │
+│ 4. Circular Wait: A→B→C→A waiting cycle      │
+└──────────────────────────────────────────────┘
+\`\`\`
+
+### How to Prevent Deadlock
+
+**Strategy 1: Lock Ordering** - Always acquire locks in the same order
 
 \`\`\`python
-# Deadlock example
-lock_a = threading.Lock()
-lock_b = threading.Lock()
+# Bad: can deadlock
+def transfer_bad(from_acc, to_acc, amount):
+    with from_acc.lock:
+        with to_acc.lock:
+            # ...
 
-# Thread 1: acquire A, then B
-# Thread 2: acquire B, then A
-# Deadlock!
+# Good: lock by account ID order
+def transfer_good(from_acc, to_acc, amount):
+    first, second = sorted([from_acc, to_acc], key=lambda a: a.id)
+    with first.lock:
+        with second.lock:
+            # ...
 \`\`\`
 
-## Producer-Consumer
+---
+
+## Producer-Consumer Pattern
+
+A classic synchronization pattern: producers add items, consumers take them.
 
 \`\`\`python
 from queue import Queue
 from threading import Thread
 
-queue = Queue(maxsize=10)
+queue = Queue(maxsize=10)  # Bounded buffer
 
 def producer():
     for i in range(20):
-        queue.put(i)  # Blocks if full
+        queue.put(i)    # Blocks if queue is full
+        print(f"Produced {i}")
 
 def consumer():
     while True:
-        item = queue.get()  # Blocks if empty
-        process(item)
+        item = queue.get()  # Blocks if queue is empty
+        print(f"Consumed {item}")
         queue.task_done()
+
+# Python's Queue handles all synchronization internally!
 \`\`\`
+
+---
+
+## Interview Insights 💡
+
+**Common Questions**:
+1. "What is a race condition? Give an example."
+2. "How do you prevent deadlock?"
+3. "What's the difference between mutex and semaphore?"
+
+**Key Talking Points**:
+- Race conditions occur when threads access shared data without synchronization
+- Mutex = binary lock (0 or 1 threads)
+- Semaphore = counting lock (0 to N threads)
+- Deadlock prevention: lock ordering, timeouts, or detect-and-recover
+
+**Gotcha**: In Python, the Global Interpreter Lock (GIL) prevents true parallel execution of Python bytecode, but you still need locks for thread-safe access to shared data structures!
+
+---
 
 ## Key Takeaways
 
-- Always protect shared mutable state
-- Prefer higher-level constructs (Queue)
-- Avoid nested locks when possible
-- Consider lock-free data structures
+✅ **Race conditions** occur when threads access shared data unsafely  
+✅ **Mutex** ensures exclusive access (one thread at a time)  
+✅ **Semaphore** limits concurrent access to N threads  
+✅ **Deadlock** requires all 4 conditions — break any one to prevent it  
+✅ Use **lock ordering** to prevent circular wait  
+✅ Prefer **higher-level constructs** (Queue, thread pools) over raw locks  
+✅ Always use **RAII/context managers** to ensure locks are released
 `,
     },
 
@@ -256,66 +736,229 @@ def consumer():
         title: 'File Systems',
         content: `# File Systems
 
-How operating systems organize and store data.
+## Why This Matters
 
-## File System Structure
+Every time you save a document, download a file, or install a program, the file system is at work. It's the **bridge between your data and the physical disk** — turning abstract bytes into something you can name, organize, and retrieve.
+
+Understanding file systems helps you:
+- Debug "disk full" errors even when there's space left
+- Understand why SSDs are faster than HDDs (it's not just speed!)
+- Build systems that don't lose data on crashes
+
+---
+
+## The Filing Cabinet Analogy 🗄️
+
+Think of a file system like an office filing cabinet:
+
+| Filing Cabinet | File System |
+|----------------|-------------|
+| **Cabinet** | Disk partition |
+| **Index cards** | Inodes (file metadata) |
+| **Folder labels** | Directory entries |
+| **Actual documents** | Data blocks |
+| **Cabinet catalog** | Superblock |
+
+**Key insight**: The index card (inode) tells you WHERE the document is stored, but the index card itself doesn't contain the document!
+
+---
+
+## File System Architecture
+
+A typical Unix file system is organized as:
 
 \`\`\`
-Boot Block | Superblock | Inode Table | Data Blocks
+┌────────────┬────────────┬──────────────┬───────────────────┐
+│ Boot Block │ Superblock │  Inode Table │    Data Blocks    │
+└────────────┴────────────┴──────────────┴───────────────────┘
+     ↑             ↑             ↑                 ↑
+  Boot code    Metadata     File info      Actual file data
+              (size, #inodes)  (one per file)
 \`\`\`
 
-## Inodes
+### The Superblock
 
-Each file has an inode containing:
-- File size
-- Permissions
-- Timestamps
-- Pointers to data blocks
+Contains critical filesystem metadata:
+- Total size of filesystem
+- Number of inodes (max number of files)
+- Number of free blocks
+- Location of free block list
+
+---
+
+## Inodes: The Heart of Unix File Systems
+
+**Definition**: An **inode** (index node) stores all metadata about a file EXCEPT its name.
+
+### What's Inside an Inode?
+
+\`\`\`
+┌─────────────────────────────────────┐
+│            INODE #12847             │
+├─────────────────────────────────────┤
+│  File Type     : Regular file       │
+│  Permissions   : rwxr-xr-x          │
+│  Owner         : mansoor            │
+│  Group         : staff              │
+│  Size          : 4,096 bytes        │
+│  Timestamps    : atime, mtime, ctime│
+│  Link Count    : 1                  │
+│  Data Blocks   : [52, 107, 234]     │
+└─────────────────────────────────────┘
+\`\`\`
+
+### Why Separate Names and Inodes?
+
+This separation enables powerful features:
+- **Hard links**: Multiple names pointing to the same inode
+- **Efficient renames**: Just update directory entry, not data
+- **Consistent metadata**: One source of truth
+
+\`\`\`bash
+# Create a hard link — both names share inode 12847
+ln original.txt link.txt
+
+# Both point to SAME data; deleting one doesn't affect the other
+ls -li  # Shows inode number
+\`\`\`
+
+---
 
 ## Directory Structure
 
+A directory is just a special file that contains name→inode mappings:
+
 \`\`\`
-/
-├── home/
-│   └── user/
-│       ├── documents/
-│       └── .bashrc
-├── etc/
-│   └── passwd
-└── var/
-    └── log/
+Directory: /home/user/
+┌──────────────┬────────────┐
+│    Name      │   Inode    │
+├──────────────┼────────────┤
+│ .            │   12840    │ ← Current dir
+│ ..           │   12830    │ ← Parent dir  
+│ documents/   │   12850    │
+│ .bashrc      │   12851    │
+│ notes.txt    │   12852    │
+└──────────────┴────────────┘
 \`\`\`
 
-## File Operations
+### Connection to Trees
 
-\`\`\`python
-# Python file I/O
-with open('file.txt', 'r') as f:
-    content = f.read()
+The directory hierarchy forms a **tree** (like in data structures!):
+- Root node: /
+- Internal nodes: directories
+- Leaf nodes: files
 
-with open('file.txt', 'w') as f:
-    f.write('Hello, World!')
+---
 
-# Binary mode
-with open('data.bin', 'rb') as f:
-    data = f.read()
+## How File Access Works
+
+When you run \`cat /home/user/notes.txt\`:
+
 \`\`\`
+1. Start at root inode (inode 2)
+2. Read root directory → find "home" → inode 10
+3. Read inode 10 → find "user" → inode 12840
+4. Read inode 12840 → find "notes.txt" → inode 12852
+5. Read inode 12852 → get data block pointers
+6. Read data blocks → return file contents
+\`\`\`
+
+**That's 4+ disk reads** just to find the file! This is why:
+- Directory caching matters
+- Deep paths are slower than shallow ones
+
+---
+
+## Journaling: Crash Protection
+
+**Problem**: What if power fails mid-write? The file system could be left in an inconsistent state.
+
+**Solution**: Write a **journal** (log) of changes BEFORE making them:
+
+\`\`\`
+1. Write to journal: "About to update inode 12852"
+2. Write to journal: "About to update data block 234"
+3. Actually update inode 12852
+4. Actually update data block 234
+5. Mark journal entry as complete
+\`\`\`
+
+If crash happens at step 3, on reboot:
+- Check journal → see incomplete transaction
+- **Replay** or **undo** changes
+- Filesystem stays consistent!
+
+---
 
 ## Common File Systems
 
-| File System | OS | Features |
-|-------------|-----|----------|
-| ext4 | Linux | Journaling, large files |
-| NTFS | Windows | Permissions, compression |
-| APFS | macOS | Encryption, snapshots |
-| ZFS | Unix | Checksums, RAID |
+| File System | OS | Key Features |
+|-------------|-----|--------------|
+| **ext4** | Linux | Journaling, up to 1 EB, extents |
+| **NTFS** | Windows | ACLs, encryption, compression |
+| **APFS** | macOS | Copy-on-write, snapshots, encryption |
+| **ZFS** | FreeBSD | Checksums, RAID-Z, snapshots |
+| **FAT32** | Universal | Simple, max 4GB files, no journaling |
+
+---
+
+## Code Examples
+
+### Python File I/O
+
+\`\`\`python
+# Always use context managers — ensures file is closed!
+with open('data.txt', 'r') as f:
+    content = f.read()
+
+with open('output.txt', 'w') as f:
+    f.write('Hello, World!')
+
+# Reading line by line (memory efficient)
+with open('large_file.txt', 'r') as f:
+    for line in f:
+        process(line)
+\`\`\`
+
+### C File Operations (System Calls)
+
+\`\`\`c
+#include <fcntl.h>
+#include <unistd.h>
+
+int fd = open("file.txt", O_RDONLY);
+char buffer[1024];
+ssize_t bytes = read(fd, buffer, sizeof(buffer));
+close(fd);
+\`\`\`
+
+---
+
+## Interview Insights 💡
+
+**Common Questions**:
+1. "What is an inode?"
+2. "How does journaling prevent data corruption?"
+3. "What's the difference between a hard link and soft link?"
+
+**Key Talking Points**:
+- Inodes store metadata, directory entries store names
+- Hard links share inodes; soft links are just path strings
+- Journaling writes intent before action
+- File descriptors are per-process handles to open files
+
+**Gotcha**: "Disk full" can occur when you run out of inodes (too many small files) even if you have free blocks!
+
+---
 
 ## Key Takeaways
 
-- Files are abstractions over disk blocks
-- Inodes store metadata, not data
-- Journaling prevents corruption
-- Always close files (use the with statement in Python)
+✅ **File systems** map names to data blocks on disk  
+✅ **Inodes** store file metadata (permissions, size, block pointers)  
+✅ **Directories** are just files containing name→inode mappings  
+✅ **Journaling** (ext4, NTFS) prevents data corruption on crashes  
+✅ **Hard links** share inodes; **soft links** are path pointers  
+✅ Understanding file systems explains why \`mv\` within a partition is instant but \`cp\` is slow
 `,
     },
 
