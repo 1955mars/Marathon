@@ -10,47 +10,49 @@ const FILTER_KEY = 'problems-filter';
 const DIFFICULTY_KEY = 'problems-difficulty';
 
 export default function ProblemsPage() {
-    // Restore filters from sessionStorage
-    const [filter, setFilter] = useState<string>(() => {
-        if (typeof window !== 'undefined') {
-            return sessionStorage.getItem(FILTER_KEY) || "";
-        }
-        return "";
-    });
-    const [difficultyFilter, setDifficultyFilter] = useState<string>(() => {
-        if (typeof window !== 'undefined') {
-            return sessionStorage.getItem(DIFFICULTY_KEY) || "";
-        }
-        return "";
-    });
+    const [filter, setFilter] = useState<string>("");
+    const [difficultyFilter, setDifficultyFilter] = useState<string>("");
+    const [isHydrated, setIsHydrated] = useState(false);
 
-    // Restore scroll position on mount
+    // Restore state from sessionStorage after hydration
     useEffect(() => {
+        const savedFilter = sessionStorage.getItem(FILTER_KEY);
+        const savedDifficulty = sessionStorage.getItem(DIFFICULTY_KEY);
+
+        if (savedFilter) setFilter(savedFilter);
+        if (savedDifficulty) setDifficultyFilter(savedDifficulty);
+
         const savedPosition = sessionStorage.getItem(SCROLL_KEY);
         if (savedPosition) {
-            setTimeout(() => {
+            requestAnimationFrame(() => {
                 window.scrollTo(0, parseInt(savedPosition, 10));
-            }, 100);
+            });
         }
+
+        setIsHydrated(true);
     }, []);
 
     // Save scroll position on scroll
     useEffect(() => {
+        if (!isHydrated) return;
+
         const saveScrollPosition = () => {
             sessionStorage.setItem(SCROLL_KEY, window.scrollY.toString());
         };
         window.addEventListener('scroll', saveScrollPosition);
         return () => window.removeEventListener('scroll', saveScrollPosition);
-    }, []);
+    }, [isHydrated]);
 
-    // Save filters when they change
+    // Save filters when they change (only after hydration)
     useEffect(() => {
+        if (!isHydrated) return;
         sessionStorage.setItem(FILTER_KEY, filter);
-    }, [filter]);
+    }, [filter, isHydrated]);
 
     useEffect(() => {
+        if (!isHydrated) return;
         sessionStorage.setItem(DIFFICULTY_KEY, difficultyFilter);
-    }, [difficultyFilter]);
+    }, [difficultyFilter, isHydrated]);
 
     const filteredProblems = problems.filter(p => {
         if (filter && p.pattern !== filter) return false;

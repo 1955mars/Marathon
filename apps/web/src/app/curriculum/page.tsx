@@ -2,51 +2,54 @@
 
 import Link from "next/link";
 import { curriculum, getTotalSteps, getTotalMinutes } from "@/data/curriculum";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
 
 const SCROLL_KEY = 'curriculum-scroll-position';
 const EXPANDED_KEY = 'curriculum-expanded-section';
 
 export default function CurriculumPage() {
-    // Restore expanded section from sessionStorage
-    const [expandedSection, setExpandedSection] = useState<string | null>(() => {
-        if (typeof window !== 'undefined') {
-            return sessionStorage.getItem(EXPANDED_KEY) || 'act-0';
-        }
-        return 'act-0';
-    });
+    const [expandedSection, setExpandedSection] = useState<string | null>('act-0');
+    const [isHydrated, setIsHydrated] = useState(false);
 
-    // Restore scroll position on mount
+    // Restore state from sessionStorage after hydration
     useEffect(() => {
+        const savedSection = sessionStorage.getItem(EXPANDED_KEY);
+        if (savedSection) {
+            setExpandedSection(savedSection);
+        }
+
         const savedPosition = sessionStorage.getItem(SCROLL_KEY);
         if (savedPosition) {
-            // Small delay to ensure DOM is ready
-            setTimeout(() => {
+            // Use requestAnimationFrame to ensure DOM is ready
+            requestAnimationFrame(() => {
                 window.scrollTo(0, parseInt(savedPosition, 10));
-            }, 100);
+            });
         }
+
+        setIsHydrated(true);
     }, []);
 
-    // Save scroll position before navigating away
+    // Save scroll position on scroll
     useEffect(() => {
+        if (!isHydrated) return;
+
         const saveScrollPosition = () => {
             sessionStorage.setItem(SCROLL_KEY, window.scrollY.toString());
         };
 
-        // Save on any scroll
         window.addEventListener('scroll', saveScrollPosition);
-
-        return () => {
-            window.removeEventListener('scroll', saveScrollPosition);
-        };
-    }, []);
+        return () => window.removeEventListener('scroll', saveScrollPosition);
+    }, [isHydrated]);
 
     // Save expanded section when it changes
     useEffect(() => {
+        if (!isHydrated) return;
         if (expandedSection) {
             sessionStorage.setItem(EXPANDED_KEY, expandedSection);
+        } else {
+            sessionStorage.removeItem(EXPANDED_KEY);
         }
-    }, [expandedSection]);
+    }, [expandedSection, isHydrated]);
 
     const totalSteps = getTotalSteps();
     const totalHours = Math.round(getTotalMinutes() / 60);
