@@ -967,62 +967,234 @@ close(fd);
         title: 'OSI Model & TCP/IP',
         content: `# OSI Model & TCP/IP
 
-Network communication layers.
+## Why This Matters
 
-## OSI 7-Layer Model
+Every time you visit a website, send a message, or stream a video, your data travels through a complex stack of protocols. Understanding these layers is essential for:
 
-| Layer | Name | Example |
-| -------| ------| ---------|
-| 7 | Application | HTTP, FTP, DNS |
-| 6 | Presentation | SSL / TLS, encryption |
-| 5 | Session | Sockets, sessions |
-| 4 | Transport | TCP, UDP |
-| 3 | Network | IP, routing |
-| 2 | Data Link | Ethernet, MAC |
-| 1 | Physical | Cables, signals |
+- Debugging network issues ("why is my request timing out?")
+- Designing distributed systems that handle failures gracefully
+- Answering networking interview questions with confidence
 
-## TCP / IP Model
+---
+
+## The Postal Service Analogy
+
+Think of network communication like sending a letter:
+
+| Postal Service | Network |
+|----------------|---------|
+| **Your letter** | Application data (HTTP request) |
+| **Envelope** | Transport layer (TCP segment) |
+| **Address on envelope** | Network layer (IP packet) |
+| **Postal truck route** | Data Link layer (Ethernet frame) |
+| **Physical roads** | Physical layer (cables, signals) |
+
+Each layer wraps the data from the layer above, adding its own header — like putting a letter in an envelope, then in a package, then on a truck.
+
+---
+
+## The OSI 7-Layer Model
+
+The OSI model is a *conceptual* framework for understanding network communication:
 
 \`\`\`
-Application (HTTP, DNS, FTP)
-     │
-Transport (TCP, UDP)
-     │
-Internet (IP)
-     │
-Network Access (Ethernet)
+┌─────────────────────────────────────────────────┐
+│ Layer 7: Application  │ HTTP, FTP, DNS, SMTP    │
+├─────────────────────────────────────────────────┤
+│ Layer 6: Presentation │ SSL/TLS, encryption     │
+├─────────────────────────────────────────────────┤
+│ Layer 5: Session      │ Sockets, sessions       │
+├─────────────────────────────────────────────────┤
+│ Layer 4: Transport    │ TCP, UDP                │
+├─────────────────────────────────────────────────┤
+│ Layer 3: Network      │ IP, ICMP, routing       │
+├─────────────────────────────────────────────────┤
+│ Layer 2: Data Link    │ Ethernet, MAC, switches │
+├─────────────────────────────────────────────────┤
+│ Layer 1: Physical     │ Cables, radio waves     │
+└─────────────────────────────────────────────────┘
 \`\`\`
 
-## TCP vs UDP
+### Memory Trick
+
+**"Please Do Not Throw Sausage Pizza Away"** (Physical to Application)
+
+---
+
+## The TCP/IP Model (What's Actually Used)
+
+In practice, the internet uses a *simpler* 4-layer model:
+
+\`\`\`
+┌─────────────────┐
+│   Application   │  HTTP, DNS, FTP, SSH
+├─────────────────┤
+│    Transport    │  TCP, UDP
+├─────────────────┤
+│    Internet     │  IP, ICMP
+├─────────────────┤
+│  Network Access │  Ethernet, WiFi, ARP
+└─────────────────┘
+\`\`\`
+
+---
+
+## IP Addresses: Your Network Identity
+
+**Definition**: An **IP address** uniquely identifies a device on a network.
+
+### IPv4 vs IPv6
+
+| Feature | IPv4 | IPv6 |
+|---------|------|------|
+| **Format** | 32-bit (4 octets) | 128-bit (8 groups) |
+| **Example** | 192.168.1.1 | 2001:0db8:85a3::8a2e:0370:7334 |
+| **Total addresses** | ~4.3 billion | ~340 undecillion |
+
+### Special IP Addresses
+
+- **127.0.0.1** — Localhost (yourself)
+- **0.0.0.0** — "Any" address (listen on all interfaces)
+- **192.168.x.x** — Private network (home/office)
+
+---
+
+## Ports: The Apartment Number
+
+If an IP address is a building address, a **port** is the apartment number.
+
+| Port | Service |
+|------|---------|
+| 22 | SSH |
+| 53 | DNS |
+| 80 | HTTP |
+| 443 | HTTPS |
+| 3306 | MySQL |
+
+---
+
+## TCP vs UDP: Reliability Trade-offs
+
+### TCP (Transmission Control Protocol)
+
+**The phone call** — Connection-oriented, reliable, ordered.
+
+- Guaranteed delivery (retransmissions)
+- Ordered packets (sequence numbers)
+- Flow control (don't overwhelm receiver)
+- Use for: Web, email, file transfer, SSH
+
+### UDP (User Datagram Protocol)
+
+**The postcard** — Connectionless, fast, no guarantees.
+
+- Low latency (no handshake)
+- Lightweight headers (8 bytes)
+- No guaranteed delivery or ordering
+- Use for: Gaming, streaming, DNS, VoIP
 
 | Feature | TCP | UDP |
 |---------|-----|-----|
-| Connection | Connection-oriented | Connectionless |
-| Reliability | Guaranteed delivery | Best effort |
-| Ordering | Maintains order | No ordering |
-| Speed | Slower | Faster |
-| Use case | Web, email | Streaming, gaming |
+| **Connection** | Connection-oriented | Connectionless |
+| **Reliability** | Guaranteed delivery | Best effort |
+| **Ordering** | Maintains order | No ordering |
+| **Speed** | Slower (overhead) | Faster |
+
+---
 
 ## TCP Three-Way Handshake
 
+Before any data is sent, TCP establishes a connection:
+
 \`\`\`
-Client          Server
-  │                │
-  │──── SYN ──────►│
-  │                │
-  │◄── SYN-ACK ───│
-  │                │
-  │──── ACK ──────►│
-  │                │
-  Connection Established
+Client              Server
+   │                   │
+   │──── SYN ─────────►│  1. Client: "I want to talk"
+   │                   │
+   │◄── SYN-ACK ──────│  2. Server: "OK, I want to talk too"
+   │                   │
+   │──── ACK ─────────►│  3. Client: "Got it, let's go"
+   │                   │
+   Connection Established
 \`\`\`
+
+---
+
+## DNS: The Phone Book of the Internet
+
+**Definition**: **DNS** (Domain Name System) translates human-readable names to IP addresses.
+
+\`\`\`
+google.com  →  DNS  →  142.250.80.46
+\`\`\`
+
+### DNS Resolution Steps
+
+1. Browser checks local cache
+2. OS checks its cache
+3. Query recursive resolver (ISP)
+4. Resolver queries root DNS → TLD → Authoritative
+5. Response cached at each level
+
+---
+
+## Code Examples
+
+### Python: DNS Lookup
+
+\`\`\`python
+import socket
+
+# DNS lookup
+ip = socket.gethostbyname('google.com')
+print(f"Google's IP: {ip}")
+\`\`\`
+
+### Python: Check TCP Port
+
+\`\`\`python
+import socket
+
+def check_port(host, port, timeout=3):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(timeout)
+    try:
+        sock.connect((host, port))
+        return True
+    except (socket.timeout, socket.error):
+        return False
+    finally:
+        sock.close()
+
+print(check_port('google.com', 443))  # True (HTTPS)
+\`\`\`
+
+---
+
+## Interview Insights
+
+**Common Questions**:
+1. "What happens when you type google.com in a browser?"
+2. "Explain the difference between TCP and UDP"
+3. "How does TCP ensure reliable delivery?"
+
+**Key Talking Points**:
+- TCP guarantees delivery through **sequence numbers** and **acknowledgments**
+- UDP is preferred for real-time applications where speed > reliability
+- DNS is hierarchical: Root → TLD → Authoritative
+
+**Gotcha**: "TCP is always better" is wrong! For live video streaming, a dropped packet is better than waiting for retransmission.
+
+---
 
 ## Key Takeaways
 
-- TCP provides reliable, ordered delivery
-- UDP is faster but unreliable
-- Each layer adds its own header
-- IP addresses identify hosts, ports identify services
+✅ **OSI model** is conceptual (7 layers); **TCP/IP** is practical (4 layers)  
+✅ **IP addresses** identify hosts; **ports** identify services  
+✅ **TCP** provides reliable, ordered delivery (web, email)  
+✅ **UDP** is fast and lightweight (streaming, gaming)  
+✅ **Three-way handshake** establishes TCP connections (SYN, SYN-ACK, ACK)  
+✅ **DNS** translates domain names to IP addresses
 `,
     },
 
@@ -1031,69 +1203,218 @@ Client          Server
         title: 'HTTP & REST',
         content: `# HTTP & REST
 
-Web communication protocol and API design.
+## Why This Matters
 
-## HTTP Methods
+HTTP is the language of the web. Every time you:
+- Load a webpage
+- Submit a form
+- Fetch data from an API
+- Upload a file
 
-| Method | Purpose | Idempotent |
-|--------|---------|------------|
-| GET | Retrieve | Yes |
-| POST | Create | No |
-| PUT | Replace | Yes |
-| PATCH | Update | Yes |
-| DELETE | Remove | Yes |
+...you're using HTTP. Understanding HTTP and REST is fundamental for:
+- Building web applications and APIs
+- Debugging network issues
+- Acing backend/full-stack interviews
+
+---
+
+## The Restaurant Ordering Analogy
+
+Think of HTTP like ordering at a restaurant:
+
+| Restaurant | HTTP |
+|------------|------|
+| **Menu** | API endpoints |
+| **Order** | HTTP Request |
+| **Kitchen prepares** | Server processing |
+| **Food delivered** | HTTP Response |
+| **Order number** | Status code |
+
+---
+
+## HTTP Request Anatomy
+
+Every HTTP request has these components:
+
+\`\`\`
+┌─────────────────────────────────────────────────┐
+│ GET /api/users/123 HTTP/1.1      ← Request Line │
+├─────────────────────────────────────────────────┤
+│ Host: api.example.com            ← Headers      │
+│ Authorization: Bearer abc123                    │
+│ Content-Type: application/json                  │
+├─────────────────────────────────────────────────┤
+│ { "name": "Alice" }              ← Body (opt)   │
+└─────────────────────────────────────────────────┘
+\`\`\`
+
+---
+
+## HTTP Methods: CRUD Operations
+
+| Method | Purpose | Idempotent? | Safe? |
+|--------|---------|-------------|-------|
+| **GET** | Read/retrieve | Yes | Yes |
+| **POST** | Create new | No | No |
+| **PUT** | Replace entire | Yes | No |
+| **PATCH** | Update partial | Yes | No |
+| **DELETE** | Remove | Yes | No |
+
+**Idempotent**: Calling multiple times has the same effect as calling once.
+**Safe**: Doesn't modify server state.
+
+---
 
 ## HTTP Status Codes
 
-| Code | Meaning |
-|------|---------|
-| 200 | OK |
-| 201 | Created |
-| 400 | Bad Request |
-| 401 | Unauthorized |
-| 404 | Not Found |
-| 500 | Server Error |
+Status codes tell you what happened:
 
-## REST Principles
+| Range | Category | Examples |
+|-------|----------|----------|
+| **1xx** | Informational | 100 Continue |
+| **2xx** | Success | 200 OK, 201 Created |
+| **3xx** | Redirection | 301 Moved, 304 Not Modified |
+| **4xx** | Client Error | 400 Bad Request, 401 Unauthorized, 404 Not Found |
+| **5xx** | Server Error | 500 Internal Error, 503 Service Unavailable |
 
-1. **Stateless**: No client state on server
-2. **Uniform Interface**: Consistent URLs
-3. **Client-Server**: Separation of concerns
-4. **Cacheable**: Responses can be cached
+### The Most Common Ones
 
-## RESTful API Example
+| Code | Name | When to Use |
+|------|------|-------------|
+| 200 | OK | Successful GET/PUT/PATCH |
+| 201 | Created | Successful POST |
+| 204 | No Content | Successful DELETE |
+| 400 | Bad Request | Invalid input |
+| 401 | Unauthorized | Not logged in |
+| 403 | Forbidden | Logged in but not allowed |
+| 404 | Not Found | Resource doesn't exist |
+| 500 | Internal Error | Server bug |
+
+---
+
+## REST: Representational State Transfer
+
+**Definition**: REST is an *architectural style* for designing network APIs.
+
+### REST Principles
+
+1. **Stateless**: Each request contains all info needed (no server-side session)
+2. **Resource-Oriented**: URLs represent resources (nouns, not verbs)
+3. **Uniform Interface**: Consistent HTTP methods and response formats
+4. **Client-Server**: Separation of concerns
+
+### RESTful URL Design
 
 \`\`\`
-GET    /users          # List all users
-GET    /users/123      # Get user 123
-POST   /users          # Create user
-PUT    /users/123      # Replace user 123
-PATCH  /users/123      # Update user 123
-DELETE /users/123      # Delete user 123
+Good (resource-oriented):
+  GET    /users           → List users
+  GET    /users/123       → Get user 123
+  POST   /users           → Create user
+  PUT    /users/123       → Replace user 123
+  DELETE /users/123       → Delete user 123
+
+Bad (action-oriented):
+  GET    /getUser?id=123
+  POST   /createUser
+  POST   /deleteUser
 \`\`\`
 
-## Making HTTP Requests (Python)
+---
+
+## Code Examples
+
+### Python: Making HTTP Requests
 
 \`\`\`python
 import requests
 
-# GET
+# GET - retrieve data
 response = requests.get('https://api.example.com/users')
-data = response.json()
+users = response.json()
 
-# POST
+# POST - create new resource
+new_user = {'name': 'Alice', 'email': 'alice@example.com'}
 response = requests.post(
     'https://api.example.com/users',
-    json={'name': 'Alice', 'email': 'alice@example.com'}
+    json=new_user,
+    headers={'Authorization': 'Bearer token123'}
 )
+print(response.status_code)  # 201
+
+# PUT - replace resource
+response = requests.put(
+    'https://api.example.com/users/123',
+    json={'name': 'Alice Updated', 'email': 'alice@new.com'}
+)
+
+# DELETE - remove resource
+response = requests.delete('https://api.example.com/users/123')
+print(response.status_code)  # 204
 \`\`\`
+
+### Handling Errors
+
+\`\`\`python
+response = requests.get('https://api.example.com/users/999')
+
+if response.status_code == 404:
+    print("User not found")
+elif response.status_code == 401:
+    print("Please log in")
+elif response.status_code >= 500:
+    print("Server error, try again later")
+elif response.ok:  # 200-299
+    print(response.json())
+\`\`\`
+
+---
+
+## Headers You Should Know
+
+| Header | Purpose | Example |
+|--------|---------|---------|
+| Content-Type | Body format | application/json |
+| Authorization | Auth credentials | Bearer abc123 |
+| Accept | Desired response format | application/json |
+| Cache-Control | Caching rules | max-age=3600 |
+| User-Agent | Client identifier | Mozilla/5.0... |
+
+---
+
+## Connection to Previous Topics
+
+- **TCP**: HTTP runs on top of TCP (reliable, ordered delivery)
+- **DNS**: Before HTTP request, browser resolves domain to IP
+- **Ports**: HTTP uses port 80, HTTPS uses port 443
+
+---
+
+## Interview Insights
+
+**Common Questions**:
+1. "What's the difference between PUT and PATCH?"
+2. "Explain REST and its principles"
+3. "What status code would you return for [scenario]?"
+4. "How would you design a REST API for [resource]?"
+
+**Key Talking Points**:
+- PUT replaces the entire resource; PATCH updates partial fields
+- REST is stateless — no server-side sessions
+- GET should never modify data (safe operation)
+- Use proper status codes for clear communication
+
+**Gotcha**: POST is not idempotent — calling it twice may create two resources!
+
+---
 
 ## Key Takeaways
 
-- REST uses HTTP semantics
-- Use proper status codes
-- Design resource-oriented URLs
-- Consider pagination for lists
+✅ HTTP is a request-response protocol for web communication  
+✅ Methods have semantics: GET (read), POST (create), PUT (replace), DELETE (remove)  
+✅ Status codes communicate results: 2xx success, 4xx client error, 5xx server error  
+✅ REST is resource-oriented — URLs should be nouns, not verbs  
+✅ Every request should include proper headers (Content-Type, Authorization)  
+✅ REST APIs should be stateless — no server-side sessions
 `,
     },
 
@@ -1102,74 +1423,278 @@ response = requests.post(
         title: 'Socket Programming',
         content: `# Socket Programming
 
-Low-level network communication.
+## Why This Matters
 
-## TCP Server
+When you use HTTP libraries like \`requests\`, they hide the low-level networking details. But understanding sockets gives you:
 
-\`\`\`python
-import socket
+- Deep understanding of how network communication works
+- Ability to build custom protocols (chat apps, game servers)
+- Skills to debug complex network issues
+- A strong foundation for systems interviews
 
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind(('localhost', 8080))
-server.listen(5)
+---
 
-print("Server listening on port 8080")
+## The Phone Call Analogy
 
-while True:
-    client, address = server.accept()
-    print(f"Connection from {address}")
-    
-    data = client.recv(1024)
-    print(f"Received: {data.decode()}")
-    
-    client.send(b"Hello from server!")
-    client.close()
+Think of sockets like phone calls:
+
+| Phone Call | Socket |
+|------------|--------|
+| **Phone number** | IP address + port |
+| **Pick up phone** | Create socket |
+| **Dial** | Connect (client) |
+| **Wait for ring** | Listen/Accept (server) |
+| **Talk** | Send/Receive data |
+| **Hang up** | Close socket |
+
+---
+
+## What is a Socket?
+
+**Definition**: A **socket** is an endpoint for communication between two machines over a network.
+
+\`\`\`
+┌─────────────────┐          ┌─────────────────┐
+│     Client      │          │     Server      │
+│  192.168.1.10   │          │  192.168.1.20   │
+│                 │          │                 │
+│  Socket         │ ◄──────► │  Socket         │
+│  (port 50123)   │   TCP    │  (port 8080)    │
+└─────────────────┘          └─────────────────┘
 \`\`\`
 
-## TCP Client
+---
+
+## Socket Types
+
+| Type | Protocol | Use Case |
+|------|----------|----------|
+| **SOCK_STREAM** | TCP | Web servers, file transfer |
+| **SOCK_DGRAM** | UDP | Gaming, streaming, DNS |
+
+---
+
+## TCP Server/Client Lifecycle
+
+\`\`\`
+Server                              Client
+──────                              ──────
+socket()  → Create socket           socket()   → Create socket
+   │                                    │
+bind()    → Assign address              │
+   │                                    │
+listen()  → Wait for connections        │
+   │                                    │
+accept()  → Accept connection  ◄───── connect() → Connect to server
+   │                                    │
+recv()    ◄───────────────────────── send()
+   │                                    │
+send()    ─────────────────────────► recv()
+   │                                    │
+close()   → End connection           close()
+\`\`\`
+
+---
+
+## Code Examples
+
+### TCP Server (Python)
 
 \`\`\`python
 import socket
 
+# 1. Create socket
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# 2. Bind to address
+server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+server.bind(('0.0.0.0', 8080))
+
+# 3. Listen for connections
+server.listen(5)  # Backlog of 5 pending connections
+print("Server listening on port 8080...")
+
+# 4. Accept and handle connections
+while True:
+    client_socket, address = server.accept()
+    print(f"Connection from {address}")
+    
+    # 5. Receive data
+    data = client_socket.recv(1024)
+    print(f"Received: {data.decode()}")
+    
+    # 6. Send response
+    response = "Hello from server!"
+    client_socket.send(response.encode())
+    
+    # 7. Close client connection
+    client_socket.close()
+\`\`\`
+
+### TCP Client (Python)
+
+\`\`\`python
+import socket
+
+# 1. Create socket
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# 2. Connect to server
 client.connect(('localhost', 8080))
 
-client.send(b"Hello from client!")
-response = client.recv(1024)
-print(f"Received: {response.decode()}")
+# 3. Send data
+message = "Hello from client!"
+client.send(message.encode())
 
+# 4. Receive response
+response = client.recv(1024)
+print(f"Server replied: {response.decode()}")
+
+# 5. Close connection
 client.close()
 \`\`\`
 
-## Non-Blocking I/O
+---
+
+## Handling Multiple Clients
+
+The simple server above can only handle one client at a time. Here are patterns for handling multiple clients:
+
+### Pattern 1: Threading
 
 \`\`\`python
-import select
+import socket
+import threading
 
-server.setblocking(False)
-inputs = [server]
+def handle_client(client_socket, address):
+    print(f"New connection: {address}")
+    while True:
+        data = client_socket.recv(1024)
+        if not data:
+            break
+        client_socket.send(data)  # Echo back
+    client_socket.close()
+
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.bind(('0.0.0.0', 8080))
+server.listen(5)
 
 while True:
-    readable, _, _ = select.select(inputs, [], [])
+    client, addr = server.accept()
+    thread = threading.Thread(target=handle_client, args=(client, addr))
+    thread.start()
+\`\`\`
+
+### Pattern 2: select() for I/O Multiplexing
+
+\`\`\`python
+import socket
+import select
+
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+server.bind(('0.0.0.0', 8080))
+server.listen(5)
+server.setblocking(False)
+
+sockets = [server]
+
+while True:
+    readable, _, _ = select.select(sockets, [], [])
+    
     for sock in readable:
         if sock is server:
+            # New connection
             client, addr = server.accept()
-            inputs.append(client)
+            client.setblocking(False)
+            sockets.append(client)
+            print(f"New connection: {addr}")
         else:
+            # Data from existing client
             data = sock.recv(1024)
             if data:
                 sock.send(data)  # Echo
             else:
-                inputs.remove(sock)
+                sockets.remove(sock)
                 sock.close()
 \`\`\`
 
+---
+
+## UDP Sockets (Connectionless)
+
+UDP doesn't require connection setup:
+
+\`\`\`python
+# UDP Server
+import socket
+
+server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+server.bind(('0.0.0.0', 8080))
+
+while True:
+    data, client_addr = server.recvfrom(1024)
+    print(f"From {client_addr}: {data.decode()}")
+    server.sendto(b"Received!", client_addr)
+\`\`\`
+
+\`\`\`python
+# UDP Client
+import socket
+
+client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+client.sendto(b"Hello!", ('localhost', 8080))
+response, _ = client.recvfrom(1024)
+print(response.decode())
+\`\`\`
+
+---
+
+## Common Gotchas
+
+| Problem | Cause | Solution |
+|---------|-------|----------|
+| "Address already in use" | Port still bound after restart | Use SO_REUSEADDR |
+| Connection hangs | No timeout set | Set socket.settimeout() |
+| Partial data received | TCP doesn't preserve message boundaries | Use length prefix or delimiter |
+| Server handles one client | Blocking accept/recv | Use threads, select, or async |
+
+---
+
+## Connection to Previous Topics
+
+- **OSI/TCP**: Sockets operate at the Transport layer (Layer 4)
+- **HTTP**: HTTP libraries use sockets under the hood
+- **Processes/Threads**: Multi-client servers need concurrency
+
+---
+
+## Interview Insights
+
+**Common Questions**:
+1. "How would you implement a chat server?"
+2. "Explain the TCP handshake in terms of socket calls"
+3. "What's the difference between TCP and UDP sockets?"
+4. "How do you handle multiple clients?"
+
+**Key Talking Points**:
+- TCP sockets require connect/accept; UDP uses sendto/recvfrom
+- select() is more scalable than threading for I/O-bound servers
+- Modern servers use async I/O (asyncio, epoll, kqueue)
+- Always set socket options (SO_REUSEADDR, timeouts)
+
+**Gotcha**: TCP is a byte stream — there are no message boundaries! You must implement your own framing (length prefix or delimiter).
+
+---
+
 ## Key Takeaways
 
-- Sockets are endpoints for communication
-- TCP provides stream-based reliable transport
-- Use select/poll for handling multiple connections
-- Consider async I/O for scalability
+✅ Sockets are low-level endpoints for network communication  
+✅ **TCP sockets**: connection-oriented (connect/accept)  
+✅ **UDP sockets**: connectionless (sendto/recvfrom)  
+✅ Use **threading** or **select()** to handle multiple clients  
+✅ Always use SO_REUSEADDR and set timeouts  
+✅ TCP is a byte stream — implement your own message framing
 `,
     },
 
