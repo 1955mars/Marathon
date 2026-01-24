@@ -1,14 +1,56 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { problems } from "@/data/problems";
 
 const PATTERNS = [...new Set(problems.map(p => p.pattern))];
+const SCROLL_KEY = 'problems-scroll-position';
+const FILTER_KEY = 'problems-filter';
+const DIFFICULTY_KEY = 'problems-difficulty';
 
 export default function ProblemsPage() {
-    const [filter, setFilter] = useState<string>("");
-    const [difficultyFilter, setDifficultyFilter] = useState<string>("");
+    // Restore filters from sessionStorage
+    const [filter, setFilter] = useState<string>(() => {
+        if (typeof window !== 'undefined') {
+            return sessionStorage.getItem(FILTER_KEY) || "";
+        }
+        return "";
+    });
+    const [difficultyFilter, setDifficultyFilter] = useState<string>(() => {
+        if (typeof window !== 'undefined') {
+            return sessionStorage.getItem(DIFFICULTY_KEY) || "";
+        }
+        return "";
+    });
+
+    // Restore scroll position on mount
+    useEffect(() => {
+        const savedPosition = sessionStorage.getItem(SCROLL_KEY);
+        if (savedPosition) {
+            setTimeout(() => {
+                window.scrollTo(0, parseInt(savedPosition, 10));
+            }, 100);
+        }
+    }, []);
+
+    // Save scroll position on scroll
+    useEffect(() => {
+        const saveScrollPosition = () => {
+            sessionStorage.setItem(SCROLL_KEY, window.scrollY.toString());
+        };
+        window.addEventListener('scroll', saveScrollPosition);
+        return () => window.removeEventListener('scroll', saveScrollPosition);
+    }, []);
+
+    // Save filters when they change
+    useEffect(() => {
+        sessionStorage.setItem(FILTER_KEY, filter);
+    }, [filter]);
+
+    useEffect(() => {
+        sessionStorage.setItem(DIFFICULTY_KEY, difficultyFilter);
+    }, [difficultyFilter]);
 
     const filteredProblems = problems.filter(p => {
         if (filter && p.pattern !== filter) return false;
@@ -70,8 +112,8 @@ export default function ProblemsPage() {
                     <button
                         onClick={() => setDifficultyFilter(difficultyFilter === "Easy" ? "" : "Easy")}
                         className={`rounded-xl p-4 border transition-colors ${difficultyFilter === "Easy"
-                                ? "bg-green-500/30 border-green-500/50"
-                                : "bg-green-500/10 border-green-500/20 hover:bg-green-500/20"
+                            ? "bg-green-500/30 border-green-500/50"
+                            : "bg-green-500/10 border-green-500/20 hover:bg-green-500/20"
                             }`}
                     >
                         <div className="text-2xl font-bold text-green-400">{easyCount}</div>
@@ -80,8 +122,8 @@ export default function ProblemsPage() {
                     <button
                         onClick={() => setDifficultyFilter(difficultyFilter === "Medium" ? "" : "Medium")}
                         className={`rounded-xl p-4 border transition-colors ${difficultyFilter === "Medium"
-                                ? "bg-yellow-500/30 border-yellow-500/50"
-                                : "bg-yellow-500/10 border-yellow-500/20 hover:bg-yellow-500/20"
+                            ? "bg-yellow-500/30 border-yellow-500/50"
+                            : "bg-yellow-500/10 border-yellow-500/20 hover:bg-yellow-500/20"
                             }`}
                     >
                         <div className="text-2xl font-bold text-yellow-400">{mediumCount}</div>
@@ -90,8 +132,8 @@ export default function ProblemsPage() {
                     <button
                         onClick={() => setDifficultyFilter(difficultyFilter === "Hard" ? "" : "Hard")}
                         className={`rounded-xl p-4 border transition-colors ${difficultyFilter === "Hard"
-                                ? "bg-red-500/30 border-red-500/50"
-                                : "bg-red-500/10 border-red-500/20 hover:bg-red-500/20"
+                            ? "bg-red-500/30 border-red-500/50"
+                            : "bg-red-500/10 border-red-500/20 hover:bg-red-500/20"
                             }`}
                     >
                         <div className="text-2xl font-bold text-red-400">{hardCount}</div>
@@ -110,8 +152,8 @@ export default function ProblemsPage() {
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center space-x-4">
                                     <span className={`px-2 py-1 rounded text-xs font-medium ${problem.difficulty === "Easy" ? "bg-green-500/20 text-green-400" :
-                                            problem.difficulty === "Medium" ? "bg-yellow-500/20 text-yellow-400" :
-                                                "bg-red-500/20 text-red-400"
+                                        problem.difficulty === "Medium" ? "bg-yellow-500/20 text-yellow-400" :
+                                            "bg-red-500/20 text-red-400"
                                         }`}>
                                         {problem.difficulty}
                                     </span>
