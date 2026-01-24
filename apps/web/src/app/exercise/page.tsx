@@ -8,7 +8,7 @@ import { useState } from "react";
 const CodeEditor = dynamic(() => import("@/components/CodeEditor"), {
     ssr: false,
     loading: () => (
-        <div className="h-80 bg-slate-800 rounded-xl flex items-center justify-center">
+        <div className="h-80 bg-slate-100 rounded-xl flex items-center justify-center">
             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500"></div>
         </div>
     ),
@@ -138,16 +138,16 @@ export default function ExercisePage() {
     const currentCode = language === "python" ? selectedExercise.pythonCode : selectedExercise.cppCode;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
             {/* Navigation */}
-            <nav className="border-b border-white/10 bg-black/20 backdrop-blur-lg sticky top-0 z-50">
+            <nav className="border-b border-slate-200 bg-white/80 backdrop-blur-lg sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex justify-between items-center">
                         <Link href="/" className="flex items-center space-x-2">
                             <span className="text-2xl">🏃</span>
-                            <span className="text-xl font-bold text-white">Marathon</span>
+                            <span className="text-xl font-bold text-slate-800">Marathon</span>
                         </Link>
-                        <Link href="/dashboard" className="text-gray-300 hover:text-white">
+                        <Link href="/dashboard" className="text-slate-600 hover:text-slate-800">
                             Dashboard
                         </Link>
                     </div>
@@ -157,29 +157,29 @@ export default function ExercisePage() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="grid lg:grid-cols-2 gap-8">
                     {/* Problem Description */}
-                    <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 border border-white/10">
+                    <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
                         <div className="flex items-center justify-between mb-4">
-                            <h1 className="text-2xl font-bold text-white">{selectedExercise.title}</h1>
-                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${selectedExercise.difficulty === "Easy" ? "bg-green-500/20 text-green-400" :
-                                selectedExercise.difficulty === "Medium" ? "bg-yellow-500/20 text-yellow-400" :
-                                    "bg-red-500/20 text-red-400"
+                            <h1 className="text-2xl font-bold text-slate-800">{selectedExercise.title}</h1>
+                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${selectedExercise.difficulty === "Easy" ? "bg-green-100 text-green-600" :
+                                selectedExercise.difficulty === "Medium" ? "bg-yellow-100 text-yellow-600" :
+                                    "bg-red-100 text-red-600"
                                 }`}>
                                 {selectedExercise.difficulty}
                             </span>
                         </div>
-                        <div className="prose prose-invert prose-sm max-w-none">
-                            <p className="text-gray-300 whitespace-pre-wrap">{selectedExercise.description}</p>
+                        <div className="prose prose-slate prose-sm max-w-none">
+                            <p className="text-slate-600 whitespace-pre-wrap">{selectedExercise.description}</p>
                         </div>
 
                         {/* Language Toggle */}
-                        <div className="mt-6 border-t border-white/10 pt-6">
-                            <h3 className="text-sm font-medium text-gray-400 mb-3">Language</h3>
+                        <div className="mt-6 border-t border-slate-200 pt-6">
+                            <h3 className="text-sm font-medium text-slate-500 mb-3">Language</h3>
                             <div className="flex space-x-2">
                                 <button
                                     onClick={() => setLanguage("python")}
                                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${language === "python"
-                                        ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
-                                        : "bg-white/5 text-gray-400 hover:text-white border border-transparent"
+                                        ? "bg-yellow-100 text-yellow-700 border border-yellow-300"
+                                        : "bg-slate-50 text-slate-500 hover:text-slate-700 border border-transparent"
                                         }`}
                                 >
                                     🐍 Python
@@ -187,8 +187,8 @@ export default function ExercisePage() {
                                 <button
                                     onClick={() => setLanguage("cpp")}
                                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${language === "cpp"
-                                        ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
-                                        : "bg-white/5 text-gray-400 hover:text-white border border-transparent"
+                                        ? "bg-blue-100 text-blue-700 border border-blue-300"
+                                        : "bg-slate-50 text-slate-500 hover:text-slate-700 border border-transparent"
                                         }`}
                                 >
                                     ⚡ C++
@@ -197,23 +197,23 @@ export default function ExercisePage() {
                         </div>
 
                         {/* Exercise List */}
-                        <div className="mt-6 border-t border-white/10 pt-6">
-                            <h3 className="text-sm font-medium text-gray-400 mb-3">Practice Problems</h3>
+                        <div className="mt-6 border-t border-slate-200 pt-6">
+                            <h3 className="text-sm font-medium text-slate-500 mb-3">Practice Problems</h3>
                             <div className="space-y-2">
                                 {exercises.map((ex) => (
                                     <button
                                         key={ex.id}
                                         onClick={() => setSelectedExercise(ex)}
                                         className={`w-full p-3 rounded-lg text-left transition-colors ${ex.id === selectedExercise.id
-                                            ? "bg-purple-600/20 border border-purple-500/30"
-                                            : "bg-white/5 hover:bg-white/10 border border-transparent"
+                                            ? "bg-purple-100 border border-purple-300"
+                                            : "bg-slate-50 hover:bg-slate-100 border border-transparent"
                                             }`}
                                     >
                                         <div className="flex items-center justify-between">
-                                            <span className="text-white">{ex.title}</span>
-                                            <span className={`text-xs ${ex.difficulty === "Easy" ? "text-green-400" :
-                                                ex.difficulty === "Medium" ? "text-yellow-400" :
-                                                    "text-red-400"
+                                            <span className="text-slate-800">{ex.title}</span>
+                                            <span className={`text-xs ${ex.difficulty === "Easy" ? "text-green-600" :
+                                                ex.difficulty === "Medium" ? "text-yellow-600" :
+                                                    "text-red-600"
                                                 }`}>
                                                 {ex.difficulty}
                                             </span>

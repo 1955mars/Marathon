@@ -54,10 +54,10 @@ export default function ProblemPageClient({ id }: { id: string }) {
 
     if (!problem) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 flex items-center justify-center">
                 <div className="text-center">
-                    <h1 className="text-2xl text-white mb-4">Problem not found</h1>
-                    <Link href="/problems" className="text-purple-400 hover:text-purple-300">
+                    <h1 className="text-2xl text-slate-800 mb-4">Problem not found</h1>
+                    <Link href="/problems" className="text-purple-600 hover:text-purple-500">
                         ← Back to Problems
                     </Link>
                 </div>
@@ -66,17 +66,17 @@ export default function ProblemPageClient({ id }: { id: string }) {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
             {/* Navigation */}
-            <nav className="border-b border-white/10 bg-black/20 backdrop-blur-lg sticky top-0 z-50">
+            <nav className="border-b border-slate-200 bg-white/80 backdrop-blur-lg sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex justify-between items-center">
                         <div className="flex items-center space-x-4">
-                            <Link href="/" className="text-gray-400 hover:text-white">
+                            <Link href="/" className="text-slate-500 hover:text-slate-800">
                                 ← Home
                             </Link>
-                            <span className="text-gray-600">/</span>
-                            <Link href="/problems" className="text-gray-400 hover:text-white">
+                            <span className="text-slate-300">/</span>
+                            <Link href="/problems" className="text-slate-500 hover:text-slate-800">
                                 Problems
                             </Link>
                         </div>
@@ -88,37 +88,37 @@ export default function ProblemPageClient({ id }: { id: string }) {
                 {/* Problem Header */}
                 <div className="mb-6">
                     <div className="flex items-center gap-3 mb-2">
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${problem.difficulty === "Easy" ? "bg-green-500/20 text-green-400" :
-                                problem.difficulty === "Medium" ? "bg-yellow-500/20 text-yellow-400" :
-                                    "bg-red-500/20 text-red-400"
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${problem.difficulty === "Easy" ? "bg-green-100 text-green-600" :
+                            problem.difficulty === "Medium" ? "bg-yellow-100 text-yellow-600" :
+                                "bg-red-100 text-red-600"
                             }`}>
                             {problem.difficulty}
                         </span>
-                        <span className="text-purple-400 text-sm">{problem.pattern}</span>
+                        <span className="text-purple-600 text-sm">{problem.pattern}</span>
                     </div>
-                    <h1 className="text-3xl font-bold text-white">{problem.title}</h1>
+                    <h1 className="text-3xl font-bold text-slate-800">{problem.title}</h1>
                 </div>
 
                 <div className="grid lg:grid-cols-2 gap-6">
                     {/* Left: Problem Description */}
                     <div className="space-y-6">
                         {/* Description */}
-                        <div className="bg-white/5 rounded-xl p-6 border border-white/10">
-                            <h2 className="text-lg font-semibold text-white mb-3">Description</h2>
-                            <p className="text-gray-300">{problem.description}</p>
+                        <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+                            <h2 className="text-lg font-semibold text-slate-800 mb-3">Description</h2>
+                            <p className="text-slate-600">{problem.description}</p>
                         </div>
 
                         {/* Examples */}
-                        <div className="bg-white/5 rounded-xl p-6 border border-white/10">
-                            <h2 className="text-lg font-semibold text-white mb-3">Examples</h2>
+                        <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+                            <h2 className="text-lg font-semibold text-slate-800 mb-3">Examples</h2>
                             <div className="space-y-4">
                                 {problem.examples.map((ex, i) => (
-                                    <div key={i} className="bg-black/30 rounded-lg p-4">
+                                    <div key={i} className="bg-slate-50 rounded-lg p-4">
                                         <div className="text-sm">
-                                            <div className="text-gray-400">Input: <span className="text-white font-mono">{ex.input}</span></div>
-                                            <div className="text-gray-400">Output: <span className="text-green-400 font-mono">{ex.output}</span></div>
+                                            <div className="text-slate-500">Input: <span className="text-slate-800 font-mono">{ex.input}</span></div>
+                                            <div className="text-slate-500">Output: <span className="text-green-600 font-mono">{ex.output}</span></div>
                                             {ex.explanation && (
-                                                <div className="text-gray-500 mt-1">Explanation: {ex.explanation}</div>
+                                                <div className="text-slate-400 mt-1">Explanation: {ex.explanation}</div>
                                             )}
                                         </div>
                                     </div>
@@ -127,24 +127,24 @@ export default function ProblemPageClient({ id }: { id: string }) {
                         </div>
 
                         {/* Complexity */}
-                        <div className="bg-white/5 rounded-xl p-6 border border-white/10">
-                            <h2 className="text-lg font-semibold text-white mb-3">Complexity</h2>
+                        <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+                            <h2 className="text-lg font-semibold text-slate-800 mb-3">Complexity</h2>
                             <div className="flex gap-6">
                                 <div>
-                                    <span className="text-gray-400 text-sm">Time:</span>
-                                    <span className="text-white font-mono ml-2">{problem.timeComplexity}</span>
+                                    <span className="text-slate-500 text-sm">Time:</span>
+                                    <span className="text-slate-800 font-mono ml-2">{problem.timeComplexity}</span>
                                 </div>
                                 <div>
-                                    <span className="text-gray-400 text-sm">Space:</span>
-                                    <span className="text-white font-mono ml-2">{problem.spaceComplexity}</span>
+                                    <span className="text-slate-500 text-sm">Space:</span>
+                                    <span className="text-slate-800 font-mono ml-2">{problem.spaceComplexity}</span>
                                 </div>
                             </div>
                         </div>
 
                         {/* Explanation */}
-                        <div className="bg-white/5 rounded-xl p-6 border border-white/10">
-                            <h2 className="text-lg font-semibold text-white mb-3">Explanation</h2>
-                            <div className="text-gray-300 prose prose-invert prose-sm max-w-none whitespace-pre-wrap">
+                        <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+                            <h2 className="text-lg font-semibold text-slate-800 mb-3">Explanation</h2>
+                            <div className="text-slate-600 prose prose-slate prose-sm max-w-none whitespace-pre-wrap">
                                 {problem.explanation}
                             </div>
                         </div>
@@ -158,8 +158,8 @@ export default function ProblemPageClient({ id }: { id: string }) {
                                 <button
                                     onClick={() => handleLanguageChange("python")}
                                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${language === "python"
-                                            ? "bg-purple-600 text-white"
-                                            : "bg-white/10 text-gray-300 hover:bg-white/20"
+                                        ? "bg-purple-600 text-white"
+                                        : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
                                         }`}
                                 >
                                     Python
@@ -167,8 +167,8 @@ export default function ProblemPageClient({ id }: { id: string }) {
                                 <button
                                     onClick={() => handleLanguageChange("cpp")}
                                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${language === "cpp"
-                                            ? "bg-purple-600 text-white"
-                                            : "bg-white/10 text-gray-300 hover:bg-white/20"
+                                        ? "bg-purple-600 text-white"
+                                        : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
                                         }`}
                                 >
                                     C++
@@ -177,7 +177,7 @@ export default function ProblemPageClient({ id }: { id: string }) {
                             <div className="flex gap-2">
                                 <button
                                     onClick={() => setShowSolution(!showSolution)}
-                                    className="px-4 py-2 rounded-lg text-sm font-medium bg-white/10 text-gray-300 hover:bg-white/20"
+                                    className="px-4 py-2 rounded-lg text-sm font-medium bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
                                 >
                                     {showSolution ? "Hide Solution" : "Show Solution"}
                                 </button>
@@ -192,7 +192,7 @@ export default function ProblemPageClient({ id }: { id: string }) {
                         </div>
 
                         {/* Editor */}
-                        <div className="rounded-xl overflow-hidden border border-white/10">
+                        <div className="rounded-xl overflow-hidden border border-slate-200 shadow-sm">
                             <Editor
                                 height="400px"
                                 language={language === "python" ? "python" : "cpp"}
@@ -209,8 +209,8 @@ export default function ProblemPageClient({ id }: { id: string }) {
                         </div>
 
                         {/* Output */}
-                        <div className="bg-black/50 rounded-xl p-4 border border-white/10">
-                            <h3 className="text-sm font-medium text-gray-400 mb-2">Output</h3>
+                        <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
+                            <h3 className="text-sm font-medium text-slate-400 mb-2">Output</h3>
                             <pre className="text-green-400 font-mono text-sm whitespace-pre-wrap min-h-[100px]">
                                 {output || "Click Run to execute the code"}
                             </pre>

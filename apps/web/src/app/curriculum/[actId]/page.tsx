@@ -19,12 +19,12 @@ export default async function CategoryPage({ params }: Props) {
         t + s.steps.reduce((st, step) => st + step.estimatedMinutes, 0), 0);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
             {/* Navigation */}
-            <nav className="border-b border-white/10 bg-black/20 backdrop-blur-lg sticky top-0 z-50">
+            <nav className="border-b border-slate-200 bg-white/80 backdrop-blur-lg sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex justify-between items-center">
-                        <Link href="/curriculum" className="text-gray-400 hover:text-white transition-colors">
+                        <Link href="/curriculum" className="text-slate-500 hover:text-slate-800 transition-colors">
                             ← Curriculum
                         </Link>
                     </div>
@@ -37,20 +37,20 @@ export default async function CategoryPage({ params }: Props) {
                     <div className="flex items-center space-x-4 mb-4">
                         <span className="text-5xl">{act.emoji}</span>
                         <div>
-                            <h1 className="text-4xl md:text-5xl font-bold text-white">
+                            <h1 className="text-4xl md:text-5xl font-bold text-slate-800">
                                 {act.title}
                             </h1>
-                            <p className="text-xl text-gray-300 mt-2">{act.description}</p>
+                            <p className="text-xl text-slate-600 mt-2">{act.description}</p>
                         </div>
                     </div>
                     <div className="flex gap-6 mt-6 text-sm">
-                        <div className="bg-white/5 rounded-lg px-4 py-2">
-                            <span className="text-purple-400 font-bold">{totalLessons}</span>
-                            <span className="text-gray-400 ml-1">Lessons</span>
+                        <div className="bg-white rounded-lg px-4 py-2 border border-slate-200 shadow-sm">
+                            <span className="text-purple-600 font-bold">{totalLessons}</span>
+                            <span className="text-slate-500 ml-1">Lessons</span>
                         </div>
-                        <div className="bg-white/5 rounded-lg px-4 py-2">
-                            <span className="text-purple-400 font-bold">~{Math.round(totalMinutes / 60)}</span>
-                            <span className="text-gray-400 ml-1">Hours</span>
+                        <div className="bg-white rounded-lg px-4 py-2 border border-slate-200 shadow-sm">
+                            <span className="text-purple-600 font-bold">~{Math.round(totalMinutes / 60)}</span>
+                            <span className="text-slate-500 ml-1">Hours</span>
                         </div>
                     </div>
                 </div>
@@ -58,10 +58,10 @@ export default async function CategoryPage({ params }: Props) {
                 {/* Scenes and Lessons */}
                 <div className="space-y-8">
                     {act.scenes.map((scene) => (
-                        <div key={scene.id} className="bg-white/5 backdrop-blur-lg rounded-2xl border border-white/10 p-6">
+                        <div key={scene.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
                             <div className="mb-4">
-                                <h2 className="text-2xl font-bold text-white">{scene.title}</h2>
-                                <p className="text-gray-400">{scene.description}</p>
+                                <h2 className="text-2xl font-bold text-slate-800">{scene.title}</h2>
+                                <p className="text-slate-500">{scene.description}</p>
                             </div>
 
                             {/* Lessons Grid */}
@@ -70,29 +70,29 @@ export default async function CategoryPage({ params }: Props) {
                                     <Link
                                         key={step.id}
                                         href={`/curriculum/${act.id}/${scene.id}/${step.id}`}
-                                        className="flex items-center justify-between bg-white/5 hover:bg-white/10 rounded-lg px-4 py-3 transition-colors group"
+                                        className="flex items-center justify-between bg-slate-50 hover:bg-slate-100 rounded-lg px-4 py-3 transition-colors group"
                                     >
                                         <div className="flex items-center space-x-3">
-                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step.type === 'project' ? 'bg-green-500/20 text-green-400' :
-                                                    step.type === 'exercise' ? 'bg-blue-500/20 text-blue-400' :
-                                                        step.type === 'quiz' ? 'bg-yellow-500/20 text-yellow-400' :
-                                                            'bg-purple-500/20 text-purple-400'
+                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step.type === 'project' ? 'bg-green-100 text-green-600' :
+                                                step.type === 'exercise' ? 'bg-blue-100 text-blue-600' :
+                                                    step.type === 'quiz' ? 'bg-yellow-100 text-yellow-600' :
+                                                        'bg-purple-100 text-purple-600'
                                                 }`}>
                                                 {step.type === 'project' ? '💻' :
                                                     step.type === 'exercise' ? '✏️' :
                                                         step.type === 'quiz' ? '❓' : '📖'}
                                             </div>
                                             <div>
-                                                <div className="text-white group-hover:text-purple-300 transition-colors">
+                                                <div className="text-slate-800 group-hover:text-purple-600 transition-colors">
                                                     {step.title}
                                                 </div>
-                                                <div className="text-xs text-gray-500">
+                                                <div className="text-xs text-slate-400">
                                                     {step.estimatedMinutes} min • {step.type}
                                                 </div>
                                             </div>
                                         </div>
                                         <svg
-                                            className="w-5 h-5 text-gray-500 group-hover:text-purple-400 transition-colors"
+                                            className="w-5 h-5 text-slate-400 group-hover:text-purple-600 transition-colors"
                                             fill="none"
                                             stroke="currentColor"
                                             viewBox="0 0 24 24"

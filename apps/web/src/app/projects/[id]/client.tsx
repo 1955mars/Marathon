@@ -18,10 +18,10 @@ export default function ProjectDetailClient({ id }: { id: string }) {
 
     if (!project) {
         return (
-            <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+            <div className="min-h-screen bg-slate-50 flex items-center justify-center">
                 <div className="text-center">
-                    <h1 className="text-2xl font-bold text-white mb-4">Project not found</h1>
-                    <Link href="/projects" className="text-purple-400 hover:underline">
+                    <h1 className="text-2xl font-bold text-slate-800 mb-4">Project not found</h1>
+                    <Link href="/projects" className="text-purple-600 hover:underline">
                         ← Back to projects
                     </Link>
                 </div>
@@ -66,18 +66,18 @@ export default function ProjectDetailClient({ id }: { id: string }) {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
             {/* Navigation */}
-            <nav className="border-b border-white/10 bg-black/20 backdrop-blur-lg sticky top-0 z-50">
+            <nav className="border-b border-slate-200 bg-white/80 backdrop-blur-lg sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex justify-between items-center">
                         <div className="flex items-center space-x-4">
-                            <Link href="/projects" className="text-gray-400 hover:text-white">
+                            <Link href="/projects" className="text-slate-500 hover:text-slate-800">
                                 ← Projects
                             </Link>
-                            <span className="text-white font-semibold">{project.title}</span>
+                            <span className="text-slate-800 font-semibold">{project.title}</span>
                         </div>
-                        <div className="text-sm text-gray-400">
+                        <div className="text-sm text-slate-500">
                             Step {currentStep + 1} of {project.steps.length}
                         </div>
                     </div>
@@ -88,8 +88,8 @@ export default function ProjectDetailClient({ id }: { id: string }) {
                 <div className="grid lg:grid-cols-4 gap-8">
                     {/* Sidebar */}
                     <div className="lg:col-span-1">
-                        <div className="bg-white/5 rounded-xl p-4 border border-white/10 sticky top-24">
-                            <h3 className="text-sm font-semibold text-gray-400 mb-4 uppercase">Steps</h3>
+                        <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm sticky top-24">
+                            <h3 className="text-sm font-semibold text-slate-500 mb-4 uppercase">Steps</h3>
                             <div className="space-y-2">
                                 {project.steps.map((s, index) => (
                                     <button
@@ -98,8 +98,8 @@ export default function ProjectDetailClient({ id }: { id: string }) {
                                         className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${index === currentStep
                                             ? "bg-purple-600 text-white"
                                             : index < currentStep
-                                                ? "bg-green-500/20 text-green-400"
-                                                : "bg-white/5 text-gray-400 hover:bg-white/10"
+                                                ? "bg-green-100 text-green-700"
+                                                : "bg-slate-50 text-slate-600 hover:bg-slate-100"
                                             }`}
                                     >
                                         <span className="font-mono mr-2">{index + 1}.</span>
@@ -108,12 +108,12 @@ export default function ProjectDetailClient({ id }: { id: string }) {
                                 ))}
                             </div>
 
-                            <div className="mt-6 pt-4 border-t border-white/10">
-                                <div className="flex justify-between text-xs text-gray-400 mb-2">
+                            <div className="mt-6 pt-4 border-t border-slate-200">
+                                <div className="flex justify-between text-xs text-slate-500 mb-2">
                                     <span>Progress</span>
                                     <span>{Math.round(((currentStep + 1) / project.steps.length) * 100)}%</span>
                                 </div>
-                                <div className="w-full bg-white/10 rounded-full h-2">
+                                <div className="w-full bg-slate-200 rounded-full h-2">
                                     <div
                                         className="bg-purple-600 h-2 rounded-full transition-all"
                                         style={{ width: `${((currentStep + 1) / project.steps.length) * 100}%` }}
@@ -126,31 +126,31 @@ export default function ProjectDetailClient({ id }: { id: string }) {
                     {/* Main Content */}
                     <div className="lg:col-span-3 space-y-6">
                         {/* Step Header */}
-                        <div className="bg-white/5 rounded-xl p-6 border border-white/10">
-                            <div className="flex items-center gap-2 text-sm text-purple-400 mb-2">
+                        <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+                            <div className="flex items-center gap-2 text-sm text-purple-600 mb-2">
                                 <span>Step {currentStep + 1}</span>
                                 <span>•</span>
                                 {step.concepts.map((c) => (
-                                    <span key={c} className="bg-purple-500/20 px-2 py-0.5 rounded text-xs">
+                                    <span key={c} className="bg-purple-100 px-2 py-0.5 rounded text-xs">
                                         {c}
                                     </span>
                                 ))}
                             </div>
-                            <h1 className="text-2xl font-bold text-white mb-2">{step.title}</h1>
-                            <p className="text-gray-400">{step.description}</p>
+                            <h1 className="text-2xl font-bold text-slate-800 mb-2">{step.title}</h1>
+                            <p className="text-slate-500">{step.description}</p>
                         </div>
 
                         {/* Code Section with Monaco Editor */}
-                        <div className="bg-slate-800 rounded-xl border border-white/10 overflow-hidden">
-                            <div className="flex items-center justify-between px-4 py-3 bg-slate-900 border-b border-white/10">
-                                <span className="text-sm font-medium text-gray-300">💻 Implementation</span>
+                        <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+                            <div className="flex items-center justify-between px-4 py-3 bg-slate-900 border-b border-slate-700">
+                                <span className="text-sm font-medium text-slate-300">💻 Implementation</span>
                                 <div className="flex items-center space-x-3">
                                     <div className="flex space-x-2">
                                         <button
                                             onClick={() => { setLanguage("python"); setOutput(""); }}
                                             className={`px-3 py-1 rounded text-sm font-medium transition ${language === "python"
                                                 ? "bg-blue-600 text-white"
-                                                : "bg-white/10 text-gray-400 hover:bg-white/20"
+                                                : "bg-slate-700 text-slate-400 hover:bg-slate-600"
                                                 }`}
                                         >
                                             🐍 Python
@@ -159,7 +159,7 @@ export default function ProjectDetailClient({ id }: { id: string }) {
                                             onClick={() => { setLanguage("cpp"); setOutput(""); }}
                                             className={`px-3 py-1 rounded text-sm font-medium transition ${language === "cpp"
                                                 ? "bg-orange-600 text-white"
-                                                : "bg-white/10 text-gray-400 hover:bg-white/20"
+                                                : "bg-slate-700 text-slate-400 hover:bg-slate-600"
                                                 }`}
                                         >
                                             ⚡ C++
@@ -205,12 +205,12 @@ export default function ProjectDetailClient({ id }: { id: string }) {
 
                             {/* Output Section */}
                             {output && (
-                                <div className="border-t border-white/10">
+                                <div className="border-t border-slate-700">
                                     <div className="px-4 py-2 bg-slate-900/50 flex items-center justify-between">
-                                        <span className="text-sm font-medium text-gray-400">📤 Output</span>
+                                        <span className="text-sm font-medium text-slate-400">📤 Output</span>
                                         <button
                                             onClick={() => setOutput("")}
-                                            className="text-xs text-gray-500 hover:text-gray-300"
+                                            className="text-xs text-slate-500 hover:text-slate-300"
                                         >
                                             Clear
                                         </button>
@@ -225,27 +225,27 @@ export default function ProjectDetailClient({ id }: { id: string }) {
                         </div>
 
                         {/* Explanation */}
-                        <div className="bg-white/5 rounded-xl p-6 border border-white/10">
-                            <h3 className="text-lg font-semibold text-white mb-4">📖 Explanation</h3>
-                            <div className="prose prose-invert prose-sm max-w-none">
+                        <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+                            <h3 className="text-lg font-semibold text-slate-800 mb-4">📖 Explanation</h3>
+                            <div className="prose prose-slate prose-sm max-w-none">
                                 <ReactMarkdown
                                     remarkPlugins={[remarkGfm]}
                                     components={{
-                                        h2: ({ children }) => <h2 className="text-lg font-semibold text-white mt-4 mb-2">{children}</h2>,
-                                        h3: ({ children }) => <h3 className="text-base font-semibold text-purple-300 mt-3 mb-2">{children}</h3>,
-                                        p: ({ children }) => <p className="text-gray-300 mb-3 leading-relaxed">{children}</p>,
-                                        strong: ({ children }) => <strong className="text-white font-semibold">{children}</strong>,
-                                        ul: ({ children }) => <ul className="list-disc list-inside space-y-1 mb-3 text-gray-300">{children}</ul>,
-                                        ol: ({ children }) => <ol className="list-decimal list-inside space-y-1 mb-3 text-gray-300">{children}</ol>,
-                                        li: ({ children }) => <li className="text-gray-300">{children}</li>,
-                                        code: ({ children }) => <code className="bg-slate-700 text-green-400 px-1.5 py-0.5 rounded text-sm">{children}</code>,
-                                        pre: ({ children }) => <pre className="bg-slate-800 p-3 rounded-lg overflow-x-auto mb-3">{children}</pre>,
+                                        h2: ({ children }) => <h2 className="text-lg font-semibold text-slate-800 mt-4 mb-2">{children}</h2>,
+                                        h3: ({ children }) => <h3 className="text-base font-semibold text-purple-600 mt-3 mb-2">{children}</h3>,
+                                        p: ({ children }) => <p className="text-slate-600 mb-3 leading-relaxed">{children}</p>,
+                                        strong: ({ children }) => <strong className="text-slate-800 font-semibold">{children}</strong>,
+                                        ul: ({ children }) => <ul className="list-disc list-inside space-y-1 mb-3 text-slate-600">{children}</ul>,
+                                        ol: ({ children }) => <ol className="list-decimal list-inside space-y-1 mb-3 text-slate-600">{children}</ol>,
+                                        li: ({ children }) => <li className="text-slate-600">{children}</li>,
+                                        code: ({ children }) => <code className="bg-slate-100 text-purple-600 px-1.5 py-0.5 rounded text-sm">{children}</code>,
+                                        pre: ({ children }) => <pre className="bg-slate-100 p-3 rounded-lg overflow-x-auto mb-3">{children}</pre>,
                                         table: ({ children }) => <table className="w-full border-collapse mb-4 text-sm">{children}</table>,
-                                        thead: ({ children }) => <thead className="bg-slate-700">{children}</thead>,
+                                        thead: ({ children }) => <thead className="bg-slate-100">{children}</thead>,
                                         tbody: ({ children }) => <tbody>{children}</tbody>,
-                                        tr: ({ children }) => <tr className="border-b border-white/10">{children}</tr>,
-                                        th: ({ children }) => <th className="border border-white/20 bg-slate-700 px-3 py-2 text-left text-white font-semibold">{children}</th>,
-                                        td: ({ children }) => <td className="border border-white/20 px-3 py-2 text-gray-300">{children}</td>,
+                                        tr: ({ children }) => <tr className="border-b border-slate-200">{children}</tr>,
+                                        th: ({ children }) => <th className="border border-slate-200 bg-slate-100 px-3 py-2 text-left text-slate-800 font-semibold">{children}</th>,
+                                        td: ({ children }) => <td className="border border-slate-200 px-3 py-2 text-slate-600">{children}</td>,
                                     }}
                                 >
                                     {step.explanation}
@@ -254,12 +254,12 @@ export default function ProjectDetailClient({ id }: { id: string }) {
                         </div>
 
                         {/* Tips */}
-                        <div className="bg-yellow-500/10 rounded-xl p-6 border border-yellow-500/20">
-                            <h3 className="text-lg font-semibold text-yellow-400 mb-3">💡 Pro Tips</h3>
+                        <div className="bg-yellow-50 rounded-xl p-6 border border-yellow-200">
+                            <h3 className="text-lg font-semibold text-yellow-700 mb-3">💡 Pro Tips</h3>
                             <ul className="space-y-2">
                                 {step.tips.map((tip, i) => (
-                                    <li key={i} className="flex items-start gap-2 text-gray-300">
-                                        <span className="text-yellow-400 mt-1">•</span>
+                                    <li key={i} className="flex items-start gap-2 text-slate-600">
+                                        <span className="text-yellow-600 mt-1">•</span>
                                         <span>{tip}</span>
                                     </li>
                                 ))}
@@ -271,7 +271,7 @@ export default function ProjectDetailClient({ id }: { id: string }) {
                             <button
                                 onClick={() => { setCurrentStep((s) => Math.max(0, s - 1)); setOutput(""); }}
                                 disabled={currentStep === 0}
-                                className="px-6 py-3 bg-white/10 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/20 transition-colors"
+                                className="px-6 py-3 bg-white text-slate-700 border border-slate-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors"
                             >
                                 ← Previous
                             </button>

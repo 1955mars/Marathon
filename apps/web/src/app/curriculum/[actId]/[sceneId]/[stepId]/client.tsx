@@ -14,8 +14,8 @@ import dynamic from "next/dynamic";
 const MermaidDiagram = dynamic(() => import("@/components/MermaidDiagram"), {
     ssr: false,
     loading: () => (
-        <div className="my-6 flex justify-center bg-black/30 rounded-xl p-6 border border-white/10">
-            <div className="animate-pulse text-gray-400">Loading diagram...</div>
+        <div className="my-6 flex justify-center bg-slate-100 rounded-xl p-6 border border-slate-200">
+            <div className="animate-pulse text-slate-500">Loading diagram...</div>
         </div>
     ),
 });
@@ -317,10 +317,10 @@ export default function StepPageClient({ actId, sceneId, stepId }: { actId: stri
 
     if (!act || !scene || !step) {
         return (
-            <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+            <div className="min-h-screen bg-slate-50 flex items-center justify-center">
                 <div className="text-center">
-                    <h1 className="text-2xl font-bold text-white mb-4">Step not found</h1>
-                    <Link href="/curriculum" className="text-purple-400 hover:underline">
+                    <h1 className="text-2xl font-bold text-slate-800 mb-4">Step not found</h1>
+                    <Link href="/curriculum" className="text-purple-600 hover:underline">
                         ← Back to Curriculum
                     </Link>
                 </div>
@@ -360,21 +360,21 @@ export default function StepPageClient({ actId, sceneId, stepId }: { actId: stri
     const hasEdits = editedBlocks.size > 0;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
             {/* Navigation */}
-            <nav className="border-b border-white/10 bg-black/20 backdrop-blur-lg sticky top-0 z-50">
+            <nav className="border-b border-slate-200 bg-white/80 backdrop-blur-lg sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex justify-between items-center">
                         <div className="flex items-center space-x-2 text-sm">
-                            <Link href="/curriculum" className="text-gray-400 hover:text-white">
+                            <Link href="/curriculum" className="text-slate-500 hover:text-slate-800">
                                 ← Curriculum
                             </Link>
-                            <span className="text-gray-600">/</span>
-                            <Link href={`/curriculum/${actId}`} className="text-gray-400 hover:text-white">
+                            <span className="text-slate-300">/</span>
+                            <Link href={`/curriculum/${actId}`} className="text-slate-500 hover:text-slate-800">
                                 {act.title}
                             </Link>
-                            <span className="text-gray-600">/</span>
-                            <span className="text-purple-400 truncate max-w-[200px]">
+                            <span className="text-slate-300">/</span>
+                            <span className="text-purple-600 truncate max-w-[200px]">
                                 {scene.title}
                             </span>
                         </div>
@@ -383,7 +383,7 @@ export default function StepPageClient({ actId, sceneId, stepId }: { actId: stri
                             {hasEdits && (
                                 <button
                                     onClick={handleResetAll}
-                                    className="text-xs text-yellow-400 hover:text-yellow-300 transition-colors flex items-center gap-1"
+                                    className="text-xs text-yellow-600 hover:text-yellow-700 transition-colors flex items-center gap-1"
                                 >
                                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -392,7 +392,7 @@ export default function StepPageClient({ actId, sceneId, stepId }: { actId: stri
                                 </button>
                             )}
                             {/* Progress indicator */}
-                            <span className="text-sm text-gray-500">
+                            <span className="text-sm text-slate-500">
                                 Step {currentIndex + 1} of {allSteps.length}
                             </span>
                         </div>
@@ -403,11 +403,11 @@ export default function StepPageClient({ actId, sceneId, stepId }: { actId: stri
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 {/* Step Header */}
                 <div className="mb-8">
-                    <div className="flex items-center space-x-2 text-sm text-gray-400 mb-2">
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${step.type === 'project' ? 'bg-green-500/20 text-green-400' :
-                            step.type === 'exercise' ? 'bg-blue-500/20 text-blue-400' :
-                                step.type === 'quiz' ? 'bg-yellow-500/20 text-yellow-400' :
-                                    'bg-purple-500/20 text-purple-400'
+                    <div className="flex items-center space-x-2 text-sm text-slate-500 mb-2">
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${step.type === 'project' ? 'bg-green-100 text-green-600' :
+                            step.type === 'exercise' ? 'bg-blue-100 text-blue-600' :
+                                step.type === 'quiz' ? 'bg-yellow-100 text-yellow-600' :
+                                    'bg-purple-100 text-purple-600'
                             }`}>
                             {step.type.toUpperCase()}
                         </span>
@@ -416,7 +416,7 @@ export default function StepPageClient({ actId, sceneId, stepId }: { actId: stri
                         {isCompleted && (
                             <>
                                 <span>•</span>
-                                <span className="text-green-400 flex items-center">
+                                <span className="text-green-600 flex items-center">
                                     <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                     </svg>
@@ -425,39 +425,39 @@ export default function StepPageClient({ actId, sceneId, stepId }: { actId: stri
                             </>
                         )}
                     </div>
-                    <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                    <h1 className="text-3xl md:text-4xl font-bold text-slate-800 mb-4">
                         {step.title}
                     </h1>
                 </div>
 
                 {/* Content - Using ReactMarkdown with Monaco for code */}
-                <div className="bg-white/5 rounded-2xl p-8 border border-white/10">
+                <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm">
                     <ReactMarkdown
                         remarkPlugins={[remarkGfm]}
                         components={{
                             h1: ({ children }) => (
-                                <h1 className="text-3xl font-bold text-white mb-6">{children}</h1>
+                                <h1 className="text-3xl font-bold text-slate-800 mb-6">{children}</h1>
                             ),
                             h2: ({ children }) => (
-                                <h2 className="text-2xl font-bold text-white mt-8 mb-4">{children}</h2>
+                                <h2 className="text-2xl font-bold text-slate-800 mt-8 mb-4">{children}</h2>
                             ),
                             h3: ({ children }) => (
-                                <h3 className="text-xl font-bold text-white mt-6 mb-3">{children}</h3>
+                                <h3 className="text-xl font-bold text-slate-800 mt-6 mb-3">{children}</h3>
                             ),
                             h4: ({ children }) => (
-                                <h4 className="text-lg font-semibold text-white mt-4 mb-2">{children}</h4>
+                                <h4 className="text-lg font-semibold text-slate-800 mt-4 mb-2">{children}</h4>
                             ),
                             p: ({ children }) => (
-                                <p className="text-gray-300 my-4 leading-relaxed">{children}</p>
+                                <p className="text-slate-600 my-4 leading-relaxed">{children}</p>
                             ),
                             ul: ({ children }) => (
-                                <ul className="list-disc list-inside space-y-2 my-4 text-gray-300">{children}</ul>
+                                <ul className="list-disc list-inside space-y-2 my-4 text-slate-600">{children}</ul>
                             ),
                             ol: ({ children }) => (
-                                <ol className="list-decimal list-inside space-y-2 my-4 text-gray-300">{children}</ol>
+                                <ol className="list-decimal list-inside space-y-2 my-4 text-slate-600">{children}</ol>
                             ),
                             li: ({ children }) => (
-                                <li className="text-gray-300">{children}</li>
+                                <li className="text-slate-600">{children}</li>
                             ),
                             code: ({ className, children, ...props }) => {
                                 const match = /language-(\w+)/.exec(className || '');
@@ -491,7 +491,7 @@ export default function StepPageClient({ actId, sceneId, stepId }: { actId: stri
 
                                 // Inline code
                                 return (
-                                    <code className="bg-black/40 px-2 py-1 rounded text-purple-300 text-sm font-mono">
+                                    <code className="bg-slate-100 px-2 py-1 rounded text-purple-600 text-sm font-mono">
                                         {children}
                                     </code>
                                 );
@@ -506,53 +506,53 @@ export default function StepPageClient({ actId, sceneId, stepId }: { actId: stri
                                     }
                                 }
                                 return (
-                                    <pre className="bg-black/50 rounded-lg p-4 overflow-x-auto my-4 border border-white/10">
+                                    <pre className="bg-slate-100 rounded-lg p-4 overflow-x-auto my-4 border border-slate-200">
                                         {children}
                                     </pre>
                                 );
                             },
                             table: ({ children }) => (
                                 <div className="overflow-x-auto my-6">
-                                    <table className="min-w-full border border-white/20 rounded-lg overflow-hidden">
+                                    <table className="min-w-full border border-slate-200 rounded-lg overflow-hidden">
                                         {children}
                                     </table>
                                 </div>
                             ),
                             thead: ({ children }) => (
-                                <thead className="bg-purple-900/30">{children}</thead>
+                                <thead className="bg-purple-50">{children}</thead>
                             ),
                             tbody: ({ children }) => (
-                                <tbody className="divide-y divide-white/10">{children}</tbody>
+                                <tbody className="divide-y divide-slate-200">{children}</tbody>
                             ),
                             tr: ({ children }) => (
-                                <tr className="hover:bg-white/5">{children}</tr>
+                                <tr className="hover:bg-slate-50">{children}</tr>
                             ),
                             th: ({ children }) => (
-                                <th className="px-4 py-3 text-left text-sm font-semibold text-purple-300 border-b border-white/20">
+                                <th className="px-4 py-3 text-left text-sm font-semibold text-purple-700 border-b border-slate-200">
                                     {children}
                                 </th>
                             ),
                             td: ({ children }) => (
-                                <td className="px-4 py-3 text-sm text-gray-300">{children}</td>
+                                <td className="px-4 py-3 text-sm text-slate-600">{children}</td>
                             ),
                             blockquote: ({ children }) => (
-                                <blockquote className="border-l-4 border-purple-500 pl-4 my-4 italic text-gray-400">
+                                <blockquote className="border-l-4 border-purple-500 pl-4 my-4 italic text-slate-500">
                                     {children}
                                 </blockquote>
                             ),
                             strong: ({ children }) => (
-                                <strong className="text-white font-semibold">{children}</strong>
+                                <strong className="text-slate-800 font-semibold">{children}</strong>
                             ),
                             em: ({ children }) => (
-                                <em className="text-gray-300 italic">{children}</em>
+                                <em className="text-slate-600 italic">{children}</em>
                             ),
                             a: ({ href, children }) => (
-                                <a href={href} className="text-purple-400 hover:text-purple-300 underline" target="_blank" rel="noopener noreferrer">
+                                <a href={href} className="text-purple-600 hover:text-purple-500 underline" target="_blank" rel="noopener noreferrer">
                                     {children}
                                 </a>
                             ),
                             hr: () => (
-                                <hr className="border-white/20 my-8" />
+                                <hr className="border-slate-200 my-8" />
                             ),
                         }}
                     >
@@ -566,7 +566,7 @@ export default function StepPageClient({ actId, sceneId, stepId }: { actId: stri
                         onClick={handleMarkComplete}
                         disabled={isCompleted}
                         className={`px-8 py-3 rounded-xl font-semibold transition-all transform ${isCompleted
-                            ? 'bg-green-600/50 text-green-300 cursor-default'
+                            ? 'bg-green-100 text-green-600 cursor-default'
                             : 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white hover:scale-105'
                             }`}
                     >
@@ -579,13 +579,13 @@ export default function StepPageClient({ actId, sceneId, stepId }: { actId: stri
                     {prevStep ? (
                         <Link
                             href={`/curriculum/${prevStep.actId}/${prevStep.sceneId}/${prevStep.step.id}`}
-                            className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors group"
+                            className="flex items-center space-x-2 text-slate-500 hover:text-slate-800 transition-colors group"
                         >
                             <svg className="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                             </svg>
                             <div className="text-left">
-                                <div className="text-xs text-gray-500">Previous</div>
+                                <div className="text-xs text-slate-400">Previous</div>
                                 <span>{prevStep.step.title}</span>
                             </div>
                         </Link>
@@ -594,10 +594,10 @@ export default function StepPageClient({ actId, sceneId, stepId }: { actId: stri
                     {nextStep ? (
                         <Link
                             href={`/curriculum/${nextStep.actId}/${nextStep.sceneId}/${nextStep.step.id}`}
-                            className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors group"
+                            className="flex items-center space-x-2 text-slate-500 hover:text-slate-800 transition-colors group"
                         >
                             <div className="text-right">
-                                <div className="text-xs text-gray-500">Next</div>
+                                <div className="text-xs text-slate-400">Next</div>
                                 <span>{nextStep.step.title}</span>
                             </div>
                             <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
